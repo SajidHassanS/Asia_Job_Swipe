@@ -22,6 +22,7 @@ import {
 
 import { MdGridView } from "react-icons/md";
 import Image from "next/image";
+
 // Define an interface for the shape of each job object
 interface Job {
   id: number;
@@ -63,8 +64,8 @@ const JobListings: React.FC<{ jobs: Job[] }> = ({ jobs }) => {
         <p>Showing 73 results</p>
       </div>
       {jobs.map((job) => (
-        <Card className="mb-5 p-4">
-          <div className="" key={job.id}>
+        <Card key={job.id} className="mb-5 p-4">
+          <div className="">
             <div className=" bg-white  ">
               <div className="flex justify-between mb-5 md:mb-2">
                 <div className="flex items-center">
@@ -152,7 +153,6 @@ const JobListings: React.FC<{ jobs: Job[] }> = ({ jobs }) => {
           </div>
         </Card>
       ))}
-
       <PaginationComponent />
     </div>
   );

@@ -125,7 +125,7 @@ const SignUpPage = () => {
                   </div>
                   <div className="flex items-center">
                     <h1 className="text-signininput4 text-base">
-                      By clicking 'Continue', you acknowledge that you have
+                      By clicking &apos;Continue&apos;, you acknowledge that you have
                       read and accept the{" "}
                       <span className="text-blue">Terms of Service</span> and{" "}
                       <span className="text-blue">Privacy Policy</span>.
@@ -210,7 +210,7 @@ const SignUpPage = () => {
                   </div>
                   <div className="flex items-center">
                     <h1 className="text-signininput4 text-base">
-                      By clicking 'Continue', you acknowledge that you have
+                      By clicking &apos;Continue&apos;, you acknowledge that you have
                       read and accept the{" "}
                       <span className="text-blue">Terms of Service</span> and{" "}
                       <span className="text-blue">Privacy Policy</span>.
