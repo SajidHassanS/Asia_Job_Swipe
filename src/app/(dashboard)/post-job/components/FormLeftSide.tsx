@@ -22,7 +22,9 @@ interface FormData {
 
 interface FormLeftSideProps {
   formData: FormData;
-  handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
+  handleChange: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => void;
   handleMultiSelectChange: (e: React.ChangeEvent<HTMLInputElement>, field: string) => void;
 }
 

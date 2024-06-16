@@ -58,14 +58,14 @@ const PostJob: React.FC = () => {
 
   const handleMultiSelectChange = (
     e: React.ChangeEvent<HTMLInputElement>,
-    field: FormDataKey
+    field: string
   ) => {
     const { value, checked } = e.target;
     setFormData((prevData) => ({
       ...prevData,
       [field]: checked
-        ? [...(prevData[field] as string[]), value]
-        : (prevData[field] as string[]).filter((item) => item !== value),
+        ? [...(prevData[field as FormDataKey] as string[]), value]
+        : (prevData[field as FormDataKey] as string[]).filter((item) => item !== value),
     }));
   };
 

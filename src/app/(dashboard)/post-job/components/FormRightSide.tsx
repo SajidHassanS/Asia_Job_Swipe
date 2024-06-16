@@ -31,10 +31,7 @@ interface FormRightSideProps {
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >
   ) => void;
-  handleMultiSelectChange: (
-    e: React.ChangeEvent<HTMLInputElement>,
-    field: string
-  ) => void;
+  handleMultiSelectChange: (e: React.ChangeEvent<HTMLInputElement>, field: string) => void;
   handleSubmit: (e: React.FormEvent) => void;
 }
 
