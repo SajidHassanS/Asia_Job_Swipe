@@ -1,5 +1,13 @@
 import React from "react";
 
+interface StatsData {
+  icon: React.ComponentType;
+  title: string;
+  value: number | string;
+  percentage: number;
+  change: boolean;
+}
+
 const StatsCard: React.FC<StatsData> = ({
   icon: Icon,
   title,
