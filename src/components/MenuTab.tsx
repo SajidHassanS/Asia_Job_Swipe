@@ -1,6 +1,9 @@
 "use client";
 import { useCommonData } from "@/context/commonData";
 
+// Define the Tab type as a string
+type Tab = string;
+
 interface Props {
   activeTab: string;
   changeTab: (tab: Tab) => void;

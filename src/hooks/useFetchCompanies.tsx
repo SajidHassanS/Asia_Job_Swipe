@@ -3,7 +3,17 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-// changePagination is proper that takes function setPagination
+// Define the Pagination type
+type Pagination = {
+  totalPages: number;
+  currentPage: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+  nextPage: number | null;
+  previousPage: number | null;
+};
+
+// changePagination is a prop that takes a function to set the pagination
 
 const useFetchCompanies = (
   api: string,
