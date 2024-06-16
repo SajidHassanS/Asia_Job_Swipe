@@ -9,6 +9,7 @@ import { GrAttachment } from "react-icons/gr";
 import { FaSmile } from 'react-icons/fa';
 import { FaPaperPlane } from "react-icons/fa6";
 import { BiSolidRightArrow } from "react-icons/bi";
+
 const MessageList = () => {
   const [messages, setMessages] = useState([
     {
@@ -21,11 +22,11 @@ const MessageList = () => {
   ]);
 
   return (
-    <div className=" h-screen relative">
-      <div className="  ">
+    <div className="h-screen relative">
+      <div className="">
         <ul>
           {messages.map((message) => (
-            <li key={message.id} className="mb-4   flex items-center">
+            <li key={message.id} className="mb-4 flex items-center">
               <div className="flex w-full items-center justify-between">
                 <div className="flex items-center">
                   <img
@@ -37,16 +38,15 @@ const MessageList = () => {
                     <div className="flex justify-between">
                       <div className="">
                         <p className="font-semibold text-base">
-                          {message.name}{" "}
+                          {message.name}
                         </p>
-                        <p className=" text-custom-gray-blue text-base">
+                        <p className="text-custom-gray-blue text-base">
                           {message.text}
                         </p>
                       </div>
                     </div>
                   </div>
                 </div>
-
                 <div className="flex items-center gap-5">
                   <div>
                     <IoVideocamOutline size={25} />
@@ -63,20 +63,19 @@ const MessageList = () => {
       <div>
         <hr />
       </div>
-
       <div className="">
-      <div className="flex text-custom-gray-blue absolute bottom-0 w-full items-center border rounded-lg p-2">
-      <GrAttachment size={25} className="mr-2" />
-      <input
-        type="text"
-        placeholder="Reply message"
-        className="flex-grow p-2 text-custom-gray-blue border-none rounded-[20px] focus:outline-none"
-      />
-      <FaSmile size={25} className="ml-2 mr-2 text-custom-gray-blue cursor-pointer" />
-      <button className="bg-signature text-background py-2 px-4 rounded-lg">
-        <BiSolidRightArrow  size={20} />
-      </button>
-    </div>
+        <div className="flex text-custom-gray-blue absolute bottom-0 w-full items-center border rounded-lg p-2">
+          <GrAttachment size={25} className="mr-2" />
+          <input
+            type="text"
+            placeholder="Reply message"
+            className="flex-grow p-2 text-custom-gray-blue border-none rounded-[20px] focus:outline-none"
+          />
+          <FaSmile size={25} className="ml-2 mr-2 text-custom-gray-blue cursor-pointer" />
+          <button className="bg-signature text-background py-2 px-4 rounded-lg">
+            <BiSolidRightArrow size={20} />
+          </button>
+        </div>
       </div>
     </div>
   );

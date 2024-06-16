@@ -52,11 +52,12 @@ const FormRightSide: React.FC<FormRightSideProps> = ({
           value={formData.benefits}
           onChange={handleChange}
           className="w-full border rounded p-2"
+          multiple
         >
           <option value="Dental">Dental</option>
           <option value="Car">Car</option>
           <option value="Flat">Flat</option>
-          <option value="Overtimepay">Overtimepay</option>
+          <option value="Overtimepay">Overtime Pay</option>
         </select>
         <div className="flex gap-2 flex-wrap">
           {["Dental Insurance", "Gratuity", "Overtime Pay"].map((benefit) => (
@@ -70,37 +71,37 @@ const FormRightSide: React.FC<FormRightSideProps> = ({
         </div>
       </div>
 
-      <div className="mb-8  gap-4">
+      <div className="mb-8 gap-4">
         <div>
-          <Label htmlFor="salaryFrom">Salary Indication </Label>
+          <Label htmlFor="salaryFrom">Salary Indication</Label>
           <select
-            id="benefits"
-            name="benefits"
-            value={formData.benefits}
+            id="salaryFrom"
+            name="salaryFrom"
+            value={formData.salaryFrom}
             onChange={handleChange}
             className="w-full border mb-2 rounded p-2"
           >
             <option value="From">From</option>
-            <option value="Car">Car</option>
-            <option value="Flat">Flat</option>
-            <option value="Overtimepay">Overtimepay</option>
+            <option value="25000">$25,000</option>
+            <option value="50000">$50,000</option>
+            <option value="75000">$75,000</option>
           </select>
           <select
-            id="benefits"
-            name="benefits"
-            value={formData.benefits}
+            id="salaryTo"
+            name="salaryTo"
+            value={formData.salaryTo}
             onChange={handleChange}
             className="w-full border rounded p-2"
           >
             <option value="To">To</option>
-            <option value="Car">Car</option>
-            <option value="Flat">Flat</option>
-            <option value="Overtimepay">Overtimepay</option>
+            <option value="50000">$50,000</option>
+            <option value="75000">$75,000</option>
+            <option value="100000">$100,000</option>
           </select>
         </div>
       </div>
 
-      <div className="mb-8 ">
+      <div className="mb-8">
         <Label>Level of Urgency</Label>
         <div className="flex border justify-around items-center p-2 bg-background gap-2">
           {["High", "Medium", "Low"].map((level) => (
@@ -118,7 +119,7 @@ const FormRightSide: React.FC<FormRightSideProps> = ({
           ))}
         </div>
       </div>
-      
+
       <div className="mb-8">
         <Label>Career Level</Label>
         <div className="flex border justify-around items-center p-2 bg-background gap-2">
@@ -187,7 +188,7 @@ const FormRightSide: React.FC<FormRightSideProps> = ({
         <Label htmlFor="workPermitNeeded">Work Permit Needed</Label>
       </div>
 
-      <div className=" ">
+      <div>
         <Button
           type="submit"
           className="w-full bg-signature text-white py-3"
