@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -43,7 +45,7 @@ const FormRightSide: React.FC<FormRightSideProps> = ({
   handleSubmit,
 }) => {
   return (
-    <div>
+    <form onSubmit={handleSubmit}>
       <div className="mb-8">
         <Label htmlFor="benefits">Benefits (Optional)</Label>
         <select
@@ -70,13 +72,13 @@ const FormRightSide: React.FC<FormRightSideProps> = ({
         </div>
       </div>
 
-      <div className="mb-8  gap-4">
+      <div className="mb-8 gap-4">
         <div>
-          <Label htmlFor="salaryFrom">Salary Indication </Label>
+          <Label htmlFor="salaryFrom">Salary Indication</Label>
           <select
-            id="benefits"
-            name="benefits"
-            value={formData.benefits}
+            id="salaryFrom"
+            name="salaryFrom"
+            value={formData.salaryFrom}
             onChange={handleChange}
             className="w-full border mb-2 rounded p-2"
           >
@@ -86,9 +88,9 @@ const FormRightSide: React.FC<FormRightSideProps> = ({
             <option value="Overtimepay">Overtimepay</option>
           </select>
           <select
-            id="benefits"
-            name="benefits"
-            value={formData.benefits}
+            id="salaryTo"
+            name="salaryTo"
+            value={formData.salaryTo}
             onChange={handleChange}
             className="w-full border rounded p-2"
           >
@@ -100,7 +102,7 @@ const FormRightSide: React.FC<FormRightSideProps> = ({
         </div>
       </div>
 
-      <div className="mb-8 ">
+      <div className="mb-8">
         <Label>Level of Urgency</Label>
         <div className="flex border justify-around items-center p-2 bg-background gap-2">
           {["High", "Medium", "Low"].map((level) => (
@@ -118,7 +120,7 @@ const FormRightSide: React.FC<FormRightSideProps> = ({
           ))}
         </div>
       </div>
-      
+
       <div className="mb-8">
         <Label>Career Level</Label>
         <div className="flex border justify-around items-center p-2 bg-background gap-2">
@@ -181,7 +183,7 @@ const FormRightSide: React.FC<FormRightSideProps> = ({
           id="workPermitNeeded"
           name="workPermitNeeded"
           checked={formData.workPermitNeeded}
-          onChange={handleChange}
+          onChange={(e) => handleChange(e as React.ChangeEvent<HTMLInputElement>)}
           className="mr-2"
         />
         <Label htmlFor="workPermitNeeded">Work Permit Needed</Label>
@@ -191,12 +193,11 @@ const FormRightSide: React.FC<FormRightSideProps> = ({
         <Button
           type="submit"
           className="w-full bg-signature text-white py-3"
-          onClick={handleSubmit}
         >
           Post a Job
         </Button>
       </div>
-    </div>
+    </form>
   );
 };
 
