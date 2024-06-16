@@ -9,6 +9,6 @@ const page: React.FC = () => {
     <Home/>
     </DashboardLayout>  
   )
-}
+}   
 
 export default page
