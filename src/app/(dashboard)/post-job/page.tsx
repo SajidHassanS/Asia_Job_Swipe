@@ -21,6 +21,8 @@ interface FormData {
   workPermitNeeded: boolean;
 }
 
+type FormDataKey = keyof FormData;
+
 const PostJob: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({
     jobTitle: "",
@@ -45,24 +47,25 @@ const PostJob: React.FC = () => {
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >
   ) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value, type } = e.target;
     if (type === "checkbox") {
-      setFormData({ ...formData, [name]: checked });
+      const checked = (e.target as HTMLInputElement).checked;
+      setFormData({ ...formData, [name]: checked } as FormData);
     } else {
-      setFormData({ ...formData, [name]: value });
+      setFormData({ ...formData, [name]: value } as FormData);
     }
   };
 
   const handleMultiSelectChange = (
     e: React.ChangeEvent<HTMLInputElement>,
-    field: string
+    field: FormDataKey
   ) => {
     const { value, checked } = e.target;
     setFormData((prevData) => ({
       ...prevData,
       [field]: checked
-        ? [...prevData[field], value]
-        : prevData[field].filter((item) => item !== value),
+        ? [...(prevData[field] as string[]), value]
+        : (prevData[field] as string[]).filter((item) => item !== value),
     }));
   };
 
