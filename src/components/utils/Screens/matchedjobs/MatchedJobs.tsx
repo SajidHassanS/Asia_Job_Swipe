@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import Sidebar from './Sidebar';
+// import Sidebar from './Sidebar';
 import JobListings from './JobListings';
 
 
@@ -77,7 +77,7 @@ const MatchedJobs = () => {
 <div className='md:container md:my-16 my-4'>
       <div className="md:flex gap-5 ">
        
-        <Sidebar />
+        {/* <Sidebar /> */}
        
     
         
