@@ -32,7 +32,7 @@ const Sidebar = () => {
                 path
               )} flex items-center gap-2 font-bold text-sm p-4 transition-colors cursor-pointer rounded-lg`}
             >
-              <Icon size={20} />
+              <Icon  />
               <p>{name}</p>
             </Link>
           ))}
@@ -41,7 +41,7 @@ const Sidebar = () => {
 
           <Link href="/post-job">
             <Button variant="outline" className="flex gap-5 justify-start w-full rounded-xl text-white py-7 bg-darkGrey">
-              <FaPlus /> Post a New Job
+              <FaPlus style={{ fontSize: 20 }} /> Post a New Job
             </Button>
           </Link>
 
@@ -51,7 +51,7 @@ const Sidebar = () => {
               href="/settings"
               className="flex items-center gap-2 font-bold text-sm p-4 transition-colors cursor-pointer rounded-lg"
             >
-              <IoSettingsOutline size={20} />
+              <IoSettingsOutline style={{ fontSize: 20 }} />
               <p>Setting</p>
             </Link>
           </div>
