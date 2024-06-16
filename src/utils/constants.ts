@@ -30,9 +30,9 @@ type StatsData = {
 
 // pages are dashboard, all-jobs, all companies, promotions, settings
 export const menu: Menu[] = [
-  {
+  {  
     name: "Home",
-    path: "/company-panel",
+    path: "/company-admin-panel",
     icon: MdDashboard,
   },
   {
