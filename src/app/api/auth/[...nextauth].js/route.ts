@@ -2,9 +2,9 @@
 
 import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
-import { NextApiHandler } from 'next';
+import { NextRequest, NextResponse } from 'next/server';
 
-const authHandler: NextApiHandler = (req, res) => NextAuth(req, res, {
+const authOptions = {
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || 'default-client-id',
@@ -16,8 +16,15 @@ const authHandler: NextApiHandler = (req, res) => NextAuth(req, res, {
     signOut: '/auth/signout',
     error: '/auth/error',
     verifyRequest: '/auth/verify-request',
-
   },
-});
+};
 
-export { authHandler as GET, authHandler as POST };
+const handler = NextAuth(authOptions);
+
+export async function GET(req: NextRequest) {
+  return handler(req, new NextResponse());
+}
+
+export async function POST(req: NextRequest) {
+  return handler(req, new NextResponse());
+}
