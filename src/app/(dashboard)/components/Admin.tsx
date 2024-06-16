@@ -27,6 +27,7 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { useRouter } from "next/navigation";
+
 const Admin = () => {
   const admin = {
     email: "admin@admin.com",
@@ -54,8 +55,8 @@ const Admin = () => {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
-              variant="simple"
-              size={"none"}
+              variant="ghost" // Changed from "simple" to "ghost"
+            
               className="border-none outline-none"
             >
               <IoIosArrowDown />
