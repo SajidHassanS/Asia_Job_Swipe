@@ -1,20 +1,20 @@
-"use client";
-import { baseUrl } from "@/utils/constants";
-import axios from "axios";
-import { useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+// "use client";
+// import { baseUrl } from "@/utils/constants";
+// import axios from "axios";
+// import { useSearchParams } from "next/navigation";
+// import { useEffect } from "react";
 
-const Google = () => {
-  const params = useSearchParams();
-  const role = params.get("role");
+// const Google = () => {
+//   const params = useSearchParams();
+//   const role = params.get("role");
 
-  console.log(role);
+//   console.log(role);
 
-  useEffect(() => {
-    // const res = await axios.get(`${baseUrl}/api/v1/auth/google?role=${role}`);
-  }, []);
+//   useEffect(() => {
+//     // const res = await axios.get(`${baseUrl}/api/v1/auth/google?role=${role}`);
+//   }, []);
 
-  return <div></div>;
-};
+//   return <div></div>;
+// };
 
-export default Google;
+// export default Google;
