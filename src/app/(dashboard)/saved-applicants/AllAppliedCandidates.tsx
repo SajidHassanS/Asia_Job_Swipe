@@ -32,9 +32,17 @@ import { Button } from "@/components/ui/button";
 import { BiMessageRoundedDetail } from "react-icons/bi";
 import { BsBookmarkDash } from "react-icons/bs";
 import { RiDeleteBin5Line } from "react-icons/ri";
-import { Checkbox } from "@/components/ui/checkbox"
+import { Checkbox } from "@/components/ui/checkbox";
 
-
+// Define the Pagination interface
+interface Pagination {
+  totalPages: number;
+  currentPage: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+  nextPage: number | null;
+  previousPage: number | null;
+}
 
 const AllCompaniesData = () => {
   const [page, setPage] = useState<number>(1);
@@ -57,15 +65,13 @@ const AllCompaniesData = () => {
       matched: "30% matched",
       sector: "Software Development",
       experience: "3 Years Experience",
-     
     },
-      {
+    {
       picture: "/images/avatar.png", // Replace with the actual path to the logo
       name: "Starbucks",
       matched: "30% matched",
       sector: "Software Development",
       experience: "3 Years Experience",
-    
     },
     // Add more entries based on the image data
     {
@@ -74,7 +80,6 @@ const AllCompaniesData = () => {
       matched: "30% matched",
       sector: "Software Development",
       experience: "3 Years Experience",
-    
     },
     {
       picture: "/images/avatar.png",
@@ -82,7 +87,6 @@ const AllCompaniesData = () => {
       matched: "30% matched",
       sector: "Software Development",
       experience: "3 Years Experience",
-    
     },
     {
       picture: "/images/avatar.png",
@@ -90,7 +94,6 @@ const AllCompaniesData = () => {
       matched: "30% matched",
       sector: "Software Development",
       experience: "3 Years Experience",
-
     },
     {
       picture: "/images/avatar.png",
@@ -98,7 +101,6 @@ const AllCompaniesData = () => {
       matched: "30% matched",
       sector: "Software Development",
       experience: "3 Years Experience",
-    
     },
     {
       picture: "/images/avatar.png",
@@ -106,7 +108,6 @@ const AllCompaniesData = () => {
       matched: "30% matched",
       sector: "Software Development",
       experience: "3 Years Experience",
-      
     },
     {
       picture: "/images/avatar.png",
@@ -114,7 +115,6 @@ const AllCompaniesData = () => {
       matched: "30% matched",
       sector: "Software Development",
       experience: "3 Years Experience",
-      
     },
     {
       picture: "/images/avatar.png",
@@ -122,7 +122,6 @@ const AllCompaniesData = () => {
       matched: "30% matched",
       sector: "Software Development",
       experience: "3 Years Experience",
-      
     },
     {
       picture: "/images/avatar.png",
@@ -130,7 +129,6 @@ const AllCompaniesData = () => {
       matched: "30% matched",
       sector: "Software Development",
       experience: "3 Years Experience",
-      
     },
     {
       picture: "/images/avatar.png",
@@ -138,7 +136,6 @@ const AllCompaniesData = () => {
       matched: "30% matched",
       sector: "Software Development",
       experience: "3 Years Experience",
-      
     },
   ];
 
@@ -157,36 +154,27 @@ const AllCompaniesData = () => {
 
   const renderCompanyRow = (company: (typeof companies)[0]) => (
     <>
-    <TableCell> <div className="flex items-center space-x-2">
-      <Checkbox id="terms" />
-      
-       
-    </div></TableCell>
-      <TableCell className="flex gap-5 items-center">
-        <Image
-          src={company.picture}
-          alt={company.name}
-          width={40}
-          height={40}
-        /> {company.name}
+      <TableCell>
+        <div className="flex items-center space-x-2">
+          <Checkbox id="terms" />
+        </div>
       </TableCell>
-     
-      <TableCell > <div className="border rounded-full py-3 flex justify-center text-blue border-blue">{company.matched}</div></TableCell>
+      <TableCell className="flex gap-5 items-center">
+        <Image src={company.picture} alt={company.name} width={40} height={40} /> {company.name}
+      </TableCell>
+
+      <TableCell>
+        <div className="border rounded-full py-3 flex justify-center text-blue border-blue">
+          {company.matched}
+        </div>
+      </TableCell>
       <TableCell>{company.sector}</TableCell>
-      <TableCell>{company.experience}</TableCell>     
+      <TableCell>{company.experience}</TableCell>
       <TableCell className="flex items-center gap-6">
-        
-        
-      <Link
-          href={"#"}
-          className="text-threeicons bg-lightPink p-3 rounded-xl hover:text-blue/80 transition-colors"
-        >
+        <Link href={"#"} className="text-threeicons bg-lightPink p-3 rounded-xl hover:text-blue/80 transition-colors">
           <BiMessageRoundedDetail size={20} />
         </Link>
-        <Link
-          href={"#"}
-          className="text-threeicons bg-lightPink p-3 rounded-xl hover:text-blue/80 transition-colors"
-        >
+        <Link href={"#"} className="text-threeicons bg-lightPink p-3 rounded-xl hover:text-blue/80 transition-colors">
           <BsBookmarkDash size={20} />
         </Link>
         <Dialog>
@@ -219,23 +207,14 @@ const AllCompaniesData = () => {
   return (
     <div>
       <main className="my-4 px-4 flex-1">
-
         <div className="pb-3">
           <h1 className="text-2xl font-bold pb-3">All Saved Candidates</h1>
           <p>Showing 73 People</p>
         </div>
-        <DataTable
-          headers={headers}
-          data={companies}
-          renderRow={renderCompanyRow}
-        />
+        <DataTable headers={headers} data={companies} renderRow={renderCompanyRow} />
       </main>
-      
-      <PaginationComponent
-        page={page}
-        pagination={pagination}
-        changePage={setPage}
-      />
+
+      <PaginationComponent page={page} pagination={pagination} changePage={setPage} />
     </div>
   );
 };
