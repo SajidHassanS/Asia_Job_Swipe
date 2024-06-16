@@ -21,7 +21,7 @@ export function ThemeBtn() {
       <DropdownMenuTrigger asChild>
         <Button
           variant="default"
-          size="none"
+        
           className="border-none rounded-full"
         >
           <MdSunny className="h-[1.4rem] w-[1.4rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
