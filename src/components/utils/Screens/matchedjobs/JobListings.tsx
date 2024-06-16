@@ -94,7 +94,7 @@ const JobListings: React.FC<{ jobs: Job[] }> = ({ jobs }) => {
             <div className="flex justify-between">
               <div className="flex flex-wrap gap-3 md:ml-20 items-center mt-2">
                 {/* Render buttons for different categories */}
-                <Button asChild className="rounded-[30px]" size={"custom"}>
+                <Button asChild className="rounded-[30px]">
                   <Link
                     className="bg-sky-300 text-blue text-sm md:px-4 md:py-2"
                     href="/signin"
@@ -103,7 +103,7 @@ const JobListings: React.FC<{ jobs: Job[] }> = ({ jobs }) => {
                   </Link>
                 </Button>
                 <div className="hidden md:block h-5 border border-lightgrey"></div>
-                <Button asChild className="rounded-[30px]" size={"custom"}>
+                <Button asChild className="rounded-[30px]">
                   <Link
                     className="border border-darkGrey text-darkGrey text-sm px-4 py-2"
                     href="/signin"
@@ -111,7 +111,7 @@ const JobListings: React.FC<{ jobs: Job[] }> = ({ jobs }) => {
                     Marketing
                   </Link>
                 </Button>
-                <Button asChild className="rounded-[30px]" size={"custom"}>
+                <Button asChild className="rounded-[30px]" >
                   <Link
                     className="border border-darkGrey text-darkGrey text-sm px-4 py-2"
                     href="/signin"
@@ -125,7 +125,7 @@ const JobListings: React.FC<{ jobs: Job[] }> = ({ jobs }) => {
               </div>
 
               <div className="flex flex-col mt-2">
-                <Button asChild size={"custom"}>
+                <Button asChild >
                   <Link
                     className="bg-blue text-white text-sm px-4 py-2 rounded-md"
                     href="/signin"
@@ -133,7 +133,7 @@ const JobListings: React.FC<{ jobs: Job[] }> = ({ jobs }) => {
                     Apply
                   </Link>
                 </Button>
-                <Button asChild size={"custom"}>
+                <Button asChild >
                   <Link
                     className="text-red-500 text-sm px-4 py-2 rounded-md"
                     href="/signin"

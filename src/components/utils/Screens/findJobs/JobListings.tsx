@@ -10,7 +10,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-
+  
 import {
   Card,
   CardContent,
@@ -115,7 +115,7 @@ const JobListings: React.FC<{ jobs: Job[] }> = ({ jobs }) => {
                 <div className="flex flex-wrap gap-3 md:ml-20  items-center mt-2">
                   {/* Render buttons for different categories */}
                   {job.tags.map(tag => (
-                    <Button asChild className="rounded-[30px] " size={"custom"} key={tag}>
+                    <Button asChild className="rounded-[30px] "  key={tag}>
                       <Link
                         className="bg-sky-300 text-blue text-sm md:px-4 md:py-2"
                         href="/signin"
@@ -126,7 +126,7 @@ const JobListings: React.FC<{ jobs: Job[] }> = ({ jobs }) => {
                   ))}
                   <div className="hidden md:block h-5 border border-lightgrey"></div>
                   {job.categories?.map(category => (
-                    <Button asChild className="rounded-[30px]" size={"custom"} key={category}>
+                    <Button asChild className="rounded-[30px]"  key={category}>
                       <Link
                         className="border border-darkGrey text-darkGrey text-sm px-4 py-2"
                         href="/signin"
@@ -158,7 +158,7 @@ const JobListings: React.FC<{ jobs: Job[] }> = ({ jobs }) => {
                         <p className="text-signininput4">Click on button to complete your profile.</p>
                       </DialogDescription>
                       <div className="px-16 pb-10">
-                        <Button className="w-full px-24 py-6" asChild size={"custom"}>
+                        <Button className="w-full px-24 py-6" asChild >
                           <Link
                             className="bg-blue text-white text-sm  rounded-md"
                             href="/myprofile"
@@ -169,7 +169,7 @@ const JobListings: React.FC<{ jobs: Job[] }> = ({ jobs }) => {
                       </div>
                     </DialogContent>
                   </Dialog>
-                  <Button asChild size={"custom"}>
+                  <Button asChild >
                     <Link
                       className="text-red-500 text-sm px-4 py-2 rounded-md"
                       href="/signin"
