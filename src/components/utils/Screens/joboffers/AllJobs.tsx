@@ -83,11 +83,11 @@ const AllJobs: React.FC = () => {
   const filteredJobs = jobs.filter(job =>
     selectedFilters.length === 0 || selectedFilters.some(filter => job.tags.includes(filter))
   );
-
+    
   return (
     <div className='md:container md:my-16 my-4'>
       <div className="md:flex gap-5 ">
-        <Sidebar onCheckboxChange={handleCheckboxChange} />
+        {/* <Sidebar onCheckboxChange={handleCheckboxChange} /> */}
         <JobListings jobs={filteredJobs} />
       </div>
     </div>

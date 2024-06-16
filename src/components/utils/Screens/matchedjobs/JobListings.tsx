@@ -33,7 +33,7 @@ interface Job {
 }
 
 // Specify the type of the jobs parameter using the Job interface
-const JobListings: React.FC<{ jobs: Job[], pagination: Pagination, page: number, changePage: (page: number) => void }> = ({ jobs, pagination, page, changePage }) => {
+const JobListings: React.FC<{ jobs: Job[] }> = ({ jobs }) => {
   return (
     <div className="md:w-3/4 p-4">
       <div className="flex justify-between items-center mb-2">
@@ -146,8 +146,8 @@ const JobListings: React.FC<{ jobs: Job[], pagination: Pagination, page: number,
           </div>
         </Card>
       ))}
-     
-      <PaginationComponent pagination={pagination} page={page} changePage={changePage} />
+
+      <PaginationComponent />
     </div>
   );
 };
