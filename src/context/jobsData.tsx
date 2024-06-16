@@ -1,5 +1,9 @@
 "use client";
 import { createContext, useContext, useState, ReactNode } from "react";
+
+// Define the Tab type
+type Tab = string;
+
 interface Pagination {
   totalPages: number;
   currentPage: number;
@@ -8,6 +12,7 @@ interface Pagination {
   nextPage: number | null;
   previousPage: number | null;
 }
+
 interface JobsDataContextType {
   activeTab: string;
   changeTab: (tab: Tab) => void;

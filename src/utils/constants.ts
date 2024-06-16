@@ -11,6 +11,23 @@ import { IoBagCheck } from "react-icons/io5";
 import { AiOutlineMessage } from "react-icons/ai";
 import { FaUsers } from "react-icons/fa";
 import { TbBuildingSkyscraper } from "react-icons/tb";
+
+// Define the Menu type
+type Menu = {
+  name: string;
+  path: string;
+  icon: React.ComponentType;
+};
+
+// Define the StatsData type
+type StatsData = {
+  icon: React.ComponentType;
+  title: string;
+  value: string;
+  percentage: number;
+  change: boolean;
+};
+
 // pages are dashboard, all-jobs, all companies, promotions, settings
 export const menu: Menu[] = [
   {
@@ -21,36 +38,33 @@ export const menu: Menu[] = [
   {
     name: "Matched Applicants",
     path: "/matched-applicants",
-    icon: PiPuzzlePiece ,
+    icon: PiPuzzlePiece,
   },
   {
     name: "Job Listings",
     path: "/job-listings",
-    icon: LuClipboardList ,
+    icon: LuClipboardList,
   },
   {
     name: "Applied Applicants",
     path: "/applied-applicants",
-    icon: IoBagCheck ,
+    icon: IoBagCheck,
   },
   {
     name: "Message",
     path: "/messages",
-    icon: AiOutlineMessage ,
+    icon: AiOutlineMessage,
   },
-
   {
     name: "Saved Applicants",
     path: "/saved-applicants",
-    icon: FaUsers ,
+    icon: FaUsers,
   },
-
   {
     name: "Company Profile",
     path: "/company-profile",
-    icon: TbBuildingSkyscraper ,
+    icon: TbBuildingSkyscraper,
   },
-
 ];
 
 export const statsData: StatsData[] = [
