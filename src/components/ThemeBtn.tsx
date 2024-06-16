@@ -20,7 +20,7 @@ export function ThemeBtn() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
-          variant="simple"
+          variant="default"
           size="none"
           className="border-none rounded-full"
         >
@@ -33,10 +33,10 @@ export function ThemeBtn() {
         <DropdownMenuItem onClick={() => setTheme("light")}>
           Light
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("light")}>
+        <DropdownMenuItem onClick={() => setTheme("dark")}>
           Dark
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("light")}>
+        <DropdownMenuItem onClick={() => setTheme("system")}>
           System
         </DropdownMenuItem>
       </DropdownMenuContent>
