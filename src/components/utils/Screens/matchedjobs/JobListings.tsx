@@ -146,7 +146,7 @@ const JobListings: React.FC<{ jobs: Job[] }> = ({ jobs }) => {
           </div>
         </Card>
       ))}
-
+     
       <PaginationComponent />
     </div>
   );
