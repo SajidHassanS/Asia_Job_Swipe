@@ -43,10 +43,13 @@
 // }
 
 import React from 'react'
+import Home from '../company-admin-panel/page'
 
 const page = () => {
   return (
-    <div>dashboard</div>
+    <>
+    <Home/>
+    </>
   )
 }
 

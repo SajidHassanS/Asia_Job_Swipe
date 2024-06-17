@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { ThemeBtn } from "../../../components/ThemeBtn";
+import { ThemeBtn } from "../../components/ThemeBtn";
 import Admin from "./Admin";
 import { PiChatCircleText } from "react-icons/pi";
 import Link from "next/link";

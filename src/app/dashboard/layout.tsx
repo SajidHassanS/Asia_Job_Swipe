@@ -1,11 +1,8 @@
-import Navbar from "@/app/(dashboard)/components/Navbar";
-import Sidebar from "@/app/(dashboard)/components/Sidebar";
-import { Metadata } from "next";
+import Navbar from "@/app/components/Navbar";
+import Sidebar from "@/app/components/Sidebar";
+
 import '../globals.css';
-export const metadata: Metadata = {
-  title: "Dashboard",
-  description: "Asia JobsSwipe Admin Panel Dashboard",
-};
+
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   return (

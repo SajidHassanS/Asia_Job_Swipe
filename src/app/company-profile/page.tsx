@@ -8,7 +8,7 @@ import AboutMe from "./components/Description";
 import Projects from "./components/CompanyImages";
 import Skills from "./components/Skills";
 import SocialLinks from "./components/SocialLinks";
-
+import DashboardLayout from "../dashboard/layout";
 import { Metadata } from "next";
 // import AllAppliedCandidates from "./AllAppliedCandidates";
 import Title from "@/components/Title";
@@ -29,7 +29,8 @@ const Profile = () => {
   }, []);
   return (
     <>
-      <Title
+    <DashboardLayout>
+    <Title
         title="Company Profile"
         className="w-full min-h-screen flex flex-col bg-background p-4"
       >
@@ -66,6 +67,8 @@ const Profile = () => {
           </div>
         </div>
       </Title>
+    </DashboardLayout>
+    
     </>
   );
 };

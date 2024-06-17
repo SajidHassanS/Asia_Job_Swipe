@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import FormLeftSide from "./components/FormLeftSide";
 import FormRightSide from "./components/FormRightSide";
+import DashboardLayout from "../dashboard/layout";
 
 interface FormData {
   jobTitle: string;
@@ -76,7 +77,8 @@ const PostJob: React.FC = () => {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto p-8 rounded-lg">
+    <DashboardLayout>
+       <div className="w-full max-w-7xl mx-auto p-8 rounded-lg">
       <h2 className="text-3xl font-bold text-center mb-10">Post a New Job</h2>
       <form onSubmit={handleSubmit} className="flex flex-wrap -mx-4">
         <div className="w-full md:w-1/2 px-4 mb-4">
@@ -96,6 +98,8 @@ const PostJob: React.FC = () => {
         </div>
       </form>
     </div>
+    </DashboardLayout>
+   
   );
 };
 
