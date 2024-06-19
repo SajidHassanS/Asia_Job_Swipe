@@ -1,3 +1,4 @@
+"use client"
 import React from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -6,11 +7,10 @@ import { IoCheckmarkDoneSharp } from "react-icons/io5";
 import PaginationComponent from "./Pagination";
 import {
   Accordion,
-  AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-
+  
 import {
   Card,
   CardContent,
@@ -22,6 +22,18 @@ import {
 
 import { MdGridView } from "react-icons/md";
 import Image from "next/image";
+
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 // Define an interface for the shape of each job object
 interface Job {
@@ -38,10 +50,12 @@ interface Job {
 // Specify the type of the jobs parameter using the Job interface
 const JobListings: React.FC<{ jobs: Job[] }> = ({ jobs }) => {
   return (
-    <div className="md:w-full p-4">
+    <div className="md:w-3/4 p-4">
       <div className="flex justify-between items-center mb-2">
         <div className="">
-          <h2 className="lg:text-3xl md:text-2xl text-xl font-bold ">All Jobs</h2>
+          <h2 className="lg:text-3xl md:text-2xl text-xl font-bold ">
+            All Jobs
+          </h2>
         </div>
         <div className="flex  items-center  gap-3">
           <div>
@@ -61,7 +75,7 @@ const JobListings: React.FC<{ jobs: Job[] }> = ({ jobs }) => {
         </div>
       </div>
       <div className="md:mb-10">
-        <p>Showing 73 results</p>
+        <p>Showing {jobs.length} results</p>
       </div>
       {jobs.map((job) => (
         <Card key={job.id} className="mb-5 p-4">
@@ -100,52 +114,65 @@ const JobListings: React.FC<{ jobs: Job[] }> = ({ jobs }) => {
               <div className="flex justify-between">
                 <div className="flex flex-wrap gap-3 md:ml-20  items-center mt-2">
                   {/* Render buttons for different categories */}
-                  <Button asChild className="rounded-[30px] " >
-                    <Link
-                      className="bg-sky-300 text-blue text-sm md:px-4 md:py-2"
-                      href="/signin"
-                    >
-                      Full-Time
-                    </Link>
-                  </Button>
+                  {job.tags.map(tag => (
+                    <Button asChild className="rounded-[30px] "  key={tag}>
+                      <Link
+                        className="bg-sky-300 text-blue text-sm md:px-4 md:py-2"
+                        href="/signin"
+                      >
+                        {tag}
+                      </Link>
+                    </Button>
+                  ))}
                   <div className="hidden md:block h-5 border border-lightgrey"></div>
-                  <Button asChild className="rounded-[30px]" >
-                    <Link
-                      className="border border-darkGrey text-darkGrey text-sm px-4 py-2"
-                      href="/signin"
-                    >
-                      Marketing
-                    </Link>
-                  </Button>
-                  <Button asChild className="rounded-[30px]" >
-                    <Link
-                      className="border border-darkGrey text-darkGrey text-sm px-4 py-2"
-                      href="/signin"
-                    >
-                      Design
-                    </Link>
-                  </Button>
+                  {job.categories?.map(category => (
+                    <Button variant={"outline"} asChild className="rounded-[30px]"  key={category}>
+                      <Link
+                        className="border border-darkGrey text-darkGrey text-sm px-4 py-2"
+                        href="/signin"
+                      >
+                        {category}
+                      </Link>
+                    </Button>
+                  ))}
                   <div className="md:block hidden">
                     <BsBookmarkDash className="text-blue " size={30} />
                   </div>
                 </div>
 
                 <div className="flex flex-col mt-2">
-                  <Button asChild >
-                    <Link
-                      className="bg-blue text-white text-sm px-4 py-2 rounded-md"
-                      href="/signin"
-                    >
-                      Apply
-                    </Link>
-                  </Button>
-                  <Button asChild >
-                    <Link
-                      className="text-red-500 text-sm px-4 py-2 rounded-md"
-                      href="/signin"
-                    >
-                      Decline
-                    </Link>
+                  <Dialog>
+                    <DialogTrigger>
+                      <Button
+                        className="bg-signature text-background text-sm px-8 py-2 rounded-md"
+                      >
+                        Apply
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="bg-white ">
+                      <DialogHeader className="bg-blue px-16 py-5 flex text-center ">
+                        <DialogTitle className="text-white text-3xl">Your Profile Is Incomplete</DialogTitle>
+                      </DialogHeader>
+                      <DialogDescription className="px-16 ">
+                        <h1 className="modaltext text-2xl">Complete your Profile to Apply for job!</h1>
+                        <p className="text-signininput4">Click on button to complete your profile.</p>
+                      </DialogDescription>
+                      <div className="px-16 pb-10">
+                        <Button className="w-full px-24 py-6" asChild >
+                          <Link
+                            className="bg-blue text-white text-sm  rounded-md"
+                            href="/myprofile"
+                          >
+                            Go to My Profile
+                          </Link>
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                  <Button variant="ghost" className="text-red-500 text-sm px-4 py-2 rounded-md"  >
+                   
+                      Declined
+               
                   </Button>
                 </div>
               </div>
@@ -153,6 +180,7 @@ const JobListings: React.FC<{ jobs: Job[] }> = ({ jobs }) => {
           </div>
         </Card>
       ))}
+
       <PaginationComponent />
     </div>
   );

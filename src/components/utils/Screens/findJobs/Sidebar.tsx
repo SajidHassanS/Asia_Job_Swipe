@@ -13,7 +13,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCheckboxChange, selectedFilters }) 
   return (
     <>
       <div className="md:w-1/4 md:block hidden">
-        <div className="bg-lightPink rounded-xl p-4">
+        <div className="bg-mutedLight rounded-xl p-4">
           <Accordion type="single" collapsible className="w-full">
             <AccordionItem value="item-1">
               <AccordionTrigger className="text-base">Job Type</AccordionTrigger>

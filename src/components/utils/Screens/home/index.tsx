@@ -9,9 +9,9 @@ import withProtectedRoutes from '@/components/HOC/ProtectedRoutes';
 import withAuthenticatedRoutes from '@/components/HOC/AuthenticatedRoutes';
 const Home = () => {
   return (
-    <>
+    <>  
 
-    <div className='bg-lightPink'>
+    <div className=' bg-muted'>
     <Header/>
     </div>
     <CompaniesGrow/>

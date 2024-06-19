@@ -35,7 +35,7 @@ const SignUpPage = () => {
     if (role === 'jobseeker') {
       response = await dispatch(registerJobSeeker({ email, password, firstName, lastName, otp, role: 'jobSeeker' }));
     } else if (role === 'company') {
-      response = await dispatch(registerCompanyRole({ email, password, firstName, lastName, role: 'company' }));
+      response = await dispatch(registerCompanyRole({ email, password, firstName, lastName,otp, role: 'company' }));
     }
 
     if (response && response.meta.requestStatus === 'fulfilled') {

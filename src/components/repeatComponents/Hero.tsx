@@ -23,7 +23,7 @@ interface HeroProps {
 const Hero: React.FC<HeroProps> = ({
   title,
   subtitle,
-  suggestionText = 'Suggestion: Designer, Programming, Digital Marketing, Video, Animation',
+  suggestionText = 'Designer, Programming, Digital Marketing, Video, Animation',
   showSuggestions = true,
   backgroundImage,
   titleClassName = 'text-3xl md:text-7xl md:pt-8 text-center font-bold text-darkGrey',
@@ -75,6 +75,8 @@ const Hero: React.FC<HeroProps> = ({
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
+  const suggestions = suggestionText.split(',').map((suggestion) => suggestion.trim());
 
   return (
     <div className="md:max-w-4xl md:mx-auto mx-5">
@@ -152,8 +154,14 @@ const Hero: React.FC<HeroProps> = ({
           </div>
         )}
         {showSuggestions && (
-          <div className="max-w-4xl flex md:justify-start text-center mt-4">
-            <p>{suggestionText}</p>
+          <div className="max-w-4xl flex md:justify-start text-center mt-4 flex-wrap">
+            <span className="font-bold mr-2">Suggestion:</span>
+            {suggestions.map((suggestion, index) => (
+              <span key={index} className="mr-2">
+                {suggestion}
+                {index < suggestions.length - 1 && ','}
+              </span>
+            ))}
           </div>
         )}
       </div>

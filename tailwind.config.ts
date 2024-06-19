@@ -27,6 +27,7 @@ const config: Config = {
         signature: "hsl(var(--signature))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        mutedLight: "hsl(var(--muted-light))",
         primary: {
           // DEFAULT: "hsl(var(--primary))",
           DEFAULT: "#0772FF",

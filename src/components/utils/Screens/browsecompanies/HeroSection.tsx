@@ -8,7 +8,7 @@ const HeroSection: React.FC = () => {
     <>
       <HeroComponent
         title="Search Companies"
-        suggestionText="Suggestion: Designer, Programming, Digital Marketing, Video, Animation"
+        // suggestionText="Suggestion: Designer, Programming, Digital Marketing, Video, Animation"
         
         showSuggestions={true}
         backgroundImage="url-to-image"
