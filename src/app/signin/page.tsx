@@ -29,13 +29,7 @@ const SignInPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const router = useRouter();
-  
-  // useEffect(() => {
-  //   if (auth.user) {
-  //     router.push('/');
-  //   }
-  // }, [auth.user, router]);
-
+   
   const handleSignIn = async () => {
     const response = await dispatch(signIn({ email, password, userType }));
     if (response.meta.requestStatus === 'fulfilled') {
@@ -49,12 +43,12 @@ const SignInPage = () => {
       </div>
       <div className="md:w-1/2 w-full flex items-center justify-center min-h-screen py-8">
         <div className="w-[550px]">
-          <Tabs defaultValue="jobseeker" className="w-full" onValueChange={setUserType}>
+          <Tabs defaultValue="jobSeeker" className="w-full" onValueChange={setUserType}>
             <TabsList className="flex justify-center w-full mb-4">
-              <TabsTrigger value="jobseeker" className="w-1/3">Job Seeker</TabsTrigger>
+              <TabsTrigger value="jobSeeker" className="w-1/3">Job Seeker</TabsTrigger>
               <TabsTrigger value="employer" className="w-1/3">Employer</TabsTrigger>
             </TabsList>
-            <TabsContent value="jobseeker">
+            <TabsContent value="jobSeeker">
               <Card className="border-none shadow-none">
                 <CardHeader>
                   <CardTitle className="flex mb-5 justify-center text-darkGrey md:text-3xl">
@@ -68,7 +62,7 @@ const SignInPage = () => {
                   <CardDescription>
                     <div className="flex items-center justify-center">
                       <div className="flex-grow border-t border-gray-300"></div>
-                      <Button variant="link" className="mx-4 text-signinemail">
+                      <Button asChild variant="link" className="mx-4 text-signinemail">
                         <Link href="/send-otp">Or Sign In with email</Link> 
                       </Button>
                       <div className="flex-grow border-t border-gray-300"></div>
@@ -145,11 +139,11 @@ const SignInPage = () => {
                       <FcGoogle size={25} className="mr-2" /> Sign In with Google
                     </Button>
                   </CardDescription>
-                  <CardDescription>
+                  <CardDescription> 
                     <div className="flex items-center justify-center">
                       <div className="flex-grow border-t border-gray-300"></div>
-                      <Button variant="link" className="mx-4 text-signinemail">
-                        Or Sign In with email
+                      <Button asChild variant="link" className="mx-4 text-signinemail">
+                        <Link href="/send-otp">Or Sign In with email</Link> 
                       </Button>
                       <div className="flex-grow border-t border-gray-300"></div>
                     </div>
@@ -201,7 +195,7 @@ const SignInPage = () => {
                   <div className="flex items-center">
                     <h1 className="text-signinemail text-base">Don’t have an account?</h1>
                     <Button asChild variant="link" className="text-blue">
-                      <Link href="/signup">Sign Up</Link>
+                      <Link href="/send-otp">Sign Up</Link>
                     </Button>
                   </div>
                 </CardContent>

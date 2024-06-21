@@ -1,118 +1,121 @@
 @tailwind base;
-  @tailwind components;
-  @tailwind utilities;
- 
-  @layer base {
-    :root {
-      --signature: 214 100% 51%;
-      --background: 0 0% 100%;
-      --foreground: 222.2 84% 4.9%;  
+@tailwind components;
+@tailwind utilities;
 
-      --card: 0 0% 100%;
-      --card-foreground: 222.2 84% 4.9%;
+@layer base {
+  :root {
+    --signature: 214 100% 51%;
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
 
-      --popover: 0 0% 100%;
-      --popover-foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
 
-      --primary: 222.2 47.4% 11.2%;
-      --primary-foreground: 210 40% 98%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
 
-      --secondary: 210 40% 96.1%;
-      --secondary-foreground: 222.2 47.4% 11.2%;
-    
-      --muted: 248.57 100% 97.25%;
-      --muted-light: 210 40% 96.1%;
-      --muted-foreground: 215.4 16.3% 46.9%;
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
 
-      --accent: 210 40% 96.1%;
-      --accent-foreground: 222.2 47.4% 11.2%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
 
-      --destructive: 0 84.2% 60.2%;
-      --destructive-foreground: 210 40% 98%;
+    --muted: 248.57 100% 97.25%;
+    --muted-light: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
 
-      --border: 214.3 31.8% 91.4%;
-      --input: 214.3 31.8% 91.4%;
-      --ring: 222.2 84% 4.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
 
-      --radius: 0.5rem;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
 
-      --custom-dark-blue: 215 34% 27%;  /* HSL for #25324B */
-      --custom-gray-blue: 217 8% 55%;   /* HSL for #7C8493 */
-      
-    }
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
 
-    .dark {
+    --radius: 0.5rem;
 
-      --custom-dark-blue: 0, 0%, 100%;  /* White */
-  --custom-gray-blue: 0, 0%, 100%;  /* White */
+    --custom-dark-blue: 215 34% 27%; /* HSL for #25324B */
+    --custom-gray-blue: 217 8% 55%; /* HSL for #7C8493 */
 
-  
-      --background: 222.2 84% 4.9%;
-      --foreground: 210 40% 98%;
-
-      --card: 222.2 84% 4.9%;
-      --card-foreground: 210 40% 98%;
-
-      --popover: 222.2 84% 4.9%;
-      --popover-foreground: 210 40% 98%;
-
-      --primary: 210 40% 98%;
-      --primary-foreground: 222.2 47.4% 11.2%;
-
-      --secondary: 217.2 32.6% 17.5%;
-      --secondary-foreground: 210 40% 98%;
-
-      --muted: 217.2 32.6% 17.5%;
-      --muted-foreground: 215 20.2% 65.1%;
-
-      --accent: 217.2 32.6% 17.5%;
-      --accent-foreground: 210 40% 98%;
-
-      --destructive: 0 62.8% 30.6%;
-      --destructive-foreground: 210 40% 98%;
-
-      --border: 217.2 32.6% 17.5%;
-      --input: 217.2 32.6% 17.5%;
-      --ring: 212.7 26.8% 83.9%;
-    }
+    --paragraphBlue: 214 48% 38%; /* HSL for #3D589B */
   }
 
-  /* @layer base {
-    * {
-      @apply border-border:  hsl(var(--border));
-    }
-    body {
-      @apply bg-background text-foreground;
-    }
-  } */
-  
-  
+  .dark {
+    --custom-dark-blue: 0, 0%, 100%; /* White */
+    --custom-gray-blue: 0, 0%, 100%; /* White */
 
-  @font-face {
-    font-family: 'SfUi';
-    src: url('/fonts/sf-ui-display-thin-58646e9b26e8b.otf') format('opentype');
-    font-weight: 100; 
-    font-style: normal;
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+
+    --paragraphBlue: 214 48% 90%; /* Darker version for dark mode */
   }
-  
-  @font-face {
-    font-family: 'SfUi';
-    src: url('/fonts/sf-ui-display-medium-58646be638f96.otf') format('opentype');
-    font-weight: 500; 
-    font-style: normal;
+}
+
+/* Example usage for paragraphBlue */
+.paragraph {
+  color: hsl(var(--paragraphBlue));
+}
+
+/* @layer base {
+  * {
+    @apply border-border: hsl(var(--border));
   }
-  
-  @font-face {
-    font-family: 'SfUi';
-    src: url('/fonts/sf-ui-display-bold-58646a511e3d9.otf') format('opentype');
-    font-weight: 700; 
-    font-style: normal;
+  body {
+    @apply bg-background text-foreground;
   }
-  
-  @font-face {
-    font-family: 'SfUi';
-    src: url('/fonts/sf-ui-display-semibold-58646eddcae92.otf') format('opentype');
-    font-weight: 600; 
-    font-style: normal;
-  }
-  
+} */
+
+@font-face {
+  font-family: 'SfUi';
+  src: url('/fonts/sf-ui-display-thin-58646e9b26e8b.otf') format('opentype');
+  font-weight: 100;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'SfUi';
+  src: url('/fonts/sf-ui-display-medium-58646be638f96.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'SfUi';
+  src: url('/fonts/sf-ui-display-bold-58646a511e3d9.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'SfUi';
+  src: url('/fonts/sf-ui-display-semibold-58646eddcae92.otf') format('opentype');
+  font-weight: 600;
+  font-style: normal;
+}

@@ -1,12 +1,13 @@
+// components/Menu.tsx
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { FaBars, FaTimes } from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { logout, initializeAuth } from '../../../store/slices/authSlice';
-import { useAppDispatch, useAppSelector } from '../../../store/hook';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { logout } from '../../../store/slices/authSlice'; // Adjust path as needed
+import { useAppDispatch, useAppSelector } from '../../../store/hook'; // Adjust path as needed
 
 const Menu: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -14,11 +15,7 @@ const Menu: React.FC = () => {
   const pathname = usePathname();
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { user } = useAppSelector((state) => state.auth);
-
-  useEffect(() => {
-    dispatch(initializeAuth());
-  }, [dispatch]);
+  const { user, status } = useAppSelector((state) => state.auth);
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
@@ -35,28 +32,24 @@ const Menu: React.FC = () => {
     router.push('/signin');
   };
 
+  if (status === 'loading') {
+    return <div>Loading...</div>; // Adjust to your loading UI
+  }
+
   return (
     <nav className="container py-4">
       <div>
         <div className="flex items-center justify-between">
-          {/* Logo/Brand */}
           <span className="text-blue text-lg font-bold">
             <Link href="/home">
               Asia <span className="text-darkBlue">Job</span>Swipe
             </Link>
           </span>
-
-          {/* Hamburger Menu (for mobile) */}
           <div className="md:hidden">
-            <button
-              className="text-blue focus:outline-none"
-              onClick={toggleMenu}
-            >
+            <button className="text-blue focus:outline-none" onClick={toggleMenu}>
               {isOpen ? <FaTimes /> : <FaBars />}
             </button>
           </div>
-
-          {/* Desktop Menu Items */}
           <div className="hidden md:flex md:items-center">
             <Link href="/findjobs">
               <span className={`text-sm px-4 py-2 block md:inline cursor-pointer ${getLinkClasses('/findjobs')}`}>Find Jobs</span>
@@ -74,8 +67,6 @@ const Menu: React.FC = () => {
               <span className={`text-sm px-4 py-2 block md:inline cursor-pointer ${getLinkClasses('/browsecompanies')}`}>Browse Companies</span>
             </Link>
           </div>
-
-          {/* Right Side (Sign-in/Sign-out Button) */}
           <div className="hidden md:block">
             {user ? (
               <>
@@ -90,7 +81,7 @@ const Menu: React.FC = () => {
                     </DialogHeader>
                     <DialogFooter>
                       <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
-                      <Button variant="destructive" className='bg-blue text-white'  onClick={handleLogout}>Sign Out</Button>
+                      <Button variant="destructive" className='bg-blue text-white' onClick={handleLogout}>Sign Out</Button>
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
@@ -102,8 +93,6 @@ const Menu: React.FC = () => {
             )}
           </div>
         </div>
-
-        {/* Mobile Menu Background */}
         {isOpen && (
           <div className="bg-white mt-4 p-4 rounded-lg shadow-lg md:hidden">
             <Link href="/findjobs">

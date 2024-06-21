@@ -29,7 +29,7 @@ const Hero: React.FC<HeroProps> = ({
   titleClassName = 'text-3xl md:text-7xl md:pt-8 text-center font-bold text-darkGrey',
   spanText,
   afterSpanText,
-  spanClassName = 'text-blue',
+  spanClassName = 'text-signature',
   showSearchBar = true,
 }) => {
 
@@ -80,16 +80,16 @@ const Hero: React.FC<HeroProps> = ({
 
   return (
     <div className="md:max-w-4xl md:mx-auto mx-5">
-      <div className="py-8">
+      <div className="pb-8">
         {backgroundImage && (
           <div
-            className="bg-cover bg-center md:py-10 bg-no-repeat"
+            className="bg-cover bg-center md:pb-10 md:pt-24  bg-no-repeat"
             style={{
               backgroundImage: `url('${backgroundImage}')`,
               backgroundSize: '600px 200px',
               backgroundRepeat: 'no-repeat',
               backgroundPosition: 'center',
-            }}
+            }} 
           >
             <h1 className={titleClassName}>
               {title} {spanText && <span className={spanClassName}>{spanText}</span>}{afterSpanText}
@@ -109,9 +109,9 @@ const Hero: React.FC<HeroProps> = ({
           </div>
         )}
         {showSearchBar && (
-          <div className="max-w-4xl bg-white justify-between rounded-lg p-3 flex flex-col md:flex-row gap-5 items-center mt-8 mx-auto">
+          <div className="max-w-4xl bg-background justify-between rounded-lg p-3 flex flex-col md:flex-row gap-5 items-center mt-8 mx-auto">
             <div className="relative flex items-center">
-              <FiSearch size={35} className="absolute inset-y-1 text-blue left-0 pl-3 pointer-events-none" />
+              <FiSearch size={35} className="absolute inset-y-1 text-signature left-0 pl-3 pointer-events-none" />
               <Input
                 type="text"
                 placeholder="Job title, Keyword..."
@@ -120,7 +120,7 @@ const Hero: React.FC<HeroProps> = ({
               />
             </div>
             <div className="md:border-l relative flex items-center" ref={dropdownRef}>
-              <TiLocationOutline size={35} className="absolute text-blue inset-y-1 left-0 pl-3 pointer-events-none" />
+              <TiLocationOutline size={35} className="absolute text-signature inset-y-1 left-0 pl-3 pointer-events-none" />
               <Input
                 type="text"
                 placeholder="Your Location"
@@ -130,7 +130,7 @@ const Hero: React.FC<HeroProps> = ({
                 disableFocusStyles
               />
               {filteredCities.length > 0 && (
-                <div className="absolute top-full mt-2 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto z-10">
+                <div className="absolute top-full mt-2 w-full bg-background border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto z-10">
                   {filteredCities.map(city => (
                     <div
                       key={city}
@@ -147,7 +147,7 @@ const Hero: React.FC<HeroProps> = ({
               )}
             </div>
             <Button asChild>
-              <Link className="bg-blue text-white text-sm px-4 py-3 rounded-md" href="/signin">
+              <Link className="bg-signature text-background text-sm px-4 py-3 rounded-md" href="/signin">
                 Find Jobs
               </Link>
             </Button>

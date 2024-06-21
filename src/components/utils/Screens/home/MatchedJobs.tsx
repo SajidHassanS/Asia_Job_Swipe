@@ -84,17 +84,17 @@ const MatchedJobs = () => {
         <h1 className="md:text-4xl text-2xl text-blackish">Matched Jobs</h1>
         <button
           onClick={toggleShowAll}
-          className="border text-blue text-lg px-4 py-2 rounded-md flex items-center"
+          className="border text-signature text-lg px-4 py-2 rounded-md flex items-center"
         >
           {showAll ? "Show Less" : "View All"} <FaArrowRight className="ml-2" />
         </button>
       </div>
 
-      <div className="grid sm:grid-cols-2 md:grid-cols-4 py-10 gap-4">
+      <div className="grid sm:grid-cols-2 md:grid-cols-4  py-10 gap-4">
         {displayedCategories.map((category, index) => (
           <div
             key={index}
-            className="p-4 bg-white w-full shadow-sm rounded-lg border flex flex-col"
+            className="p-8 bg-background w-full shadow-sm rounded-lg border flex flex-col"
           >
             <div className="flex items-center mb-4">
               <img
@@ -102,11 +102,11 @@ const MatchedJobs = () => {
                 className="w-10 h-10 object-cover mr-4 rounded-full"
               />
               <div className="h-8 w-px bg-gray-300 mx-4"></div>
-              <div className="text-sm text-blue bg-lightPink p-2 rounded-full">
+              <div className="text-sm text-signature bg-muted p-2 rounded-full">
                 Full Time
               </div>
               <div className="ml-auto">
-                <CiBookmarkMinus size={30} className="text-blue" />
+                <CiBookmarkMinus size={30} className="text-signature" />
               </div>
             </div>
             <div className="mb-2">
@@ -116,13 +116,10 @@ const MatchedJobs = () => {
               <p className="text-base text-gray-600">{category.description}</p>
             </div>
             <div className="">
-              <Button asChild>
-                <Link
-                  className=" text-blue px-0 text-sm py-2 rounded-md"
-                  href="/moredetails"
-                >
+              <Button variant={"link"}   className=" text-signature px-0 text-sm py-2 rounded-md">
+                
                   More Details <GoArrowUpRight size={20} className="ml-2" />
-                </Link>
+               
               </Button>
             </div>
           </div>

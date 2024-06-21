@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../../store';
-import { registerJobSeeker, registerCompanyRole } from '../../store/slices/authSlice';
+import { registerJobSeeker, registerCompany } from '../../store/slices/authSlice';
 import { Button } from "@/components/ui/button";
 import { FaArrowLeft } from "react-icons/fa6";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,29 +13,30 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useRouter } from 'next/navigation';
 import withAuthenticatedRoutes from "@/components/HOC/AuthenticatedRoutes";
 
-const SignUpPage = () => {
+const SignUpPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const auth = useSelector((state: RootState) => state.auth);
   const router = useRouter();
 
-  const [email, setEmail] = useState(auth.emailForSignUp || '');
-  const [password, setPassword] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [otp, setOtp] = useState(auth.otpForSignUp || '');
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [firstName, setFirstName] = useState<string>('');
+  const [lastName, setLastName] = useState<string>('');
+  const [otp, setOtp] = useState<string>('');
+  const [companyName, setCompanyName] = useState<string>('');
 
   useEffect(() => {
-    if (auth.user) {
+    if (auth?.user) {
       router.push('/');
     }
-  }, [auth.user, router]);
+  }, [auth?.user, router]);
 
   const handleSignUp = async (role: string) => {
     let response;
     if (role === 'jobseeker') {
       response = await dispatch(registerJobSeeker({ email, password, firstName, lastName, otp, role: 'jobSeeker' }));
     } else if (role === 'company') {
-      response = await dispatch(registerCompanyRole({ email, password, firstName, lastName, role: 'company' }));
+      response = await dispatch(registerCompany({ email, password, firstName, lastName, otp, role: 'company', companyName }));
     }
 
     if (response && response.meta.requestStatus === 'fulfilled') {
@@ -47,8 +48,7 @@ const SignUpPage = () => {
 
   return (
     <div className="md:flex">
-      <div className="hidden md:flex md:w-1/2 w-full min-h-screen bg-cover bg-center" style={{ backgroundImage: "url('/images/signupimage.png')" }}>
-      </div>
+      <div className="hidden md:flex md:w-1/2 w-full min-h-screen bg-cover bg-center" style={{ backgroundImage: "url('/images/signupimage.png')" }}></div>
       <div className="md:w-1/2 w-full flex items-center justify-center min-h-screen py-8">
         <div className="w-[550px]">
           <Tabs defaultValue="jobseeker" className="w-full">
@@ -59,9 +59,7 @@ const SignUpPage = () => {
             <TabsContent value="jobseeker">
               <Card className="border-none shadow-none">
                 <CardHeader>
-                  <CardTitle className="flex mb-5 justify-center text-darkGrey md:text-3xl">
-                    Get more opportunities
-                  </CardTitle>
+                  <CardTitle className="flex mb-5 justify-center text-darkGrey md:text-3xl">Get more opportunities</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-5">
                   <div className="space-y-1">
@@ -106,6 +104,17 @@ const SignUpPage = () => {
                       placeholder="Enter Password"
                     />
                   </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="otp" className="text-signininput text-base">OTP</Label>
+                    <Input
+                      id="otp"
+                      type="text"
+                      className="text-signininput3 text-base"
+                      value={otp}
+                      onChange={(e) => setOtp(e.target.value)}
+                      placeholder="Enter OTP"
+                    />
+                  </div>
                   <div>
                     <Button
                       variant="outline"
@@ -116,7 +125,7 @@ const SignUpPage = () => {
                       Continue
                     </Button>
                   </div>
-                  {auth.error && <p className="text-red-500">{auth.error}</p>}
+                  {auth?.error && <p className="text-red-500">{auth.error}</p>}
                   <div className="flex items-center">
                     <h1 className="text-signinemail text-base">Already have an account?</h1>
                     <Button asChild variant="link" className="text-blue">
@@ -125,8 +134,7 @@ const SignUpPage = () => {
                   </div>
                   <div className="flex items-center">
                     <h1 className="text-signininput4 text-base">
-                      By clicking &apos;Continue&apos;, you acknowledge that you have
-                      read and accept the{" "}
+                      By clicking &apos;Continue&apos;, you acknowledge that you have read and accept the{" "}
                       <span className="text-blue">Terms of Service</span> and{" "}
                       <span className="text-blue">Privacy Policy</span>.
                     </h1>
@@ -144,9 +152,7 @@ const SignUpPage = () => {
             <TabsContent value="company">
               <Card className="border-none shadow-none">
                 <CardHeader>
-                  <CardTitle className="flex mb-5 justify-center text-darkGrey md:text-3xl">
-                    Get more opportunities
-                  </CardTitle>
+                  <CardTitle className="flex mb-5 justify-center text-darkGrey md:text-3xl">Get more opportunities</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-5">
                   <div className="space-y-1">
@@ -191,6 +197,27 @@ const SignUpPage = () => {
                       placeholder="Enter Password"
                     />
                   </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="otp" className="text-signininput text-base">OTP</Label>
+                    <Input
+                      id="otp"
+                      type="text"
+                      className="text-signininput3 text-base"
+                      value={otp}
+                      onChange={(e) => setOtp(e.target.value)}
+                      placeholder="Enter OTP"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="companyName" className="text-signininput text-base">Company Name</Label>
+                    <Input
+                      id="companyName"
+                      className="text-signininput3"
+                      value={companyName}
+                      onChange={(e) => setCompanyName(e.target.value)}
+                      placeholder="Enter company name"
+                    />
+                  </div>
                   <div>
                     <Button
                       variant="outline"
@@ -201,7 +228,7 @@ const SignUpPage = () => {
                       Continue
                     </Button>
                   </div>
-                  {auth.error && <p className="text-red-500">{auth.error}</p>}
+                  {auth?.error && <p className="text-red-500">{auth.error}</p>}
                   <div className="flex items-center">
                     <h1 className="text-signinemail text-base">Already have an account?</h1>
                     <Button asChild variant="link" className="text-blue">
@@ -210,8 +237,7 @@ const SignUpPage = () => {
                   </div>
                   <div className="flex items-center">
                     <h1 className="text-signininput4 text-base">
-                      By clicking &apos;Continue&apos;, you acknowledge that you have
-                      read and accept the{" "}
+                      By clicking &apos;Continue&apos;, you acknowledge that you have read and accept the{" "}
                       <span className="text-blue">Terms of Service</span> and{" "}
                       <span className="text-blue">Privacy Policy</span>.
                     </h1>

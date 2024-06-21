@@ -1,3 +1,4 @@
+// store/slices/authSlice.ts
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 
@@ -37,55 +38,14 @@ const initialState: AuthState = {
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://ajs-server.hostdonor.com/api/v1';
 
-// export const signIn = createAsyncThunk<User, { email: string; password: string }, { rejectValue: string }>(
-//   'auth/signin',
-//   async (credentials, { rejectWithValue }) => {
-//     try {
-//       const response = await axios.post(`${API_URL}/auth/signin`, credentials);
-//       return response.data;
-//     } catch (error: any) {
-//       if (axios.isAxiosError(error) && error.response) {
-//         return rejectWithValue(error.response.data.message || 'An error occurred during sign-in.');
-//       } else {
-//         return rejectWithValue('An unknown error occurred');
-//       }
-//     }
-//   }
-// );
-
-export const signIn = createAsyncThunk<User, { email: string; password: string; userType: string }, { rejectValue: string }>(
-  'auth/login',
-  async ({ email, password, userType }, { rejectWithValue }) => {
-    let url = `${API_URL}/auth/login`; // Default route for jobSeeker and company
-    if (userType === 'companyRole') {
-      url = `${API_URL}/auth/login/company-role`;
-    } else if (userType === 'admin') {
-      url = `${API_URL}/auth/login/admin`;
-    }  
-
-    try {
-      const response = await axios.post(url, { email, password });
-      localStorage.setItem('accessToken', response.data.accessToken);
-      localStorage.setItem('refreshToken', response.data.refreshToken);
-      console.log('Login response:', response.data.accessToken);
-      return response.data;
-    } catch (error: any) {
-      if (axios.isAxiosError(error) && error.response) {
-        return rejectWithValue(error.response.data.message || 'An error occurred during sign-in.');
-      } else {
-        return rejectWithValue('An unknown error occurred');
-      }
-    }
-  }
-);
-export const registerJobSeeker = createAsyncThunk<User, { email: string; password: string; firstName: string; lastName: string; otp: string ,role: string }, { rejectValue: string }>(
+export const registerJobSeeker = createAsyncThunk<User, { email: string; password: string; firstName: string; lastName: string; otp: string; role: string }, { rejectValue: string }>(
   'auth/registerJobSeeker',
   async (userData, { rejectWithValue }) => {
     try {
       const response = await axios.post(`${API_URL}/auth/register/job-seeker`, userData);
       localStorage.setItem('accessToken', response.data.accessToken);
       localStorage.setItem('refreshToken', response.data.refreshToken);
-      return response.data;
+      return response.data.user; // Adjust the return value to only include user data
     } catch (error: any) {
       if (axios.isAxiosError(error) && error.response) {
         return rejectWithValue(error.response.data.message || 'An error occurred during job seeker registration.');
@@ -96,33 +56,17 @@ export const registerJobSeeker = createAsyncThunk<User, { email: string; passwor
   }
 );
 
-export const registerCompanyRole = createAsyncThunk<User, { email: string; password: string; firstName: string; lastName: string; role: string }, { rejectValue: string }>(
-  'auth/registerCompanyRole',
+export const registerCompany = createAsyncThunk<User, { email: string; password: string; firstName: string; lastName: string; otp: string; role: string; companyName: string }, { rejectValue: string }>(
+  'auth/registerCompany',
   async (userData, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${API_URL}/auth/register/company-role`, userData);
+      const response = await axios.post(`${API_URL}/auth/register/company`, userData);
       localStorage.setItem('accessToken', response.data.accessToken);
       localStorage.setItem('refreshToken', response.data.refreshToken);
-      return response.data;
+      return response.data.user; // Adjust the return value to only include user data
     } catch (error: any) {
       if (axios.isAxiosError(error) && error.response) {
-        return rejectWithValue(error.response.data.message || 'An error occurred during company role registration.');
-      } else {
-        return rejectWithValue('An unknown error occurred');
-      }
-    }
-  }
-);
-
-export const googleSignIn = createAsyncThunk<{ user: User; accessToken: string; refreshToken: string }, { code: string, role: string }, { rejectValue: string }>(
-  'auth/googleSignIn',
-  async ({ code, role }, { rejectWithValue }) => {
-    try {
-      const response = await axios.post(`${API_URL}/auth/google`, { code, role });
-      return response.data;
-    } catch (error: any) {
-      if (axios.isAxiosError(error) && error.response) {
-        return rejectWithValue(error.response.data.message || 'An error occurred during Google sign-in.');
+        return rejectWithValue(error.response.data.message || 'An error occurred during company registration.');
       } else {
         return rejectWithValue('An unknown error occurred');
       }
@@ -162,11 +106,10 @@ export const verifyOTP = createAsyncThunk<void, { email: string; otp: string }, 
   }
 );
 
-
-export const initializeAuth = createAsyncThunk('auth/initializeAuth', async (_, { dispatch }) => {
+export const initializeAuth = createAsyncThunk('auth/initializeAuth', async (_, { dispatch, rejectWithValue }) => {
   const accessToken = localStorage.getItem('accessToken');
   const refreshToken = localStorage.getItem('refreshToken');
-
+ 
   if (accessToken && refreshToken) {
     try {
       const response = await axios.get(`${API_URL}/auth/profile`, {
@@ -175,11 +118,16 @@ export const initializeAuth = createAsyncThunk('auth/initializeAuth', async (_, 
         },
       });
       dispatch(setUser(response.data));
+      dispatch(setTokens({ accessToken, refreshToken }));
     } catch (error) {
       console.error('Failed to fetch user profile', error);
+      return rejectWithValue('Failed to fetch user profile');
     }
+  } else {
+    return rejectWithValue('No tokens found');
   }
 });
+
 
 export const logout = createAsyncThunk<void, void, { rejectValue: string }>(
   'auth/logout',
@@ -194,6 +142,31 @@ export const logout = createAsyncThunk<void, void, { rejectValue: string }>(
   }
 );
 
+export const signIn = createAsyncThunk<User, { email: string; password: string; userType: string }, { rejectValue: string }>(
+  'auth/login',
+  async ({ email, password, userType }, { rejectWithValue }) => {
+    let url = `${API_URL}/auth/login`; // Default route for jobSeeker and company
+    if (userType === 'companyRole') {
+      url = `${API_URL}/auth/login/company-role`;
+    } else if (userType === 'admin') {
+      url = `${API_URL}/auth/login/admin`;
+    }  
+
+    try {
+      const response = await axios.post(url, { email, password });
+      localStorage.setItem('accessToken', response.data.accessToken);
+      localStorage.setItem('refreshToken', response.data.refreshToken);
+      console.log('Login response:', response.data.accessToken);
+      return response.data.user; // Adjust the return value to only include user data
+    } catch (error: any) {
+      if (axios.isAxiosError(error) && error.response) {
+        return rejectWithValue(error.response.data.message || 'An error occurred during sign-in.');
+      } else {
+        return rejectWithValue('An unknown error occurred');
+      }
+    }
+  }
+);
 
 const authSlice = createSlice({
   name: 'auth',
@@ -206,12 +179,18 @@ const authSlice = createSlice({
       state.user = null;
       state.accessToken = null;
       state.refreshToken = null;
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
     },
     setEmailForSignUp: (state, action: PayloadAction<string>) => {
       state.emailForSignUp = action.payload;
     },
     setOtpForSignUp: (state, action: PayloadAction<string>) => {
       state.otpForSignUp = action.payload;
+    },
+    setTokens: (state, action: PayloadAction<{ accessToken: string; refreshToken: string }>) => {
+      state.accessToken = action.payload.accessToken;
+      state.refreshToken = action.payload.refreshToken;
     },
   },
   extraReducers: (builder) => {
@@ -224,8 +203,9 @@ const authSlice = createSlice({
         state.accessToken = null;
         state.refreshToken = null;
       })
-      .addCase(logout.rejected, (state, action: PayloadAction<string | undefined>) => {
+      .addCase(logout.rejected, (state, action) => {
         // Handle any errors during logout if needed
+        state.error = action.error.message || 'An unknown error occurred';
       })
       .addCase(registerJobSeeker.pending, (state) => {
         state.status = 'loading';
@@ -239,15 +219,15 @@ const authSlice = createSlice({
         state.status = 'failed';
         state.error = action.payload || 'An unknown error occurred';
       })
-      .addCase(registerCompanyRole.pending, (state) => {
+      .addCase(registerCompany.pending, (state) => {
         state.status = 'loading';
       })
-      .addCase(registerCompanyRole.fulfilled, (state, action: PayloadAction<User>) => {
+      .addCase(registerCompany.fulfilled, (state, action: PayloadAction<User>) => {
         state.status = 'succeeded';
         state.user = action.payload;
         state.error = null;
       })
-      .addCase(registerCompanyRole.rejected, (state, action: PayloadAction<string | undefined>) => {
+      .addCase(registerCompany.rejected, (state, action: PayloadAction<string | undefined>) => {
         state.status = 'failed';
         state.error = action.payload || 'An unknown error occurred';
       })
@@ -285,23 +265,20 @@ const authSlice = createSlice({
         state.otpStatus = 'failed';
         state.otpError = action.payload || 'An unknown error occurred';
       })
-      .addCase(googleSignIn.pending, (state) => {
+      .addCase(initializeAuth.pending, (state) => {
         state.status = 'loading';
       })
-      .addCase(googleSignIn.fulfilled, (state, action: PayloadAction<{ user: User; accessToken: string; refreshToken: string }>) => {
+      .addCase(initializeAuth.fulfilled, (state) => {
         state.status = 'succeeded';
-        state.user = action.payload.user;
-        state.accessToken = action.payload.accessToken;
-        state.refreshToken = action.payload.refreshToken;
         state.error = null;
       })
-      .addCase(googleSignIn.rejected, (state, action: PayloadAction<string | undefined>) => {
+      .addCase(initializeAuth.rejected, (state, action) => {
         state.status = 'failed';
-        state.error = action.payload || 'An unknown error occurred';
+        state.error = action.error.message || 'An unknown error occurred';
       });
   },
 });
 
-export const { setUser, signOut, setEmailForSignUp, setOtpForSignUp } = authSlice.actions;
+export const { setUser, signOut, setEmailForSignUp, setOtpForSignUp, setTokens } = authSlice.actions;
 
 export default authSlice.reducer;

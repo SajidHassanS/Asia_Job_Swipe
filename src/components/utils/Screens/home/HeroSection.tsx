@@ -5,7 +5,7 @@ const HeroSection: React.FC = () => {
   const isSpecialPage = false 
   return (
     <>
-    <Hero 
+    <Hero   
         title="Explore Over "
         spanText="7,000+ "
         afterSpanText= "Job Opportunities"
