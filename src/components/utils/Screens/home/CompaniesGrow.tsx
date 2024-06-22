@@ -5,8 +5,8 @@ import { IoLogoMicrosoft } from "react-icons/io5";
 
 const CompaniesGrow = () => {
   return (
-    <div className=" mx-5 md:container py-10">
-      <div className="flex justify-center md:justify-start pb-5 text-lg">
+    <div className=" mx-5 md:container py-16">
+      <div className="flex justify-center md:justify-start pb-10 text-lg">
         <h1>Companies we helped grow</h1>
       </div>
       <div className="flex sm:justify-center   flex-wrap md:flex-nowrap text-newGrey ">

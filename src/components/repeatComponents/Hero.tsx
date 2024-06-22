@@ -115,7 +115,7 @@ const Hero: React.FC<HeroProps> = ({
               <Input
                 type="text"
                 placeholder="Job title, Keyword..."
-                className="pl-10 text-inputGrey text-lg md:border-none md:outline-none"
+                className="pl-12 text-inputGrey text-lg md:border-none md:outline-none"
                 disableFocusStyles
               />
             </div>
@@ -124,7 +124,7 @@ const Hero: React.FC<HeroProps> = ({
               <Input
                 type="text"
                 placeholder="Your Location"
-                className="pl-10 md:border-none text-inputGrey text-lg md:outline-none"
+                className="pl-12 md:border-none text-inputGrey text-lg md:outline-none"
                 value={location}
                 onChange={handleInputChange}
                 disableFocusStyles

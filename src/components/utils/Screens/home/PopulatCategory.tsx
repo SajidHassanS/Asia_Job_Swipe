@@ -90,9 +90,9 @@ const PopulatCategory = () => {
         <i className="fi fi-rr-home"></i>
         <button
           onClick={toggleShowAll}
-          className="border text-signature text-lg px-4 py-2 rounded-md flex items-center"
+          className="border  text-signature text-lg px-4 py-2 rounded-md flex items-center"
         >
-          {showAll ? "Show Less" : "View All"} <FaArrowRight />
+          {showAll ? "Show Less" : "View All"} <FaArrowRight className="ml-3" />
         </button>
       </div>
 

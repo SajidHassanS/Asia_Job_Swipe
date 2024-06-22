@@ -40,7 +40,7 @@ const Menu: React.FC = () => {
     <nav className="container py-4">
       <div>
         <div className="flex items-center justify-between">
-          <span className="text-signature text-lg font-bold">
+          <span className="text-signature text-2xl  font-bold">
             <Link href="/home">
               Asia <span className="text-darkBlue">Job</span>Swipe
             </Link>

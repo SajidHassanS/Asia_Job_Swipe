@@ -5,6 +5,8 @@ import { CiBookmarkMinus } from "react-icons/ci";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { GoArrowUpRight } from "react-icons/go";
+import { LuBookmarkMinus } from "react-icons/lu";
+import { FiArrowUpRight } from "react-icons/fi";
 const categories = [
   {
     image: "/images/appstore.png", // replace with your image path
@@ -106,7 +108,7 @@ const MatchedJobs = () => {
                 Full Time
               </div>
               <div className="ml-auto">
-                <CiBookmarkMinus size={30} className="text-signature" />
+                <LuBookmarkMinus  size={30} className="text-signature" />
               </div>
             </div>
             <div className="mb-2">
@@ -118,7 +120,7 @@ const MatchedJobs = () => {
             <div className="">
               <Button variant={"link"}   className=" text-signature px-0 text-sm py-2 rounded-md">
                 
-                  More Details <GoArrowUpRight size={20} className="ml-2" />
+                  More Details <FiArrowUpRight  className="ml-2" />
                
               </Button>
             </div>

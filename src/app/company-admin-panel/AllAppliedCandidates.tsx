@@ -224,7 +224,7 @@ const AllCompaniesData = () => {
           <h1 className="text-2xl font-bold pb-3">All Applied Candidates</h1>
           <p>Showing 73 People</p>
         </div>
-        <DataTable headers={headers} data={companies} renderRow={renderCompanyRow} />
+        <DataTable  headers={headers} data={companies} renderRow={renderCompanyRow} />
       </main>
 
       <PaginationComponent page={page} pagination={pagination} changePage={setPage} />
