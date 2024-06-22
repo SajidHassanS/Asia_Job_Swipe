@@ -11,12 +11,12 @@ import {
 
 const Footer = () => {
   return (
-    <div className="bg-lightPink pt-16  ">
+    <div className="bg-muted pt-16  ">
       <div className="md:container mx-5 flex flex-wrap justify-between   ">
         {/* Column 1: Logo and Social Media */}
         <div className="mb-8 md:mb-0 w-full md:w-2/5 ">
           <div>
-            <span className="text-blue md:text-6xl text-2xl  font-bold">
+            <span className="text-signature md:text-6xl text-2xl  font-bold">
               <Link href="/">
                 Asia <span className="text-darkBlue">Job</span>Swipe
               </Link>

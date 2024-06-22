@@ -40,9 +40,12 @@
     --custom-gray-blue: 217 8% 55%; /* HSL for #7C8493 */
 
     --paragraphBlue: 214 48% 38%; /* HSL for #3D589B */
+    --suggestion: 215 8% 32%; /* HSL for #474C54 */
   }
 
   .dark {
+
+    --suggestion: 0, 0%, 100%;
     --custom-dark-blue: 0, 0%, 100%; /* White */
     --custom-gray-blue: 0, 0%, 100%; /* White */
 

@@ -40,37 +40,37 @@ const Menu: React.FC = () => {
     <nav className="container py-4">
       <div>
         <div className="flex items-center justify-between">
-          <span className="text-blue text-lg font-bold">
+          <span className="text-signature text-lg font-bold">
             <Link href="/home">
               Asia <span className="text-darkBlue">Job</span>Swipe
             </Link>
           </span>
           <div className="md:hidden">
-            <button className="text-blue focus:outline-none" onClick={toggleMenu}>
+            <button className="text-signature focus:outline-none" onClick={toggleMenu}>
               {isOpen ? <FaTimes /> : <FaBars />}
             </button>
           </div>
-          <div className="hidden md:flex md:items-center">
+          <div className="hidden md:flex   md:items-center">
             <Link href="/findjobs">
-              <span className={`text-sm px-4 py-2 block md:inline cursor-pointer ${getLinkClasses('/findjobs')}`}>Find Jobs</span>
+              <span className={`text-sm text-customdarkblue  px-4 py-2 block md:inline cursor-pointer ${getLinkClasses('/findjobs')}`}>Find Jobs</span>
             </Link>
             <Link href="/joboffers">
-              <span className={`text-sm px-4 py-2 block md:inline cursor-pointer ${getLinkClasses('/joboffers')}`}>Job Offers</span>
+              <span className={`text-sm text-customdarkblue px-4 py-2 block md:inline cursor-pointer ${getLinkClasses('/joboffers')}`}>Job Offers</span>
             </Link>
             <Link href="/matchedjobs">
-              <span className={`text-sm px-4 py-2 block md:inline cursor-pointer ${getLinkClasses('/matchedjobs')}`}>Matched Jobs</span>
+              <span className={`text-sm text-customdarkblue px-4 py-2 block md:inline cursor-pointer ${getLinkClasses('/matchedjobs')}`}>Matched Jobs</span>
             </Link>
             <Link href="/savedjobs">
-              <span className={`text-sm px-4 py-2 block md:inline cursor-pointer ${getLinkClasses('/savedjobs')}`}>Saved Jobs</span>
+              <span className={`text-sm text-customdarkblue px-4 py-2 block md:inline cursor-pointer ${getLinkClasses('/savedjobs')}`}>Saved Jobs</span>
             </Link>
             <Link href="/browsecompanies">
-              <span className={`text-sm px-4 py-2 block md:inline cursor-pointer ${getLinkClasses('/browsecompanies')}`}>Browse Companies</span>
+              <span className={`text-sm text-customdarkblue px-4 py-2 block md:inline cursor-pointer ${getLinkClasses('/browsecompanies')}`}>Browse Companies</span>
             </Link>
           </div>
           <div className="hidden md:block">
             {user ? (
               <>
-                <Button variant="outline" className='bg-blue text-white' onClick={() => setIsDialogOpen(true)}>Sign Out</Button>
+                <Button variant="outline" className='bg-signature text-background' onClick={() => setIsDialogOpen(true)}>Sign Out</Button>
                 <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                   <DialogContent className="sm:max-w-[425px] sm:max-h-[300px] bg-white p-5">
                     <DialogHeader>

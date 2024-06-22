@@ -5,7 +5,7 @@ import Menu from './Menu';
 const Page = () => {
   return (
     <>
-    <div className='bg-lightPink'>
+    <div className='bg-muted'>
     <Menu/>
     </div>
     
