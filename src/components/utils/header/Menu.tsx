@@ -1,13 +1,12 @@
-// components/Menu.tsx
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { FaBars, FaTimes } from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { logout } from '../../../store/slices/authSlice'; // Adjust path as needed
-import { useAppDispatch, useAppSelector } from '../../../store/hook'; // Adjust path as needed
+import { logout, initializeAuth } from '../../../store/slices/authSlice'; 
+import { useAppDispatch, useAppSelector } from '../../../store/hook'; 
 
 const Menu: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -16,6 +15,14 @@ const Menu: React.FC = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { user, status } = useAppSelector((state) => state.auth);
+  const accessToken = localStorage.getItem('accessToken');
+  useEffect(() => {
+    
+    if (accessToken) {
+      dispatch(initializeAuth());
+    }
+   
+  }, [dispatch]);
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
@@ -28,6 +35,8 @@ const Menu: React.FC = () => {
   };
 
   const handleLogout = () => {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
     dispatch(logout());
     router.push('/signin');
   };
@@ -40,7 +49,7 @@ const Menu: React.FC = () => {
     <nav className="container py-4">
       <div>
         <div className="flex items-center justify-between">
-          <span className="text-signature text-2xl  font-bold">
+          <span className="text-signature text-2xl font-bold">
             <Link href="/home">
               Asia <span className="text-darkBlue">Job</span>Swipe
             </Link>
@@ -50,9 +59,9 @@ const Menu: React.FC = () => {
               {isOpen ? <FaTimes /> : <FaBars />}
             </button>
           </div>
-          <div className="hidden md:flex   md:items-center">
+          <div className="hidden md:flex md:items-center">
             <Link href="/findjobs">
-              <span className={`text-sm text-customdarkblue  px-4 py-2 block md:inline cursor-pointer ${getLinkClasses('/findjobs')}`}>Find Jobs</span>
+              <span className={`text-sm text-customdarkblue px-4 py-2 block md:inline cursor-pointer ${getLinkClasses('/findjobs')}`}>Find Jobs</span>
             </Link>
             <Link href="/joboffers">
               <span className={`text-sm text-customdarkblue px-4 py-2 block md:inline cursor-pointer ${getLinkClasses('/joboffers')}`}>Job Offers</span>
@@ -68,7 +77,7 @@ const Menu: React.FC = () => {
             </Link>
           </div>
           <div className="hidden md:block">
-            {user ? (
+            {accessToken ? (
               <>
                 <Button variant="outline" className='bg-signature text-background' onClick={() => setIsDialogOpen(true)}>Sign Out</Button>
                 <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -87,9 +96,9 @@ const Menu: React.FC = () => {
                 </Dialog>
               </>
             ) : (
-              <Button asChild>
-                <Link className="bg-blue text-white text-sm px-4 py-2 rounded-md" href="/signin">Sign In</Link>
-              </Button>
+              <Link href="/signin">
+                <Button className="bg-blue text-white text-sm px-4 py-2 rounded-md">Sign In</Button>
+              </Link>
             )}
           </div>
         </div>

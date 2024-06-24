@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState, AppDispatch } from "../../store";
-import { sendOTP, verifyOTP, } from "../../store/slices/authSlice";
+import { sendOTP, verifyOTP } from "../../store/slices/authSlice";
 import {
   Card,
   CardContent,
@@ -13,8 +13,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input"; 
-
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
@@ -23,111 +22,6 @@ import { FaArrowLeft } from "react-icons/fa6";
 import { useRouter } from "next/navigation";
 import { signIn, useSession } from "next-auth/react";
 import withAuthenticatedRoutes from "@/components/HOC/AuthenticatedRoutes";
-
-interface AuthFormProps {
-  step: string;
-  setStep: React.Dispatch<React.SetStateAction<string>>;
-  email: string;
-  setEmail: React.Dispatch<React.SetStateAction<string>>;
-  otp: string;
-  setOtp: React.Dispatch<React.SetStateAction<string>>;
-  handleSendOTP: () => void;
-  handleVerifyOTP: () => void;
-  message: string;
-  messageType: string;
-  auth: any;
-}
-
-const AuthForm: React.FC<AuthFormProps> = ({
-  step,
-  setStep,
-  email,
-  setEmail,
-  otp,
-  setOtp,
-  handleSendOTP,
-  handleVerifyOTP,
-  message,
-  messageType,
-  auth,
-}) => (
-  <>
-    <CardHeader>
-      <CardTitle className="flex mb-5 justify-center text-darkGrey md:text-3xl">
-        {step === "sendOTP" ? "Verify your email" : "Enter OTP"}
-      </CardTitle>
-      <CardDescription>
-        <Button
-          className="w-full text-darkGrey"
-          variant="outline"
-          onClick={() => signIn("google")}
-        >
-          <FcGoogle size={25} className="mr-2" /> Sign Up with Google
-        </Button>
-      </CardDescription>
-    </CardHeader>
-    <CardContent className="space-y-5">
-      {message && (
-        <p className={messageType === "success" ? "text-green-500" : "text-red-500"}>
-          {message}
-        </p>
-      )}
-      {step === "sendOTP" ? (
-        <div className="space-y-1">
-          <Label htmlFor="email" className="text-signininput text-base">
-            Email Address
-          </Label>
-          <Input
-            type="email"
-            id="email"
-            className="text-signininput3 text-base"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Enter email address"
-          />
-        </div>
-      ) : (
-        <div className="space-y-1">
-          <Label htmlFor="otp" className="text-signininput text-base">
-            OTP
-          </Label>
-          <Input
-            type="text"
-            id="otp"
-            className="text-signininput3 text-base"
-            value={otp}
-            onChange={(e) => setOtp(e.target.value)}
-            placeholder="Enter OTP"
-          />
-        </div>
-      )}
-      <div>
-        <Button
-          variant="outline"
-          size={"lg"}
-          className="bg-blue w-full text-white"
-          onClick={step === "sendOTP" ? handleSendOTP : handleVerifyOTP}
-        >
-          {step === "sendOTP" ? "Send OTP" : "Verify OTP"}
-        </Button>
-      </div>
-      {auth.otpError && <p className="text-red-500">{auth.otpError}</p>}
-      <div className="flex items-center">
-        <h1 className="text-signinemail text-base">Already have an account?</h1>
-        <Button asChild variant="link" className="text-blue">
-          <Link href="/signin">Sign In</Link>
-        </Button>
-      </div>
-    </CardContent>
-    <CardFooter>
-      <Button asChild variant="link" className="w-full text-blue">
-        <Link href="/home">
-          <FaArrowLeft size={20} className="mr-2" /> Back to Home
-        </Link>
-      </Button>
-    </CardFooter>
-  </>
-);
 
 const SendOTPPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -143,7 +37,7 @@ const SendOTPPage: React.FC = () => {
 
   useEffect(() => {
     if (session) {
-      // Optionally, store tokens in local storage
+      // Optionally, store tokens in local storage 
       localStorage.setItem("accessToken", auth.accessToken || "");
       localStorage.setItem("refreshToken", auth.refreshToken || "");
       router.push("/");
@@ -188,7 +82,7 @@ const SendOTPPage: React.FC = () => {
     const response = await dispatch(verifyOTP({ email, otp }));
     console.log("Verify OTP Response:", response);
     if (response.meta.requestStatus === "fulfilled") {
-      router.push("/signup");
+      router.push(`/signup?email=${email}&otp=${otp}`);
     } else {
       setMessage("Failed to verify OTP. Please try again.");
       setMessageType("error");
@@ -219,36 +113,158 @@ const SendOTPPage: React.FC = () => {
             </TabsList>
             <TabsContent value="jobseeker">
               <Card className="border-none shadow-none">
-                <AuthForm
-                  step={step}
-                  setStep={setStep}
-                  email={email}
-                  setEmail={setEmail}
-                  otp={otp}
-                  setOtp={setOtp}
-                  handleSendOTP={handleSendOTP}
-                  handleVerifyOTP={handleVerifyOTP}
-                  message={message}
-                  messageType={messageType}
-                  auth={auth}
-                />
+                <CardHeader>
+                  <CardTitle className="flex mb-5 justify-center text-darkGrey md:text-3xl">
+                    {step === "sendOTP" ? "Verify your email" : "Enter OTP"}
+                  </CardTitle>
+                  <CardDescription>
+                    <Button
+                      className="w-full text-darkGrey"
+                      variant="outline"
+                      onClick={() => signIn("google")}
+                    >
+                      <FcGoogle size={25} className="mr-2" /> Sign Up with Google
+                    </Button>
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-5">
+                  {message && (
+                    <p className={messageType === "success" ? "text-green-500" : "text-red-500"}>
+                      {message}
+                    </p>
+                  )}
+                  {step === "sendOTP" ? (
+                    <div className="space-y-1">
+                      <Label htmlFor="email" className="text-signininput text-base">
+                        Email Address
+                      </Label>
+                      <Input
+                        type="email"
+                        id="email"
+                        className="text-signininput3 text-base"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="Enter email address"
+                      />
+                    </div>
+                  ) : (
+                    <div className="space-y-1">
+                      <Label htmlFor="otp" className="text-signininput text-base">
+                        OTP
+                      </Label>
+                      <Input
+                        type="text"
+                        id="otp"
+                        className="text-signininput3 text-base"
+                        value={otp}
+                        onChange={(e) => setOtp(e.target.value)}
+                        placeholder="Enter OTP"
+                      />
+                    </div>
+                  )}
+                  <div>
+                    <Button
+                      variant="outline"
+                      size={"lg"}
+                      className="bg-blue w-full text-white"
+                      onClick={step === "sendOTP" ? handleSendOTP : handleVerifyOTP}
+                    >
+                      {step === "sendOTP" ? "Send OTP" : "Verify OTP"}
+                    </Button>
+                  </div>
+                  {auth.otpError && <p className="text-red-500">{auth.otpError}</p>}
+                  <div className="flex items-center">
+                    <h1 className="text-signinemail text-base">Already have an account?</h1>
+                    <Button asChild variant="link" className="text-blue">
+                      <Link href="/signin">Sign In</Link>
+                    </Button>
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <Button asChild variant="link" className="w-full text-blue">
+                    <Link href="/home">
+                      <FaArrowLeft size={20} className="mr-2" /> Back to Home
+                    </Link>
+                  </Button>
+                </CardFooter>
               </Card>
             </TabsContent>
             <TabsContent value="company">
               <Card className="border-none shadow-none">
-                <AuthForm
-                  step={step}
-                  setStep={setStep}
-                  email={email}
-                  setEmail={setEmail}
-                  otp={otp}
-                  setOtp={setOtp}
-                  handleSendOTP={handleSendOTP}
-                  handleVerifyOTP={handleVerifyOTP}
-                  message={message}
-                  messageType={messageType}
-                  auth={auth}
-                />
+                <CardHeader>
+                  <CardTitle className="flex mb-5 justify-center text-darkGrey md:text-3xl">
+                    {step === "sendOTP" ? "Verify your email" : "Enter OTP"}
+                  </CardTitle>
+                  <CardDescription>
+                    <Button
+                      className="w-full text-darkGrey"
+                      variant="outline"
+                      onClick={() => signIn("google")}
+                    >
+                      <FcGoogle size={25} className="mr-2" /> Sign Up with Google
+                    </Button>
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-5">
+                  {message && (
+                    <p className={messageType === "success" ? "text-green-500" : "text-red-500"}>
+                      {message}
+                    </p>
+                  )}
+                  {step === "sendOTP" ? (
+                    <div className="space-y-1">
+                      <Label htmlFor="email" className="text-signininput text-base">
+                        Email Address
+                      </Label>
+                      <Input
+                        type="email"
+                        id="email"
+                        className="text-signininput3 text-base"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="Enter email address"
+                      />
+                    </div>
+                  ) : (
+                    <div className="space-y-1">
+                      <Label htmlFor="otp" className="text-signininput text-base">
+                        OTP
+                      </Label>
+                      <Input
+                        type="text"
+                        id="otp"
+                        className="text-signininput3 text-base"
+                        value={otp}
+                        onChange={(e) => setOtp(e.target.value)}
+                        placeholder="Enter OTP"
+                      />
+                    </div>
+                  )}
+                  <div>
+                    <Button
+                      variant="outline"
+                      size={"lg"}
+                      className="bg-blue w-full text-white"
+                      onClick={step === "sendOTP" ? handleSendOTP : handleVerifyOTP}
+                    >
+                      {step === "sendOTP" ? "Send OTP" : "Verify OTP"}
+                    </Button>
+                  </div>
+                  {auth.otpError && <p className="text-red-500">{auth.otpError}</p>}
+                  <div className="flex items-center">
+                    <h1 className="text-signinemail text-base">Already have an account?</h1>
+                    <Button asChild variant="link" className="text-blue">
+                      <Link href="/signin">Sign In</Link>
+                    </Button>
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <Button asChild variant="link" className="w-full text-blue">
+                    <Link href="/home">
+                      <FaArrowLeft size={20} className="mr-2" /> Back to Home
+                    </Link>
+                  </Button>
+                </CardFooter>
               </Card>
             </TabsContent>
           </Tabs>
@@ -258,5 +274,4 @@ const SendOTPPage: React.FC = () => {
   );
 };
 
-export default withAuthenticatedRoutes(SendOTPPage);
-
+export default SendOTPPage;

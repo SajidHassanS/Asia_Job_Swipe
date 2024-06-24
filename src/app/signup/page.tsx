@@ -6,24 +6,26 @@ import { RootState, AppDispatch } from '../../store';
 import { registerJobSeeker, registerCompany } from '../../store/slices/authSlice';
 import { Button } from "@/components/ui/button";
 import { FaArrowLeft } from "react-icons/fa6";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import withAuthenticatedRoutes from "@/components/HOC/AuthenticatedRoutes";
 
 const SignUpPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const auth = useSelector((state: RootState) => state.auth);
   const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const [email, setEmail] = useState<string>('');
+  const [email, setEmail] = useState<string>(searchParams.get('email') || '');
+  const [otp, setOtp] = useState<string>(searchParams.get('otp') || '');
   const [password, setPassword] = useState<string>('');
   const [firstName, setFirstName] = useState<string>('');
   const [lastName, setLastName] = useState<string>('');
-  const [otp, setOtp] = useState<string>('');
   const [companyName, setCompanyName] = useState<string>('');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (auth?.user) {
@@ -32,17 +34,20 @@ const SignUpPage: React.FC = () => {
   }, [auth?.user, router]);
 
   const handleSignUp = async (role: string) => {
-    let response;
-    if (role === 'jobseeker') {
-      response = await dispatch(registerJobSeeker({ email, password, firstName, lastName, otp, role: 'jobSeeker' }));
-    } else if (role === 'company') {
-      response = await dispatch(registerCompany({ email, password, firstName, lastName, otp, role: 'company', companyName }));
-    }
+    setErrorMessage(null); // Clear previous error messages
+    try {
+      let response;
+      if (role === 'jobseeker') {
+        response = await dispatch(registerJobSeeker({ email, password, firstName, lastName, otp, role: 'jobSeeker' })).unwrap();
+      } else if (role === 'company') {
+        response = await dispatch(registerCompany({ email, password, otp, role: 'company', companyName })).unwrap();
+      }
 
-    if (response && response.meta.requestStatus === 'fulfilled') {
-      router.push('/');
-    } else {
-      console.error(response?.payload || 'An error occurred during registration.');
+      if (response) {
+        router.push('/');
+      }
+    } catch (error: any) {
+      setErrorMessage(error.message || 'An error occurred during registration.');
     }
   };
 
@@ -104,28 +109,18 @@ const SignUpPage: React.FC = () => {
                       placeholder="Enter Password"
                     />
                   </div>
-                  <div className="space-y-1">
-                    <Label htmlFor="otp" className="text-signininput text-base">OTP</Label>
-                    <Input
-                      id="otp"
-                      type="text"
-                      className="text-signininput3 text-base"
-                      value={otp}
-                      onChange={(e) => setOtp(e.target.value)}
-                      placeholder="Enter OTP"
-                    />
-                  </div>
                   <div>
                     <Button
                       variant="outline"
                       size={"lg"}
                       className="bg-blue w-full text-white"
                       onClick={() => handleSignUp('jobseeker')}
+                      disabled={auth.status === 'loading'}
                     >
                       Continue
                     </Button>
                   </div>
-                  {auth?.error && <p className="text-red-500">{auth.error}</p>}
+                  {errorMessage && <p className="text-red-500">{errorMessage}</p>}
                   <div className="flex items-center">
                     <h1 className="text-signinemail text-base">Already have an account?</h1>
                     <Button asChild variant="link" className="text-blue">
@@ -156,23 +151,13 @@ const SignUpPage: React.FC = () => {
                 </CardHeader>
                 <CardContent className="space-y-5">
                   <div className="space-y-1">
-                    <Label htmlFor="firstName" className="text-signininput text-base">First Name</Label>
+                    <Label htmlFor="companyName" className="text-signininput text-base">Company Name</Label>
                     <Input
-                      id="firstName"
+                      id="companyName"
                       className="text-signininput3"
-                      value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
-                      placeholder="Enter your first name"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <Label htmlFor="lastName" className="text-signininput text-base">Last Name</Label>
-                    <Input
-                      id="lastName"
-                      className="text-signininput3"
-                      value={lastName}
-                      onChange={(e) => setLastName(e.target.value)}
-                      placeholder="Enter your last name"
+                      value={companyName}
+                      onChange={(e) => setCompanyName(e.target.value)}
+                      placeholder="Enter company name"
                     />
                   </div>
                   <div className="space-y-1">
@@ -197,38 +182,18 @@ const SignUpPage: React.FC = () => {
                       placeholder="Enter Password"
                     />
                   </div>
-                  <div className="space-y-1">
-                    <Label htmlFor="otp" className="text-signininput text-base">OTP</Label>
-                    <Input
-                      id="otp"
-                      type="text"
-                      className="text-signininput3 text-base"
-                      value={otp}
-                      onChange={(e) => setOtp(e.target.value)}
-                      placeholder="Enter OTP"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <Label htmlFor="companyName" className="text-signininput text-base">Company Name</Label>
-                    <Input
-                      id="companyName"
-                      className="text-signininput3"
-                      value={companyName}
-                      onChange={(e) => setCompanyName(e.target.value)}
-                      placeholder="Enter company name"
-                    />
-                  </div>
                   <div>
                     <Button
                       variant="outline"
                       size={"lg"}
                       className="bg-blue w-full text-white"
                       onClick={() => handleSignUp('company')}
+                      disabled={auth.status === 'loading'}
                     >
                       Continue
                     </Button>
                   </div>
-                  {auth?.error && <p className="text-red-500">{auth.error}</p>}
+                  {errorMessage && <p className="text-red-500">{errorMessage}</p>}
                   <div className="flex items-center">
                     <h1 className="text-signinemail text-base">Already have an account?</h1>
                     <Button asChild variant="link" className="text-blue">

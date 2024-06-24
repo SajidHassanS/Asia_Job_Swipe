@@ -56,7 +56,7 @@ export const registerJobSeeker = createAsyncThunk<User, { email: string; passwor
   }
 );
 
-export const registerCompany = createAsyncThunk<User, { email: string; password: string; firstName: string; lastName: string; otp: string; role: string; companyName: string }, { rejectValue: string }>(
+export const registerCompany = createAsyncThunk<User, { email: string; password: string;  otp: string; role: string; companyName: string }, { rejectValue: string }>(
   'auth/registerCompany',
   async (userData, { rejectWithValue }) => {
     try {
@@ -106,30 +106,6 @@ export const verifyOTP = createAsyncThunk<void, { email: string; otp: string }, 
   }
 );
 
-export const initializeAuth = createAsyncThunk(
-  'auth/initializeAuth',
-  async (_, { dispatch, rejectWithValue }) => {
-    const accessToken = localStorage.getItem('accessToken');
-    const refreshToken = localStorage.getItem('refreshToken');
-   
-    if (accessToken && refreshToken) {
-      try {
-        const response = await axios.get(`${API_URL}/auth/profile`, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
-        dispatch(setUser(response.data)); 
-        dispatch(setTokens({ accessToken, refreshToken }));
-      } catch (error) {
-        console.error('Failed to fetch user profile', error);
-        return rejectWithValue('Failed to fetch user profile');
-      }
-    } else {
-      return rejectWithValue('No tokens found');
-    }
-  }
-);
 
 export const logout = createAsyncThunk<void, void, { rejectValue: string }>(
   'auth/logout',
@@ -186,6 +162,34 @@ export const googleSignIn = createAsyncThunk<User, { code: string; role: string 
     }
   }
 );
+
+
+
+export const initializeAuth = createAsyncThunk(
+  'auth/initializeAuth',
+  async (_, { dispatch, rejectWithValue }) => {
+    const accessToken = localStorage.getItem('accessToken');
+    const refreshToken = localStorage.getItem('refreshToken');
+
+    if (accessToken && refreshToken) {
+      try {
+        const response = await axios.get(`${API_URL}/auth/profile`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+        dispatch(setUser(response.data));
+        dispatch(setTokens({ accessToken, refreshToken }));
+      } catch (error) {
+        console.error('Failed to fetch user profile', error);
+        return rejectWithValue('Failed to fetch user profile');
+      }
+    } else {
+      return rejectWithValue('No tokens found');
+    }
+  }
+);
+
 
 const authSlice = createSlice({
   name: 'auth',

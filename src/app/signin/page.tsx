@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
 import { useRouter } from 'next/navigation';
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaArrowLeft } from "react-icons/fa6";
 import { FcGoogle } from "react-icons/fc";
 import { useDispatch, useSelector } from 'react-redux';
@@ -29,11 +29,23 @@ const SignInPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const router = useRouter();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (auth?.user) {
+      router.push('/');
+    }
+  }, [auth?.user, router]);
    
   const handleSignIn = async () => {
-    const response = await dispatch(signIn({ email, password, userType }));
-    if (response.meta.requestStatus === 'fulfilled') {
-      router.push('/');
+    setErrorMessage(null); // Clear previous error messages
+    try {
+      const response = await dispatch(signIn({ email, password, userType })).unwrap();
+      if (response) {
+        router.push('/');
+      }
+    } catch (error: any) {
+      setErrorMessage(error.message || 'An error occurred during sign-in.');
     }
   };
 
@@ -107,11 +119,12 @@ const SignInPage = () => {
                       size={"lg"}
                       className="bg-blue w-full text-white"
                       onClick={handleSignIn}
+                      disabled={auth.status === 'loading'}
                     >
                       Continue
                     </Button>
                   </div>
-                  {auth.error && <p className="text-red-500">{auth.error}</p>}
+                  {errorMessage && <p className="text-red-500">{errorMessage}</p>}
                   <div className="flex items-center">
                     <h1 className="text-signinemail text-base">Don’t have an account?</h1>
                     <Button asChild variant="link" className="text-blue">
@@ -187,11 +200,12 @@ const SignInPage = () => {
                       size={"lg"}
                       className="bg-blue w-full text-white"
                       onClick={handleSignIn}
+                      disabled={auth.status === 'loading'}
                     >
                       Continue
                     </Button>
                   </div>
-                  {auth.error && <p className="text-red-500">{auth.error}</p>}
+                  {errorMessage && <p className="text-red-500">{errorMessage}</p>}
                   <div className="flex items-center">
                     <h1 className="text-signinemail text-base">Don’t have an account?</h1>
                     <Button asChild variant="link" className="text-blue">
