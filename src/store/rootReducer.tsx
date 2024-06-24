@@ -11,7 +11,7 @@ const rootReducer = combineReducers({
   job:jobSlice,
   company: companyReducer,
   userSettings: userSettingsReducer,
-  token: tokens,
+  // token: tokens,
 
 });
 
