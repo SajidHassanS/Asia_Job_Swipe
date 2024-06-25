@@ -1,7 +1,7 @@
 import Title from "@/components/Title";
 import { Metadata } from "next";
 import MessageList from './components/MessageList'
-import DashboardLayout from "../dashboard/layout";
+// import DashboardLayout from "../dashboard/layout";
 export const metadata: Metadata = {
   title: "Messages",
   description: "Asia JobsSwipe Admin Panel - Messages",
@@ -10,14 +10,14 @@ export const metadata: Metadata = {
 const MessagesPage = () => {
   return (
 
-    <DashboardLayout>
+    // <DashboardLayout>
     <Title
   title="Messages"
   className="w-full min-h-screen flex flex-col bg-background p-4"
 >
 <MessageList/>;
 </Title>
-  </DashboardLayout>
+  // </DashboardLayout>
   )
 
   

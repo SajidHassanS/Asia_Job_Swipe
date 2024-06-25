@@ -12,7 +12,7 @@ const Menu: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const pathname = usePathname();
-  const router = useRouter();
+  const router = useRouter();   
   const dispatch = useAppDispatch();
   const { user, status } = useAppSelector((state) => state.auth);
   const [accessToken, setAccessToken] = useState<string | null>(null);
@@ -86,7 +86,7 @@ const Menu: React.FC = () => {
               <>
                 <Button variant="outline" className='bg-signature text-background' onClick={() => setIsDialogOpen(true)}>Sign Out</Button>
                 <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                  <DialogContent className="sm:max-w-[425px] sm:max-h-[300px] bg-white p-5">
+                  <DialogContent className="sm:max-w-[425px] sm:max-h-[300px] bg-background p-5">
                     <DialogHeader>
                       <DialogTitle>Confirm Sign Out</DialogTitle>
                       <DialogDescription>
@@ -95,7 +95,7 @@ const Menu: React.FC = () => {
                     </DialogHeader>
                     <DialogFooter>
                       <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
-                      <Button variant="destructive" className='bg-blue text-white' onClick={handleLogout}>Sign Out</Button>
+                      <Button variant="destructive" className='bg-signature text-background' onClick={handleLogout}>Sign Out</Button>
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>

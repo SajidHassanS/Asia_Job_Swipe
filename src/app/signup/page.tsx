@@ -21,6 +21,7 @@ const SignUpPage: React.FC = () => {
 
   const [email, setEmail] = useState<string>(searchParams.get('email') || '');
   const [otp, setOtp] = useState<string>(searchParams.get('otp') || '');
+  const [role, setRole] = useState<string>(searchParams.get('role') || 'jobSeeker');
   const [password, setPassword] = useState<string>('');
   const [firstName, setFirstName] = useState<string>('');
   const [lastName, setLastName] = useState<string>('');
@@ -33,14 +34,14 @@ const SignUpPage: React.FC = () => {
     }
   }, [auth?.user, router]);
 
-  const handleSignUp = async (role: string) => {
+  const handleSignUp = async () => {
     setErrorMessage(null); // Clear previous error messages
     try {
       let response;
-      if (role === 'jobseeker') {
-        response = await dispatch(registerJobSeeker({ email, password, firstName, lastName, otp, role: 'jobSeeker' })).unwrap();
+      if (role === 'jobSeeker') {
+        response = await dispatch(registerJobSeeker({ email, password, firstName, lastName, otp, role })).unwrap();
       } else if (role === 'company') {
-        response = await dispatch(registerCompany({ email, password, otp, role: 'company', companyName })).unwrap();
+        response = await dispatch(registerCompany({ email, password, otp, role, companyName })).unwrap();
       }
 
       if (response) {
@@ -56,12 +57,12 @@ const SignUpPage: React.FC = () => {
       <div className="hidden md:flex md:w-1/2 w-full min-h-screen bg-cover bg-center" style={{ backgroundImage: "url('/images/signupimage.png')" }}></div>
       <div className="md:w-1/2 w-full flex items-center justify-center min-h-screen py-8">
         <div className="w-[550px]">
-          <Tabs defaultValue="jobseeker" className="w-full">
+          <Tabs defaultValue={role} className="w-full">
             <TabsList className="flex justify-center w-full mb-4">
-              <TabsTrigger value="jobseeker" className="w-1/3">Job Seeker</TabsTrigger>
+              <TabsTrigger value="jobSeeker" className="w-1/3">Job Seeker</TabsTrigger>
               <TabsTrigger value="company" className="w-1/3">Company</TabsTrigger>
             </TabsList>
-            <TabsContent value="jobseeker">
+            <TabsContent value="jobSeeker">
               <Card className="border-none shadow-none">
                 <CardHeader>
                   <CardTitle className="flex mb-5 justify-center text-darkGrey md:text-3xl">Get more opportunities</CardTitle>
@@ -114,7 +115,7 @@ const SignUpPage: React.FC = () => {
                       variant="outline"
                       size={"lg"}
                       className="bg-blue w-full text-white"
-                      onClick={() => handleSignUp('jobseeker')}
+                      onClick={handleSignUp}
                       disabled={auth.status === 'loading'}
                     >
                       Continue
@@ -187,7 +188,7 @@ const SignUpPage: React.FC = () => {
                       variant="outline"
                       size={"lg"}
                       className="bg-blue w-full text-white"
-                      onClick={() => handleSignUp('company')}
+                      onClick={handleSignUp}
                       disabled={auth.status === 'loading'}
                     >
                       Continue

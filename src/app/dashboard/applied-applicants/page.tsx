@@ -1,26 +1,24 @@
 import { Metadata } from "next";
 import AllAppliedCandidates from "./AllAppliedCandidates";
 import Title from "@/components/Title";
-import DashboardLayout from "../dashboard/layout";
-
+// import DashboardLayout from "../dashboard/layout";
 export const metadata: Metadata = {
-  title: "All Matched Seekers",
+  title: "All Matched Applicants",
   description: "Asia JobsSwipe Admin Panel - All Companies",
 };
 
-const Alljobs = () => {
+const AppliedApplicants = () => {
   return (
-    <DashboardLayout>
-
-<Title
-      title="Matched Seekers"
+    // <DashboardLayout>
+       <Title
+      title="Matched Applicants"
       className="w-full min-h-screen flex flex-col bg-background p-4"
     >
       <AllAppliedCandidates />
     </Title>
-    </DashboardLayout>
+    // </DashboardLayout>
    
   );
 };
 
-export default Alljobs;
+export default AppliedApplicants;

@@ -8,24 +8,14 @@ const withAuthenticatedRoutes = <P extends object>(
 ) => {
   const AuthenticatedRoutes: React.FC<P> = (props) => {
     const router = useRouter();
-
     useEffect(() => {
-      const token = localStorage.getItem("accessToken");
-      const role = localStorage.getItem("role");
-
-      if (token) {
-        if (role === "company") {
-          router.push("/dashboard");
-        } else {
-          router.push("/");
-        }
+      if (localStorage.getItem("accessToken")) {
+        router.push("/dashboard");
       }
     }, [router]);
-
     return <WrappedComponent {...props} />;
   };
 
   return AuthenticatedRoutes;
 };
-
 export default withAuthenticatedRoutes;

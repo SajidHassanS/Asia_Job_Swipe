@@ -42,7 +42,7 @@ const FormRightSide: React.FC<FormRightSideProps> = ({
   handleSubmit,
 }) => {
   return (
-    <form onSubmit={handleSubmit}>
+    <div>
       <div className="mb-8">
         <Label htmlFor="benefits">Benefits (Optional)</Label>
         <select
@@ -190,11 +190,12 @@ const FormRightSide: React.FC<FormRightSideProps> = ({
         <Button
           type="submit"
           className="w-full bg-signature text-white py-3"
+          onClick={handleSubmit}
         >
           Post a Job
         </Button>
       </div>
-    </form>
+    </div>
   );
 };
 

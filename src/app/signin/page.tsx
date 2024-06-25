@@ -33,7 +33,12 @@ const SignInPage = () => {
 
   useEffect(() => {
     if (auth?.user) {
-      router.push('/');
+      const role = localStorage.getItem("role"); // Assuming the role is stored in localStorage
+      if (role === "employer") {
+        router.push("/dashboard");
+      } else {
+        router.push("/");
+      }
     }
   }, [auth?.user, router]);
    
@@ -42,7 +47,12 @@ const SignInPage = () => {
     try {
       const response = await dispatch(signIn({ email, password, userType })).unwrap();
       if (response) {
-        router.push('/');
+        localStorage.setItem("role", userType); // Store the role in localStorage
+        if (userType === "employer") {
+          router.push("/dashboard");
+        } else {
+          router.push("/");
+        }
       }
     } catch (error: any) {
       setErrorMessage(error.message || 'An error occurred during sign-in.');

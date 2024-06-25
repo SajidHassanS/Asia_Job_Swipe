@@ -21,7 +21,6 @@ import { FcGoogle } from "react-icons/fc";
 import { FaArrowLeft } from "react-icons/fa6";
 import { useRouter } from "next/navigation";
 import { signIn, useSession } from "next-auth/react";
-import withAuthenticatedRoutes from "@/components/HOC/AuthenticatedRoutes";
 
 const SendOTPPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -37,30 +36,11 @@ const SendOTPPage: React.FC = () => {
 
   useEffect(() => {
     if (session) {
-      // Optionally, store tokens in local storage 
       localStorage.setItem("accessToken", auth.accessToken || "");
       localStorage.setItem("refreshToken", auth.refreshToken || "");
       router.push("/");
     }
   }, [session, router, auth.accessToken, auth.refreshToken]);
-
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const code = urlParams.get("code");
-    const state = urlParams.get("state");
-    console.log("OAuth Callback Params:", { code, state });
-
-    // if (code && state) {
-    //   setRole(state);
-    //   dispatch(googleSignIn({ code, role: state })).then((response) => {
-    //     if (response.meta.requestStatus === "fulfilled") {
-    //       console.log("Google Sign-In Successful:", response.payload);
-    //     } else {
-    //       console.error("Google Sign-In Failed:", response.payload);
-    //     }
-    //   });
-    // }
-  }, [dispatch]);
 
   const handleSendOTP = async () => {
     const response = await dispatch(sendOTP({ email }));
@@ -78,11 +58,9 @@ const SendOTPPage: React.FC = () => {
   };
 
   const handleVerifyOTP = async () => {
-    console.log("Attempting to verify OTP with email:", email, "and OTP:", otp);
     const response = await dispatch(verifyOTP({ email, otp }));
-    console.log("Verify OTP Response:", response);
     if (response.meta.requestStatus === "fulfilled") {
-      router.push(`/signup?email=${email}&otp=${otp}`);
+      router.push(`/signup?email=${email}&otp=${otp}&role=${role}`);
     } else {
       setMessage("Failed to verify OTP. Please try again.");
       setMessageType("error");
@@ -102,16 +80,16 @@ const SendOTPPage: React.FC = () => {
       ></div>
       <div className="md:w-1/2 w-full flex items-center justify-center min-h-screen py-8">
         <div className="w-[550px]">
-          <Tabs defaultValue="jobseeker" className="w-full">
+          <Tabs defaultValue="jobSeeker" className="w-full">
             <TabsList className="flex justify-center w-full mb-4">
-              <TabsTrigger value="jobseeker" className="w-1/3" onClick={() => setRole("jobSeeker")}>
+              <TabsTrigger value="jobSeeker" className="w-1/3" onClick={() => setRole("jobSeeker")}>
                 Job Seeker
               </TabsTrigger>
               <TabsTrigger value="company" className="w-1/3" onClick={() => setRole("company")}>
                 Company
               </TabsTrigger>
             </TabsList>
-            <TabsContent value="jobseeker">
+            <TabsContent value="jobSeeker">
               <Card className="border-none shadow-none">
                 <CardHeader>
                   <CardTitle className="flex mb-5 justify-center text-darkGrey md:text-3xl">
