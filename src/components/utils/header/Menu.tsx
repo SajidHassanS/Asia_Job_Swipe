@@ -15,13 +15,16 @@ const Menu: React.FC = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { user, status } = useAppSelector((state) => state.auth);
-  const accessToken = localStorage.getItem('accessToken');
+  const [accessToken, setAccessToken] = useState<string | null>(null);
+
   useEffect(() => {
-    
-    if (accessToken) {
-      dispatch(initializeAuth());
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('accessToken');
+      setAccessToken(token);
+      if (token) {
+        dispatch(initializeAuth());
+      }
     }
-   
   }, [dispatch]);
 
   const toggleMenu = () => {
@@ -35,8 +38,10 @@ const Menu: React.FC = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+    }
     dispatch(logout());
     router.push('/signin');
   };
