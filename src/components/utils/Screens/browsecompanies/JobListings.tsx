@@ -1,16 +1,13 @@
 "use client";
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../../../../store';
-import { fetchCompanies } from '../../../../store/slices/companySlice'; // Adjust the import path as needed
+import { fetchCompanies } from '../../../../store/slices/companySlice';
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { BsBookmarkDash } from "react-icons/bs";
-import { IoCheckmarkDoneSharp } from "react-icons/io5";
 import PaginationComponent from "./Pagination";
 import {
   Accordion,
-  AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
@@ -62,7 +59,7 @@ const JobListings: React.FC<{ jobs: Job[] }> = ({ jobs }) => {
           <div>
             <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="item-1">
-                <AccordionTrigger> Most relevant</AccordionTrigger>
+                <AccordionTrigger>Most relevant</AccordionTrigger>
               </AccordionItem>
             </Accordion>
           </div>
@@ -85,7 +82,7 @@ const JobListings: React.FC<{ jobs: Job[] }> = ({ jobs }) => {
                   <Image
                     width={61}
                     height={61}
-                    src={company.companyImages[0] || '/images/default.png'} // Use a default image if no image is provided
+                    src={company.companyImages[0] || '/images/default.png'}
                     alt={company.companyName}
                     className="mr-4"
                   />
@@ -106,14 +103,12 @@ const JobListings: React.FC<{ jobs: Job[] }> = ({ jobs }) => {
               </div>
               <div className="flex justify-between">
                 <div className="flex flex-wrap gap-2 items-center mt-2">
-                  <Button asChild className="rounded-[30px]">
-                    <Link
-                      className="border text-blue text-sm md:px-4 md:py-2"
-                      href="/signin"
-                    >
-                      Business Service
-                    </Link>
-                  </Button>
+                  <Link
+                    className="border text-blue text-sm md:px-4 md:py-2 rounded-[30px]"
+                    href="/signin"
+                  >
+                    Business Service
+                  </Link>
                 </div>
               </div>
             </div>

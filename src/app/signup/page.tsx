@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../../store';
@@ -224,4 +224,10 @@ const SignUpPage: React.FC = () => {
   );
 };
 
-export default withAuthenticatedRoutes(SignUpPage);
+const SignUpPageWithSuspense = () => (
+  <Suspense fallback={<div>Loading...</div>}>
+    <SignUpPage />
+  </Suspense>
+);
+
+export default withAuthenticatedRoutes(SignUpPageWithSuspense);
