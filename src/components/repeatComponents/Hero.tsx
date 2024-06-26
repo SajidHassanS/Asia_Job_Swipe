@@ -1,4 +1,3 @@
-// HeroComponent.tsx
 "use client";
 import React, { useState, useRef, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
@@ -20,7 +19,7 @@ interface HeroProps {
   spanClassName?: string;
   showSearchBar?: boolean;
   onSearch?: (searchTerm: string, location: string) => void;
-  showSearchFields?: boolean; // Add this prop to control visibility
+  showSearchFields?: boolean;
 }
 
 const Hero: React.FC<HeroProps> = ({
@@ -35,13 +34,22 @@ const Hero: React.FC<HeroProps> = ({
   spanClassName = 'text-signature',
   showSearchBar = true,
   onSearch,
-  showSearchFields = true, // Set default value to true
+  showSearchFields = true,
 }) => {
+  const [searchTerm, setSearchTerm] = useState('');
   const [location, setLocation] = useState('');
   const [filteredCities, setFilteredCities] = useState<string[]>([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSearchInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newSearchTerm = event.target.value;
+    setSearchTerm(newSearchTerm);
+    if (onSearch) {
+      onSearch(newSearchTerm, location);
+    }
+  };
+
+  const handleLocationInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newLocation = event.target.value;
     setLocation(newLocation);
 
@@ -53,6 +61,10 @@ const Hero: React.FC<HeroProps> = ({
       setFilteredCities(filtered);
     } else {
       setFilteredCities([]);
+    }
+
+    if (onSearch) {
+      onSearch(searchTerm, newLocation);
     }
   };
 
@@ -93,7 +105,7 @@ const Hero: React.FC<HeroProps> = ({
               backgroundSize: '600px 200px',
               backgroundRepeat: 'no-repeat',
               backgroundPosition: 'center',
-            }} 
+            }}
           >
             <h1 className={titleClassName}>
               {title} {spanText && <span className={spanClassName}>{spanText}</span>}{afterSpanText}
@@ -112,7 +124,7 @@ const Hero: React.FC<HeroProps> = ({
             </p>
           </div>
         )}
-        {showSearchBar && showSearchFields && ( // Only show these fields if showSearchFields is true
+        {showSearchBar && showSearchFields && (
           <div className="max-w-4xl bg-background border  justify-between rounded-lg p-3 flex flex-col md:flex-row gap-5 items-center mt-8 mx-auto">
             <div className="relative flex items-center">
               <FiSearch size={35} className="absolute inset-y-1 text-signature left-0 pl-3 pointer-events-none" />
@@ -121,7 +133,8 @@ const Hero: React.FC<HeroProps> = ({
                 placeholder="Job title, Keyword..."
                 className="pl-12 text-inputGrey text-lg md:border-none md:outline-none"
                 disableFocusStyles
-                onChange={(e) => onSearch && onSearch(e.target.value, location)}
+                value={searchTerm}
+                onChange={handleSearchInputChange}
               />
             </div>
             <div className="md:border-l relative flex items-center" ref={dropdownRef}>
@@ -131,7 +144,7 @@ const Hero: React.FC<HeroProps> = ({
                 placeholder="Your Location"
                 className="pl-12 md:border-none text-inputGrey text-lg md:outline-none"
                 value={location}
-                onChange={handleInputChange}
+                onChange={handleLocationInputChange}
                 disableFocusStyles
               />
               {filteredCities.length > 0 && (
@@ -143,7 +156,9 @@ const Hero: React.FC<HeroProps> = ({
                       onClick={() => {
                         setLocation(city);
                         setFilteredCities([]);
-                        onSearch && onSearch(searchTerm, city);
+                        if (onSearch) {
+                          onSearch(searchTerm, city);
+                        }
                       }}
                     >
                       {city}
