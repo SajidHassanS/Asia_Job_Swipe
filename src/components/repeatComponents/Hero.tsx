@@ -167,10 +167,10 @@ const Hero: React.FC<HeroProps> = ({
                 </div>
               )}
             </div>
-            <Button asChild>
-              <Link className="bg-signature text-background text-sm px-4 py-3 rounded-md" href="/signin">
+            <Button className="bg-signature text-background text-sm px-4 py-3 rounded-md" >
+             
                 Find Jobs
-              </Link>
+             
             </Button>
           </div>
         )}
