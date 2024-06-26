@@ -25,11 +25,17 @@ const SignUpForm: React.FC = () => {
   const [firstName, setFirstName] = useState<string>('');
   const [lastName, setLastName] = useState<string>('');
   const [companyName, setCompanyName] = useState<string>('');
+  const [role, setRole] = useState<string>('jobSeeker'); // Correct casing for role
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (auth?.user) {
-      router.push('/');
+      const role = localStorage.getItem("role");
+      if (role === "company") {
+        router.push("/dashboard");
+      } else {
+        router.push("/");
+      }
     }
   }, [auth?.user, router]);
 
@@ -37,7 +43,7 @@ const SignUpForm: React.FC = () => {
     setShowPassword(!showPassword);
   };
 
-  const handleSignUp = async (role: string) => {
+  const handleSignUp = async () => {
     setErrorMessage(null); // Clear previous error messages
     if (password !== confirmPassword) {
       setErrorMessage("Passwords do not match");
@@ -46,14 +52,15 @@ const SignUpForm: React.FC = () => {
 
     try {
       let response;
-      if (role === 'jobseeker') {
-        response = await dispatch(registerJobSeeker({ email, password, firstName, lastName, otp, role: 'jobSeeker' })).unwrap();
+      if (role === 'jobSeeker') {
+        response = await dispatch(registerJobSeeker({ email, password, firstName, lastName, otp, role })).unwrap();
       } else if (role === 'company') {
-        response = await dispatch(registerCompany({ email, password, otp, role: 'company', companyName })).unwrap();
+        response = await dispatch(registerCompany({ email, password, otp, role, companyName })).unwrap();
       }
 
       if (response) {
         localStorage.setItem("role", role); // Store the role in localStorage
+        localStorage.setItem("_id", response._id); // Store user ID in localStorage
         router.push(role === 'company' ? '/dashboard' : '/');
       }
     } catch (error: any) {
@@ -66,12 +73,12 @@ const SignUpForm: React.FC = () => {
       <div className="hidden md:flex md:w-1/2 w-full min-h-screen bg-cover bg-center" style={{ backgroundImage: "url('/images/signupimage.png')" }}></div>
       <div className="md:w-1/2 w-full flex items-center justify-center min-h-screen py-8">
         <div className="w-[550px]">
-          <Tabs defaultValue="jobseeker" className="w-full">
+          <Tabs defaultValue="jobSeeker" className="w-full" onValueChange={setRole}>
             <TabsList className="flex justify-center w-full mb-4">
-              <TabsTrigger value="jobseeker" className="w-1/3">Job Seeker</TabsTrigger>
+              <TabsTrigger value="jobSeeker" className="w-1/3">Job Seeker</TabsTrigger>
               <TabsTrigger value="company" className="w-1/3">Company</TabsTrigger>
             </TabsList>
-            <TabsContent value="jobseeker">
+            <TabsContent value="jobSeeker">
               <Card className="border-none shadow-none">
                 <CardHeader>
                   <CardTitle className="flex mb-5 justify-center text-darkGrey md:text-3xl">Get more opportunities</CardTitle>
@@ -147,7 +154,7 @@ const SignUpForm: React.FC = () => {
                       variant="outline"
                       size={"lg"}
                       className="bg-blue w-full text-white"
-                      onClick={() => handleSignUp('jobseeker')}
+                      onClick={handleSignUp}
                       disabled={auth.status === 'loading'}
                     >
                       Continue
@@ -243,7 +250,7 @@ const SignUpForm: React.FC = () => {
                       variant="outline"
                       size={"lg"}
                       className="bg-blue w-full text-white"
-                      onClick={() => handleSignUp('company')}
+                      onClick={handleSignUp}
                       disabled={auth.status === 'loading'}
                     >
                       Continue

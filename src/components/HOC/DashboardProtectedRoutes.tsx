@@ -1,17 +1,27 @@
 "use client";
 import { useRouter } from 'next/navigation';
-import React, {useEffect} from 'react'
-const DashboardProtectedRoutes = ({children} : any) => {
- const router = useRouter()
- useEffect(() => {
-  if (!localStorage.getItem("accessToken")) {
-    router.push("/signin");
-  }
-}, [router]);
+import React, { useEffect, ReactNode } from 'react';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store';
 
-  return (
-    <div>{children}</div>
-  )
+interface DashboardProtectedRoutesProps {
+  children: ReactNode;
 }
 
-export default DashboardProtectedRoutes
+const DashboardProtectedRoutes: React.FC<DashboardProtectedRoutesProps> = ({ children }) => {
+  const router = useRouter();
+  const auth = useSelector((state: RootState) => state.auth);
+
+  useEffect(() => {
+    const accessToken = localStorage.getItem("accessToken");
+    const role = localStorage.getItem("role");
+
+    if (!accessToken || role !== "company") {
+      router.push("/signin");
+    }
+  }, [auth, router]);
+
+  return <div>{children}</div>;
+};
+
+export default DashboardProtectedRoutes;

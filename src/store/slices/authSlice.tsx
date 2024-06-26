@@ -45,6 +45,8 @@ export const registerJobSeeker = createAsyncThunk<User, { email: string; passwor
       const response = await axios.post(`${API_URL}/auth/register/job-seeker`, userData);
       localStorage.setItem('accessToken', response.data.accessToken);
       localStorage.setItem('refreshToken', response.data.refreshToken);
+      localStorage.setItem('role', 'jobseeker');
+      localStorage.setItem('_id', response.data.user._id);
       return response.data.user; // Adjust the return value to only include user data
     } catch (error: any) {
       if (axios.isAxiosError(error) && error.response) {
@@ -63,6 +65,8 @@ export const registerCompany = createAsyncThunk<User, { email: string; password:
       const response = await axios.post(`${API_URL}/auth/register/company`, userData);
       localStorage.setItem('accessToken', response.data.accessToken);
       localStorage.setItem('refreshToken', response.data.refreshToken);
+      localStorage.setItem('role', 'company');
+      localStorage.setItem('_id', response.data.user._id);
       return response.data.user; // Adjust the return value to only include user data
     } catch (error: any) {
       if (axios.isAxiosError(error) && error.response) {
@@ -120,22 +124,24 @@ export const logout = createAsyncThunk<void, void, { rejectValue: string }>(
   }
 );
 
+
 export const signIn = createAsyncThunk<User, { email: string; password: string; userType: string }, { rejectValue: string }>(
   'auth/login',
   async ({ email, password, userType }, { rejectWithValue }) => {
-    let url = `${API_URL}/auth/login`; // Default route for jobSeeker and company
-    if (userType === 'companyRole') {
-      url = `${API_URL}/auth/login/company-role`;
-    } else if (userType === 'admin') {
-      url = `${API_URL}/auth/login/admin`;
-    }  
-
     try {
-      const response = await axios.post(url, { email, password });
+      const response = await axios.post(`${API_URL}/auth/login`, { email, password });
+      const user = response.data.user.userInfo;
+
+      if (user.role !== userType) {
+        return rejectWithValue('Unauthorized: role mismatch');
+      }
+
       localStorage.setItem('accessToken', response.data.accessToken);
       localStorage.setItem('refreshToken', response.data.refreshToken);
-      console.log('Login response:', response.data.accessToken);
-      return response.data.user; // Adjust the return value to only include user data
+      localStorage.setItem('role', user.role);
+      localStorage.setItem('_id', user._id);
+
+      return user;
     } catch (error: any) {
       if (axios.isAxiosError(error) && error.response) {
         return rejectWithValue(error.response.data.message || 'An error occurred during sign-in.');
@@ -145,6 +151,9 @@ export const signIn = createAsyncThunk<User, { email: string; password: string; 
     }
   }
 );
+
+
+
 export const googleSignIn = createAsyncThunk<User, { code: string; role: string }, { rejectValue: string }>(
   'auth/googleSignIn',
   async ({ code, role }, { rejectWithValue }) => {
@@ -197,6 +206,7 @@ const authSlice = createSlice({
   reducers: {
     setUser: (state: AuthState, action: PayloadAction<User>) => {
       state.user = action.payload;
+      state.role = action.payload.role || null;
     },
     signOut: (state: AuthState) => {
       state.user = null;
@@ -204,6 +214,8 @@ const authSlice = createSlice({
       state.refreshToken = null;
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
+      localStorage.removeItem('role');
+      localStorage.removeItem('_id');
     },
     setEmailForSignUp: (state: AuthState, action: PayloadAction<string>) => {
       state.emailForSignUp = action.payload;
@@ -260,6 +272,7 @@ const authSlice = createSlice({
       .addCase(signIn.fulfilled, (state: AuthState, action: PayloadAction<User>) => {
         state.status = 'succeeded';
         state.user = action.payload;
+        state.role = action.payload.role || null;
         state.error = null;
       })
       .addCase(signIn.rejected, (state: AuthState, action: PayloadAction<string | undefined>) => {

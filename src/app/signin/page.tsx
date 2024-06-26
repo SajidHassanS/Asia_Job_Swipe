@@ -1,14 +1,7 @@
 "use client";
 import withAuthenticatedRoutes from "@/components/HOC/AuthenticatedRoutes";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -34,14 +27,14 @@ const SignInPage = () => {
 
   useEffect(() => {
     if (auth?.user) {
-      const role = localStorage.getItem("role");
+      const role = auth.role;
       if (role === "company") {
         router.push("/dashboard");
-      } else {
+      } else if (role === "jobSeeker") {
         router.push("/");
       }
     }
-  }, [auth?.user, router]);
+  }, [auth?.user, router, auth.role]);
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -52,7 +45,6 @@ const SignInPage = () => {
     try {
       const response = await dispatch(signIn({ email, password, userType })).unwrap();
       if (response) {
-        localStorage.setItem("role", userType);
         if (userType === "company") {
           router.push("/dashboard");
         } else {
@@ -60,7 +52,7 @@ const SignInPage = () => {
         }
       }
     } catch (error: any) {
-      setErrorMessage(error.message || 'An error occurred during sign-in.');
+      setErrorMessage(error.message || error);
     }
   };
 
