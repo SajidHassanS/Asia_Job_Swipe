@@ -16,7 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from "react";
-import { FaArrowLeft } from "react-icons/fa6";
+import { FaArrowLeft, FaEye, FaEyeSlash } from "react-icons/fa6";
 import { FcGoogle } from "react-icons/fc";
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../store';
@@ -28,27 +28,32 @@ const SignInPage = () => {
   const auth = useSelector((state: RootState) => state.auth);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (auth?.user) {
-      const role = localStorage.getItem("role"); // Assuming the role is stored in localStorage
-      if (role === "employer") {
+      const role = localStorage.getItem("role");
+      if (role === "company") {
         router.push("/dashboard");
       } else {
         router.push("/");
       }
     }
   }, [auth?.user, router]);
-   
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
   const handleSignIn = async () => {
     setErrorMessage(null); // Clear previous error messages
     try {
       const response = await dispatch(signIn({ email, password, userType })).unwrap();
       if (response) {
-        localStorage.setItem("role", userType); // Store the role in localStorage
-        if (userType === "employer") {
+        localStorage.setItem("role", userType);
+        if (userType === "company") {
           router.push("/dashboard");
         } else {
           router.push("/");
@@ -68,7 +73,7 @@ const SignInPage = () => {
           <Tabs defaultValue="jobSeeker" className="w-full" onValueChange={setUserType}>
             <TabsList className="flex justify-center w-full mb-4">
               <TabsTrigger value="jobSeeker" className="w-1/3">Job Seeker</TabsTrigger>
-              <TabsTrigger value="employer" className="w-1/3">Employer</TabsTrigger>
+              <TabsTrigger value="company" className="w-1/3">Employer</TabsTrigger>
             </TabsList>
             <TabsContent value="jobSeeker">
               <Card className="border-none shadow-none">
@@ -103,16 +108,22 @@ const SignInPage = () => {
                       placeholder="Enter email address"
                     />
                   </div>
-                  <div className="space-y-1">
+                  <div className="space-y-1 relative">
                     <Label htmlFor="password" className="text-signininput text-base">Password</Label>
                     <Input
                       id="password"
-                      type="password"
+                      type={showPassword ? 'text' : 'password'}
                       className="text-signininput3 text-base"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Enter Password"
                     />
+                    <div
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center top-5 cursor-pointer"
+                      onClick={togglePasswordVisibility}
+                    >
+                      {showPassword ? <FaEye /> : <FaEyeSlash /> }
+                    </div>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Checkbox id="terms" />
@@ -151,7 +162,7 @@ const SignInPage = () => {
                 </CardFooter>
               </Card>
             </TabsContent>
-            <TabsContent value="employer">
+            <TabsContent value="company">
               <Card className="border-none shadow-none">
                 <CardHeader>
                   <CardTitle className="flex mb-5 justify-center text-darkGrey md:text-3xl">
@@ -184,16 +195,22 @@ const SignInPage = () => {
                       placeholder="Enter email address"
                     />
                   </div>
-                  <div className="space-y-1">
+                  <div className="space-y-1 relative">
                     <Label htmlFor="password" className="text-signininput text-base">Password</Label>
                     <Input
                       id="password"
-                      type="password"
+                      type={showPassword ? 'text' : 'password'}
                       className="text-signininput3 text-base"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Enter Password"
                     />
+                    <div
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
+                      onClick={togglePasswordVisibility}
+                    >
+                      {showPassword ? <FaEyeSlash /> : <FaEye />}
+                    </div>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Checkbox id="terms" />

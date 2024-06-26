@@ -1,27 +1,26 @@
 "use client";
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../../store';
 import { registerJobSeeker, registerCompany } from '../../store/slices/authSlice';
 import { Button } from "@/components/ui/button";
-import { FaArrowLeft } from "react-icons/fa6";
+
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useRouter, useSearchParams } from 'next/navigation';
-import withAuthenticatedRoutes from "@/components/HOC/AuthenticatedRoutes";
+import { FaArrowLeft, FaEye, FaEyeSlash } from "react-icons/fa6";
 
 const SignUpPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const auth = useSelector((state: RootState) => state.auth);
   const router = useRouter();
   const searchParams = useSearchParams();
-
+  const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState<string>(searchParams.get('email') || '');
   const [otp, setOtp] = useState<string>(searchParams.get('otp') || '');
-  const [role, setRole] = useState<string>(searchParams.get('role') || 'jobSeeker');
   const [password, setPassword] = useState<string>('');
   const [firstName, setFirstName] = useState<string>('');
   const [lastName, setLastName] = useState<string>('');
@@ -34,18 +33,24 @@ const SignUpPage: React.FC = () => {
     }
   }, [auth?.user, router]);
 
-  const handleSignUp = async () => {
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const handleSignUp = async (role: string) => {
     setErrorMessage(null); // Clear previous error messages
     try {
       let response;
-      if (role === 'jobSeeker') {
-        response = await dispatch(registerJobSeeker({ email, password, firstName, lastName, otp, role })).unwrap();
+      if (role === 'jobseeker') {
+        response = await dispatch(registerJobSeeker({ email, password, firstName, lastName, otp, role: 'jobSeeker' })).unwrap();
       } else if (role === 'company') {
-        response = await dispatch(registerCompany({ email, password, otp, role, companyName })).unwrap();
+        response = await dispatch(registerCompany({ email, password, otp, role: 'company', companyName })).unwrap();
       }
 
       if (response) {
-        router.push('/');
+        localStorage.setItem("role", role); // Store the role in localStorage
+        router.push(role === 'company' ? '/dashboard' : '/');
       }
     } catch (error: any) {
       setErrorMessage(error.message || 'An error occurred during registration.');
@@ -57,12 +62,12 @@ const SignUpPage: React.FC = () => {
       <div className="hidden md:flex md:w-1/2 w-full min-h-screen bg-cover bg-center" style={{ backgroundImage: "url('/images/signupimage.png')" }}></div>
       <div className="md:w-1/2 w-full flex items-center justify-center min-h-screen py-8">
         <div className="w-[550px]">
-          <Tabs defaultValue={role} className="w-full">
+          <Tabs defaultValue="jobseeker" className="w-full">
             <TabsList className="flex justify-center w-full mb-4">
-              <TabsTrigger value="jobSeeker" className="w-1/3">Job Seeker</TabsTrigger>
+              <TabsTrigger value="jobseeker" className="w-1/3">Job Seeker</TabsTrigger>
               <TabsTrigger value="company" className="w-1/3">Company</TabsTrigger>
             </TabsList>
-            <TabsContent value="jobSeeker">
+            <TabsContent value="jobseeker">
               <Card className="border-none shadow-none">
                 <CardHeader>
                   <CardTitle className="flex mb-5 justify-center text-darkGrey md:text-3xl">Get more opportunities</CardTitle>
@@ -99,23 +104,29 @@ const SignUpPage: React.FC = () => {
                       placeholder="Enter email address"
                     />
                   </div>
-                  <div className="space-y-1">
+                  <div className="space-y-1 relative">
                     <Label htmlFor="password" className="text-signininput text-base">Password</Label>
                     <Input
                       id="password"
-                      type="password"
+                      type={showPassword ? 'text' : 'password'}
                       className="text-signininput3 text-base"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Enter Password"
                     />
+                      <div
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center top-5 cursor-pointer"
+                      onClick={togglePasswordVisibility}
+                    >
+                      {showPassword ? <FaEye /> : <FaEyeSlash /> }
+                    </div>
                   </div>
                   <div>
                     <Button
                       variant="outline"
                       size={"lg"}
                       className="bg-blue w-full text-white"
-                      onClick={handleSignUp}
+                      onClick={() => handleSignUp('jobseeker')}
                       disabled={auth.status === 'loading'}
                     >
                       Continue
@@ -172,23 +183,29 @@ const SignUpPage: React.FC = () => {
                       placeholder="Enter email address"
                     />
                   </div>
-                  <div className="space-y-1">
+                  <div className="space-y-1 relative">
                     <Label htmlFor="password" className="text-signininput text-base">Password</Label>
                     <Input
                       id="password"
-                      type="password"
+                      type={showPassword ? 'text' : 'password'}
                       className="text-signininput3 text-base"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Enter Password"
                     />
+                      <div
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center top-5 cursor-pointer"
+                      onClick={togglePasswordVisibility}
+                    >
+                      {showPassword ? <FaEye /> : <FaEyeSlash /> }
+                    </div>
                   </div>
                   <div>
                     <Button
                       variant="outline"
                       size={"lg"}
                       className="bg-blue w-full text-white"
-                      onClick={handleSignUp}
+                      onClick={() => handleSignUp('company')}
                       disabled={auth.status === 'loading'}
                     >
                       Continue
@@ -225,10 +242,4 @@ const SignUpPage: React.FC = () => {
   );
 };
 
-const SignUpPageWithSuspense = () => (
-  <Suspense fallback={<div>Loading...</div>}>
-    <SignUpPage />
-  </Suspense>
-);
-
-export default withAuthenticatedRoutes(SignUpPageWithSuspense);
+export default SignUpPage;
