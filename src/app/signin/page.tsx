@@ -206,10 +206,10 @@ const SignInPage = () => {
                       placeholder="Enter Password"
                     />
                     <div
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
+                      className="absolute inset-y-0 right-0 pr-3 top-5 flex items-center cursor-pointer"
                       onClick={togglePasswordVisibility}
                     >
-                      {showPassword ? <FaEyeSlash /> : <FaEye />}
+                      {showPassword ? <FaEye /> : <FaEyeSlash />}
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">

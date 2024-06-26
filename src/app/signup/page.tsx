@@ -1,11 +1,10 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../../store';
 import { registerJobSeeker, registerCompany } from '../../store/slices/authSlice';
 import { Button } from "@/components/ui/button";
-
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useRouter, useSearchParams } from 'next/navigation';
 import { FaArrowLeft, FaEye, FaEyeSlash } from "react-icons/fa6";
 
-const SignUpPage: React.FC = () => {
+const SignUpForm: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const auth = useSelector((state: RootState) => state.auth);
   const router = useRouter();
@@ -22,6 +21,7 @@ const SignUpPage: React.FC = () => {
   const [email, setEmail] = useState<string>(searchParams.get('email') || '');
   const [otp, setOtp] = useState<string>(searchParams.get('otp') || '');
   const [password, setPassword] = useState<string>('');
+  const [confirmPassword, setConfirmPassword] = useState<string>('');
   const [firstName, setFirstName] = useState<string>('');
   const [lastName, setLastName] = useState<string>('');
   const [companyName, setCompanyName] = useState<string>('');
@@ -33,13 +33,17 @@ const SignUpPage: React.FC = () => {
     }
   }, [auth?.user, router]);
 
-
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
 
   const handleSignUp = async (role: string) => {
     setErrorMessage(null); // Clear previous error messages
+    if (password !== confirmPassword) {
+      setErrorMessage("Passwords do not match");
+      return;
+    }
+
     try {
       let response;
       if (role === 'jobseeker') {
@@ -113,6 +117,23 @@ const SignUpPage: React.FC = () => {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Enter Password"
+                    />
+                      <div
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center top-5 cursor-pointer"
+                      onClick={togglePasswordVisibility}
+                    >
+                      {showPassword ? <FaEye /> : <FaEyeSlash /> }
+                    </div>
+                  </div>
+                  <div className="space-y-1 relative">
+                    <Label htmlFor="confirmPassword" className="text-signininput text-base">Confirm Password</Label>
+                    <Input
+                      id="confirmPassword"
+                      type={showPassword ? 'text' : 'password'}
+                      className="text-signininput3 text-base"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Confirm Password"
                     />
                       <div
                       className="absolute inset-y-0 right-0 pr-3 flex items-center top-5 cursor-pointer"
@@ -200,6 +221,23 @@ const SignUpPage: React.FC = () => {
                       {showPassword ? <FaEye /> : <FaEyeSlash /> }
                     </div>
                   </div>
+                  <div className="space-y-1 relative">
+                    <Label htmlFor="confirmPassword" className="text-signininput text-base">Confirm Password</Label>
+                    <Input
+                      id="confirmPassword"
+                      type={showPassword ? 'text' : 'password'}
+                      className="text-signininput3 text-base"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Confirm Password"
+                    />
+                      <div
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center top-5 cursor-pointer"
+                      onClick={togglePasswordVisibility}
+                    >
+                      {showPassword ? <FaEye /> : <FaEyeSlash /> }
+                    </div>
+                  </div>
                   <div>
                     <Button
                       variant="outline"
@@ -241,5 +279,11 @@ const SignUpPage: React.FC = () => {
     </div>
   );
 };
+
+const SignUpPage: React.FC = () => (
+  <Suspense fallback={<div>Loading...</div>}>
+    <SignUpForm />
+  </Suspense>
+);
 
 export default SignUpPage;
