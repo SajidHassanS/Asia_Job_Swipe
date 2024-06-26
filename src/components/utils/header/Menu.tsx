@@ -5,16 +5,16 @@ import { usePathname, useRouter } from 'next/navigation';
 import { FaBars, FaTimes } from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { logout, initializeAuth } from '../../../store/slices/authSlice'; 
-import { useAppDispatch, useAppSelector } from '../../../store/hook'; 
+import { logout, initializeAuth } from '../../../store/slices/authSlice';
+import { useAppDispatch, useAppSelector } from '../../../store/hook';
 
 const Menu: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const pathname = usePathname();
-  const router = useRouter();   
+  const router = useRouter();
   const dispatch = useAppDispatch();
-  const { user, status } = useAppSelector((state) => state.auth);
+  const { user } = useAppSelector((state) => state.auth);
   const [accessToken, setAccessToken] = useState<string | null>(null);
 
   useEffect(() => {
@@ -45,10 +45,6 @@ const Menu: React.FC = () => {
     dispatch(logout());
     router.push('/signin');
   };
-
-  if (status === 'loading') {
-    return <div>Loading...</div>; // Adjust to your loading UI
-  }
 
   return (
     <nav className="container py-4">
@@ -124,6 +120,13 @@ const Menu: React.FC = () => {
             <Link href="/browsecompanies">
               <span className={`text-sm px-4 py-2 block cursor-pointer ${getLinkClasses('/browsecompanies')}`}>Browse Companies</span>
             </Link>
+            {accessToken ? (
+              <Button variant="outline" className='bg-signature text-background w-full mt-4' onClick={() => setIsDialogOpen(true)}>Sign Out</Button>
+            ) : (
+              <Link href="/signin">
+                <Button className="bg-blue text-white text-sm px-4 py-2 rounded-md w-full mt-4">Sign In</Button>
+              </Link>
+            )}
           </div>
         )}
       </div>

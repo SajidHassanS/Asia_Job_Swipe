@@ -1,3 +1,4 @@
+// HeroComponent.tsx
 "use client";
 import React, { useState, useRef, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
@@ -18,6 +19,8 @@ interface HeroProps {
   afterSpanText?: string;
   spanClassName?: string;
   showSearchBar?: boolean;
+  onSearch?: (searchTerm: string, location: string) => void;
+  showSearchFields?: boolean; // Add this prop to control visibility
 }
 
 const Hero: React.FC<HeroProps> = ({
@@ -31,8 +34,9 @@ const Hero: React.FC<HeroProps> = ({
   afterSpanText,
   spanClassName = 'text-signature',
   showSearchBar = true,
+  onSearch,
+  showSearchFields = true, // Set default value to true
 }) => {
-
   const [location, setLocation] = useState('');
   const [filteredCities, setFilteredCities] = useState<string[]>([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -108,7 +112,7 @@ const Hero: React.FC<HeroProps> = ({
             </p>
           </div>
         )}
-        {showSearchBar && (
+        {showSearchBar && showSearchFields && ( // Only show these fields if showSearchFields is true
           <div className="max-w-4xl bg-background border  justify-between rounded-lg p-3 flex flex-col md:flex-row gap-5 items-center mt-8 mx-auto">
             <div className="relative flex items-center">
               <FiSearch size={35} className="absolute inset-y-1 text-signature left-0 pl-3 pointer-events-none" />
@@ -117,6 +121,7 @@ const Hero: React.FC<HeroProps> = ({
                 placeholder="Job title, Keyword..."
                 className="pl-12 text-inputGrey text-lg md:border-none md:outline-none"
                 disableFocusStyles
+                onChange={(e) => onSearch && onSearch(e.target.value, location)}
               />
             </div>
             <div className="md:border-l relative flex items-center" ref={dropdownRef}>
@@ -138,6 +143,7 @@ const Hero: React.FC<HeroProps> = ({
                       onClick={() => {
                         setLocation(city);
                         setFilteredCities([]);
+                        onSearch && onSearch(searchTerm, city);
                       }}
                     >
                       {city}
