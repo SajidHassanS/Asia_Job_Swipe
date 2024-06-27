@@ -32,17 +32,17 @@ const Footer = () => {
           <div className="flex space-x-4">
             <div>
               {" "}
-              <FaFacebookF className="text-blue" size={25} />
+              <FaFacebookF className="text-signature" size={25} />
             </div>
 
             <div className="border-x border-darkGrey px-5">
               {" "}
-              <FaLinkedinIn className="text-blue" size={25} />
+              <FaLinkedinIn className="text-signature" size={25} />
             </div>
 
             <div>
               {" "}
-              <FaTwitter className="text-blue" size={25} />
+              <FaTwitter className="text-signature" size={25} />
             </div>
           </div>
         </div>
@@ -91,10 +91,10 @@ const Footer = () => {
             Get Our App Now!
           </h1>
           <div className="sm:flex sm:gap-5 md:block">
-            <div className="  flex items-center my-6 mb-5 p-2 text-white rounded-lg gap-3  bg-darkGrey">
+            <div className="  flex items-center my-6 mb-5 p-2 text-background rounded-lg gap-3  bg-darkGrey">
               <div>
                 <Link href="https://play.google.com/store">
-                  <FaGooglePlay className="text-white" size={30} />
+                  <FaGooglePlay className="text-background" size={30} />
                 </Link>
               </div>
 
@@ -105,10 +105,10 @@ const Footer = () => {
             </div>
 
 
-            <div className="flex items-center my-6 mb-5 p-2 text-white rounded-lg gap-3  bg-darkGrey">
+            <div className="flex items-center my-6 mb-5 p-2 text-background rounded-lg gap-3  bg-darkGrey">
               <div>
                 <Link href="https://www.apple.com/app-store/">
-                <FaApple className="text-white" size={30} />
+                <FaApple className="text-background" size={30} />
                 </Link>
               </div>
 

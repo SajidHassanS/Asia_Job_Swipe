@@ -66,7 +66,7 @@ const JobListings: React.FC<{ jobs: Job[] }> = ({ jobs }) => {
       {jobs.map((job) => (
         <Card key={job.id} className="mb-5 p-4">
           <div className="">
-            <div className=" bg-white  ">
+            <div className=" bg-background  ">
               <div className="flex justify-between mb-5 md:mb-2">
                 <div className="flex items-center">
                   <Image
@@ -85,14 +85,14 @@ const JobListings: React.FC<{ jobs: Job[] }> = ({ jobs }) => {
                         {job.company} • {job.location}
                       </p>
                       <div className="md:block hidden">
-                        <IoCheckmarkDoneSharp className="text-blue" />
+                        <IoCheckmarkDoneSharp className="text-signature" />
                       </div>
                     </div>
                   </div>
                 </div>
                 <div className="md:mt-3">
                   <div className="md:hidden mb-2 flex justify-end">
-                    <BsBookmarkDash className="text-blue " size={20} />
+                    <BsBookmarkDash className="text-signature " size={20} />
                   </div>
                   <p className="md:text-xl text-md font-bold">{job.salary}</p>
                 </div>
@@ -102,7 +102,7 @@ const JobListings: React.FC<{ jobs: Job[] }> = ({ jobs }) => {
                   {/* Render buttons for different categories */}
                   <Button asChild className="rounded-[30px] " >
                     <Link
-                      className="bg-sky-300 text-blue text-sm md:px-4 md:py-2"
+                      className="bg-sky-300 text-signature text-sm md:px-4 md:py-2"
                       href="/signin"
                     >
                       Full-Time
@@ -126,7 +126,7 @@ const JobListings: React.FC<{ jobs: Job[] }> = ({ jobs }) => {
                     </Link>
                   </Button>
                   <div className="md:block hidden">
-                    <BsBookmarkDash className="text-blue " size={30} />
+                    <BsBookmarkDash className="text-signature " size={30} />
                   </div>
                 </div>
 
@@ -138,14 +138,11 @@ const JobListings: React.FC<{ jobs: Job[] }> = ({ jobs }) => {
                     >
                       Apply
                     </Link>
-                  </Button>
-                  <Button asChild >
-                    <Link
-                      className="text-red-500 text-sm px-4 py-2 rounded-md"
-                      href="/signin"
-                    >
+                  </Button >
+                  <Button variant={"ghost"}  className="text-red-500 text-sm px-4 py-2 rounded-md" >
+                    
                       Decline
-                    </Link>
+                   
                   </Button>
                 </div>
               </div>

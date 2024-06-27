@@ -9,11 +9,11 @@ const EmpowerJob = () => {
   return (
     <div className="md:container pb-24">
       <div className="bg-darkGrey flex md:flex-row flex-col items-center md:px-16 px-5 py-10  md:rounded-[30px]">
-        <div className="text-white flex flex-col md:w-1/2">
+        <div className="text-background flex flex-col md:w-1/2">
           <div className="mb-6">
             <h1 className="lg:text-4xl md:text-3xl text-2xl">
               Empower Your Job Search with{" "}
-              <span className="text-blue">Asia Job Swipe</span>
+              <span className="text-signature">Asia Job Swipe</span>
             </h1>
           </div>
           <div className="flex flex-col gap-2">
@@ -34,7 +34,7 @@ const EmpowerJob = () => {
            <div className=" md:w-full">
            <h1 className="font-bold  lg:text-2xl md:text-xl  text-lg mb-4">Get the App</h1>
             <div className="sm:flex md:flex-col  gap-3">
-              <div className="sm:w-1/2 flex items-center justify-center mb-5 p-2 text-black rounded-lg gap-3  bg-white">
+              <div className="sm:w-1/2 flex items-center justify-center mb-5 p-2 text-black rounded-lg gap-3  bg-background">
                <div>
                <Link href="https://play.google.com/store">
                   <FaGooglePlay className="text-black" size={30} />
@@ -48,7 +48,7 @@ const EmpowerJob = () => {
               </div>
 
 
-              <div className="sm:w-1/2 flex items-center justify-center mb-5 p-2 text-black rounded-lg gap-3  bg-white">
+              <div className="sm:w-1/2 flex items-center justify-center mb-5 p-2 text-black rounded-lg gap-3  bg-background">
                <div>
                <Link href="https://www.apple.com/app-store/">
                <FaApple className="text-black" size={30} />

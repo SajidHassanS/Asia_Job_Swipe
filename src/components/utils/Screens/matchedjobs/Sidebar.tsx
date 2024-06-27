@@ -111,7 +111,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCheckboxChange, selectedFilters }) 
         <Sheet>
           <SheetTrigger><GoSidebarCollapse size={30} /></SheetTrigger>
           <SheetContent className="w-full">
-            <div className="bg-lightPink rounded-lg p-4">
+            <div className="bg-muted rounded-lg p-4">
               <Accordion type="single" collapsible className="w-full">
                 <AccordionItem value="item-1">
                   <AccordionTrigger className="text-base">Job Type</AccordionTrigger>

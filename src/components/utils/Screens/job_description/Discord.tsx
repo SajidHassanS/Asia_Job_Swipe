@@ -5,7 +5,7 @@ import { FiArrowUpRight } from "react-icons/fi";
 
 const Discord = () => {
   return (
-    <div className='bg-lightPink'>
+    <div className='bg-muted'>
        
        <div className='mx-5 md:container py-16'>
         <div className='md:flex items-center'>
@@ -14,7 +14,7 @@ const Discord = () => {
             <div className='p-5 border rounded-full bg-discordbg'><BsDiscord size={60} color='white' /></div>
             <div className=''>
             <h1 className='text-3xl font-bold text-modaltext'>Discord</h1>
-            <div className='text-blue justify-start'>
+            <div className='text-signature justify-start'>
 
             <Button>More Details <FiArrowUpRight /></Button>
             </div>

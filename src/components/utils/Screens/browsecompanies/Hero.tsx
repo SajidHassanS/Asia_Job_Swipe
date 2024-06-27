@@ -95,7 +95,7 @@ const Hero: React.FC<HeroProps> = ({
 
   return (
     <>
-      <div className='bg-lightPink relative pb-24'>
+      <div className='bg-muted relative pb-24'>
         <div className="md:max-w-4xl md:mx-auto pt-16 mx-5">
           <div className=''>
             <h1 className={titleClassName}>

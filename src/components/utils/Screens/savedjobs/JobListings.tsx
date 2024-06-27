@@ -69,7 +69,7 @@ const JobListings: React.FC<{ jobs: Job[] }> = ({ jobs }) => {
       <div className={isGridView ? "grid md:grid-cols-3 gap-8" : "grid md:grid-cols-1 gap-8"}>
         {jobs.map((job) => (
           <Card key={job.id} className="mb-5 p-4">
-            <div className="bg-white">
+            <div className="bg-background">
               <div className="flex justify-between mb-5 md:mb-2">
                 <div className="flex items-center">
                   <Image
@@ -86,14 +86,14 @@ const JobListings: React.FC<{ jobs: Job[] }> = ({ jobs }) => {
                         {job.company} • {job.location}
                       </p>
                       <div className="md:block hidden">
-                        <IoCheckmarkDoneSharp className="text-blue" />
+                        <IoCheckmarkDoneSharp className="text-signature" />
                       </div>
                     </div>
                   </div>
                 </div>
                 <div className="md:mt-3">
                   <div className="md:hidden mb-2 flex justify-end">
-                    <BsBookmarkDash className="text-blue " size={20} />
+                    <BsBookmarkDash className="text-signature " size={20} />
                   </div>
                   <p className="md:text-xl text-md font-bold">{job.salary}</p>
                 </div>
@@ -103,7 +103,7 @@ const JobListings: React.FC<{ jobs: Job[] }> = ({ jobs }) => {
                   {/* Render buttons for different categories */}
                   <Link
                     key="full-time"
-                    className="bg-sky-300 text-blue text-sm md:px-4 md:py-2 rounded-[30px] inline-block"
+                    className="bg-sky-300 text-signature text-sm md:px-4 md:py-2 rounded-[30px] inline-block"
                     href="/signin"
                   >
                     Full-Time
@@ -116,7 +116,7 @@ const JobListings: React.FC<{ jobs: Job[] }> = ({ jobs }) => {
                     Design
                   </div>
                   <div className="md:block hidden">
-                    <BsBookmarkDash className="text-blue " size={30} />
+                    <BsBookmarkDash className="text-signature " size={30} />
                   </div>
                 </div>
 

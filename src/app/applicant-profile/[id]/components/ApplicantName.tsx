@@ -96,7 +96,7 @@ const ApplicantName = () => {
             <div>
               <h1 className="text-sm text-signininput4">Email</h1>
 
-              <p className="text-sm text-blue">email@gmail.com</p>
+              <p className="text-sm text-signature">email@gmail.com</p>
             </div>
           </div>
         </div>
@@ -110,7 +110,7 @@ const ApplicantName = () => {
             <div>
               <h1 className="text-sm text-signininput4">Phone</h1>
 
-              <p className="text-sm text-blue">+44 1245 572 135</p>
+              <p className="text-sm text-signature">+44 1245 572 135</p>
             </div>
           </div>
         </div>
@@ -123,7 +123,7 @@ const ApplicantName = () => {
             <div>
               <h1 className="text-sm text-signininput4">Linkedin</h1>
 
-              <p className="text-sm text-blue">www.linkedin.xyz</p>
+              <p className="text-sm text-signature">www.linkedin.xyz</p>
             </div>
           </div>
         </div>
@@ -136,7 +136,7 @@ const ApplicantName = () => {
             <div>
               <h1 className="text-sm text-signininput4">Facebook</h1>
 
-              <p className="text-sm text-blue">www.facebook.xyz</p>
+              <p className="text-sm text-signature">www.facebook.xyz</p>
             </div>
           </div>
         </div>
@@ -150,7 +150,7 @@ const ApplicantName = () => {
             <div>
               <h1 className="text-sm text-signininput4">Website</h1>
 
-              <p className="text-sm text-blue">www.website.xyz</p>
+              <p className="text-sm text-signature">www.website.xyz</p>
             </div>
           </div>
         </div>

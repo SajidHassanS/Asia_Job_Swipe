@@ -52,8 +52,8 @@ const Notification = () => {
       </div>
       <div className="hidden  md:flex md:w-2/3 items-center justify-center p-4">
         <div className="text-center">
-        <FaRegBellSlash   className=' text-blue opacity-40' size={200} />
-          <p className="text-lg text-blue opacity-70">No Messages</p>
+        <FaRegBellSlash   className=' text-signature opacity-40' size={200} />
+          <p className="text-lg text-signature opacity-70">No Messages</p>
 
         </div>
       </div>

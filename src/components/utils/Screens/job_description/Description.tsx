@@ -27,35 +27,35 @@ const Description = () => {
                   Responsibilities
                 </h1>
                 <div className="flex items-center mb-5 gap-5">
-                  <CiCircleCheck className="text-blue w-32 md:w-8 " size={25} />
+                  <CiCircleCheck className="text-signature w-32 md:w-8 " size={25} />
                   <p className="text-signininput">
                     Community engagement to ensure that is supported and
                     actively represented online
                   </p>
                 </div>
                 <div className="flex items-center gap-5 mb-5">
-                  <CiCircleCheck className="text-blue w-32 md:w-8" size={25} />
+                  <CiCircleCheck className="text-signature w-32 md:w-8" size={25} />
                   <p className="text-signininput">
                     Community engagement to ensure that is supported and
                     actively represented online
                   </p>
                 </div>
                 <div className="flex items-center gap-5 mb-5">
-                  <CiCircleCheck className="text-blue w-32 md:w-8" size={25} />
+                  <CiCircleCheck className="text-signature w-32 md:w-8" size={25} />
                   <p className="text-signininput">
                     Community engagement to ensure that is supported and
                     actively represented online
                   </p>
                 </div>
                 <div className="flex items-center gap-5 mb-5">
-                  <CiCircleCheck className="text-blue w-32 md:w-8" size={25} />
+                  <CiCircleCheck className="text-signature w-32 md:w-8" size={25} />
                   <p className="text-signininput">
                     Community engagement to ensure that is supported and
                     actively represented online
                   </p>
                 </div>
                 <div className="flex items-center gap-5 mb-5">
-                  <CiCircleCheck className="text-blue w-32 md:w-8" size={25} />
+                  <CiCircleCheck className="text-signature w-32 md:w-8" size={25} />
                   <p className="text-signininput">
                     Community engagement to ensure that is supported and
                     actively represented online
@@ -103,19 +103,19 @@ const Description = () => {
                   Required Skills
                 </h1>
                 <div className="flex flex-wrap gap-3">
-                  <Button className="bg-lightPink text-base text-blue">
+                  <Button className="bg-muted text-base text-signature">
                     Project Management
                   </Button>
-                  <Button className="bg-lightPink text-base text-blue">
+                  <Button className="bg-muted text-base text-signature">
                     Copywriting
                   </Button>
-                  <Button className="bg-lightPink text-base text-blue">
+                  <Button className="bg-muted text-base text-signature">
                     Social Media Marketing
                   </Button>
-                  <Button className="bg-lightPink text-base text-blue">
+                  <Button className="bg-muted text-base text-signature">
                     English
                   </Button>
-                  <Button className="bg-lightPink text-base text-blue">
+                  <Button className="bg-muted text-base text-signature">
                     Copy Editing
                   </Button>
                 </div>
@@ -137,23 +137,23 @@ const Description = () => {
               
 
               <div className="flex flex-wrap  md:items-center md:justify-between my-10 gap-2  ">
-                <div className=" bg-lightPink flex flex-col gap-4 items-center justify-between rounded-xl px-6 py-3 md:px-16  md:py-8 ">
+                <div className=" bg-muted flex flex-col gap-4 items-center justify-between rounded-xl px-6 py-3 md:px-16  md:py-8 ">
                     <Image src="/images/benefits/statoscope.png" alt="statoscope" width={50} height={50}/>
                     <h1 className="text-modaltext">Full Healthcare</h1>
                 </div>
-                <div className=" bg-lightPink flex flex-col gap-4 items-center justify-between rounded-xl  md:px-16 px-6 py-3  md:py-8">
+                <div className=" bg-muted flex flex-col gap-4 items-center justify-between rounded-xl  md:px-16 px-6 py-3  md:py-8">
                     <Image src="/images/benefits/vacation.png" alt="statoscope" width={50} height={50}/>
                     <h1 className="text-modaltext">Unlimited Vacation</h1>
                 </div>
-                <div className=" bg-lightPink flex flex-col gap-4 items-center justify-between rounded-xl md:px-16 px-6 py-3  md:py-8 ">
+                <div className=" bg-muted flex flex-col gap-4 items-center justify-between rounded-xl md:px-16 px-6 py-3  md:py-8 ">
                     <Image src="/images/benefits/development.png" alt="statoscope" width={50} height={50}/>
                     <h1 className="text-modaltext">Skill Development</h1>
                 </div>
-                <div className=" bg-lightPink flex flex-col gap-4 items-center justify-between rounded-xl md:px-16 px-6 py-3  md:py-8 ">
+                <div className=" bg-muted flex flex-col gap-4 items-center justify-between rounded-xl md:px-16 px-6 py-3  md:py-8 ">
                     <Image src="/images/benefits/summits.png" alt="statoscope" width={50} height={50}/>
                     <h1 className="text-modaltext">Team Summits</h1>
                 </div>
-                <div className=" bg-lightPink flex flex-col gap-4 items-center justify-between rounded-xl md:px-16 px-6 py-3  md:py-8 ">
+                <div className=" bg-muted flex flex-col gap-4 items-center justify-between rounded-xl md:px-16 px-6 py-3  md:py-8 ">
                     <Image src="/images/benefits/summits.png" alt="statoscope" width={50} height={50}/>
                     <h1 className="text-modaltext">Team Summits</h1>
                 </div>

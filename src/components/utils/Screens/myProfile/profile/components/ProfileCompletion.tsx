@@ -40,7 +40,7 @@ const ProfileCompletion = () => {
       </div>
 
       <div className="md:w-2/3 w-full md:py-10   ">
-        <div className="flex   text-white justify-between">
+        <div className="flex   text-background justify-between">
           <div>
             <h1>Profile Completion</h1>
           </div>
@@ -79,7 +79,7 @@ const ProfileCompletion = () => {
             </div>
           </div>
           <div>
-            <Button className="text-blue" variant="outline">
+            <Button className="text-signature" variant="outline">
               Edit Profile
             </Button>
           </div>

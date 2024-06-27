@@ -30,7 +30,7 @@ const UserSettings = () => {
 
   return (
     <div className="container mx-auto mt-10">
-      <div className="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md">
+      <div className="max-w-md mx-auto bg-background p-8 rounded-lg shadow-md">
         <h2 className="text-2xl font-semibold text-center mb-4">User Settings</h2>
         <div className="space-y-4">
           <div>
@@ -72,7 +72,7 @@ const UserSettings = () => {
           <div>
             <Button
               onClick={handleChangePassword}
-              className="w-full bg-blue  py-2 rounded-md"
+              className="w-full bg-signature  py-2 rounded-md"
             >
               Change Password
             </Button>

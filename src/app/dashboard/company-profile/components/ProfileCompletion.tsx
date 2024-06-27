@@ -41,7 +41,7 @@ const ProfileCompletion = () => {
       </div>
 
       <div className="md:w-2/3 w-full md:py-10   ">
-        <div className="flex   text-white justify-between">
+        <div className="flex   text-background justify-between">
           <div className='pb-3'>
             <h1>Profile Completion</h1>
           </div>
@@ -63,7 +63,7 @@ const ProfileCompletion = () => {
             <h1 className="md:text-3xl text-xl text-modaltext">Dcodax</h1>
             <p className="md:text-xl text-md text-signininput4 py-2">
       <Link href="https://www.dcodax.com" 
-      className="text-blue hover:underline" target="_blank" rel="noopener noreferrer">
+      className="text-signature hover:underline" target="_blank" rel="noopener noreferrer">
           www.dcodax.com
    
       </Link>
@@ -71,7 +71,7 @@ const ProfileCompletion = () => {
            
           </div>
           <div>
-            <Button className="text-blue" variant="outline">
+            <Button className="text-signature" variant="outline">
               Edit Profile
             </Button>
           </div>
@@ -82,7 +82,7 @@ const ProfileCompletion = () => {
 
     <div className='flex items-center  gap-3'>
         <div>
-        <FaGripfire className='text-blue' size={30} />
+        <FaGripfire className='text-signature' size={30} />
         </div>
         <div className='text-xl' >
           <h1 className='text-signininput'>Founded</h1>
@@ -91,7 +91,7 @@ const ProfileCompletion = () => {
       </div>
       <div className='flex items-center  gap-3'>
         <div>
-        <FaUsers className='text-blue' size={30} />
+        <FaUsers className='text-signature' size={30} />
         </div>
         <div className='text-xl' >
           <h1 className='text-signininput'>Empoyees</h1>
@@ -101,7 +101,7 @@ const ProfileCompletion = () => {
 
       <div className='flex items-center  gap-3'>
         <div>
-        <TbBuildingSkyscraper className='text-blue' size={30} />
+        <TbBuildingSkyscraper className='text-signature' size={30} />
         </div>
         <div className='text-xl' >
           <h1 className='text-signininput'>Industry</h1>

@@ -29,7 +29,7 @@ const Tabs = ({ tabs }: TabsProps) => {
             >
               {tab.title}
               {activeTab === index && (
-                <span className="absolute bottom-0 left-0 w-full h-1 bg-blue"></span>
+                <span className="absolute bottom-0 left-0 w-full h-1 bg-signature"></span>
               )}
             </button>
           ))}

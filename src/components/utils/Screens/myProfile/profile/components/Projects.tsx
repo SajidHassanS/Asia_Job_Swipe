@@ -7,7 +7,7 @@ const Projects = () => {
     <div className="border rounded-[20px] py-6 px-5">
       <div className="border-b flex justify-between mb-5">
         <h1 className="text-modaltext text-2xl">Projects</h1>
-        <CiSquarePlus className="text-blue border rounded-lg p-2" size={40} />
+        <CiSquarePlus className="text-signature border rounded-lg p-2" size={40} />
       </div>
 
       <div className=" pb-5">
@@ -27,7 +27,7 @@ const Projects = () => {
                     <h1 className="text-lg">FeastFlow Software Development</h1>
                     </div>
                 <div className="">
-            <FaRegEdit className="text-blue border rounded-lg p-2" size={40} />
+            <FaRegEdit className="text-signature border rounded-lg p-2" size={40} />
           </div>
                 </div>
               

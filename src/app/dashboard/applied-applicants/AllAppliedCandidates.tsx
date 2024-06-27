@@ -170,7 +170,7 @@ const AllCompaniesData = () => {
       </TableCell>
 
       <TableCell>
-        <div className="border rounded-full py-3 flex justify-center text-blue border-blue">
+        <div className="border rounded-full py-3 flex justify-center text-signature border-blue">
           {company.matched}
         </div>
       </TableCell>
@@ -179,19 +179,19 @@ const AllCompaniesData = () => {
       <TableCell className="flex items-center gap-6">
         <Link
           href={"#"}
-          className="text-threeicons bg-lightPink p-3 rounded-xl hover:text-blue/80 transition-colors"
+          className="text-threeicons bg-muted p-3 rounded-xl hover:text-signature/80 transition-colors"
         >
           <BiMessageRoundedDetail size={20} />
         </Link>
         <Link
           href={"#"}
-          className="text-threeicons bg-lightPink p-3 rounded-xl hover:text-blue/80 transition-colors"
+          className="text-threeicons bg-muted p-3 rounded-xl hover:text-signature/80 transition-colors"
         >
           <BsBookmarkDash size={20} />
         </Link>
         <Dialog>
           <DialogTrigger asChild>
-            <div className="cursor-pointer bg-lightPink p-3 rounded-xl text-threeicons hover:text-blue/80 transition-colors">
+            <div className="cursor-pointer bg-muted p-3 rounded-xl text-threeicons hover:text-signature/80 transition-colors">
               <RiDeleteBin5Line size={20} />
             </div>
           </DialogTrigger>

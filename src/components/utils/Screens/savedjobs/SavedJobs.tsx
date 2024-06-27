@@ -47,11 +47,11 @@ const SavedJobs: React.FC = () => {
 
   return (
     <div>
-      <div className='bg-lightPink md:pb-10'>
+      <div className='bg-muted md:pb-10'>
         <HeroComponent
           title="Your Saved Jobs."
           titleClassName="text-3xl md:text-7xl md:pt-8 text-center font-bold text-darkGrey"
-          spanClassName="text-blue"
+          spanClassName="text-signature"
           showSuggestions={false}
           backgroundImage="url-to-image"
           showSearchBar={true}

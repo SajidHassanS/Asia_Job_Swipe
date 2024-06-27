@@ -86,9 +86,9 @@ const TableComp = () => {
 
   const getRowClass = (index: number) => {
     if (selectedRow === index) {
-      return 'bg-blue border-blue text-white';
+      return 'bg-signature border-blue text-background';
     } else {
-      return index % 2 === 0 ? 'bg-lightPink' : 'bg-white';
+      return index % 2 === 0 ? 'bg-muted' : 'bg-background';
     }
   };
 
@@ -110,7 +110,7 @@ const TableComp = () => {
             {tableData.map((item, index) => (
               <React.Fragment key={item.serial}>
                 <TableRow
-                  className={`hover:bg-blue-300 cursor-pointer ${getRowClass(index)}`}
+                  className={`hover:bg-signature-300 cursor-pointer ${getRowClass(index)}`}
                   onClick={() => setSelectedRow(index)}
                 >
                   <TableCell className="font-medium">{item.serial}</TableCell>
@@ -137,7 +137,7 @@ const TableComp = () => {
                   </TableCell>
                 </TableRow>
                 {expandedRow === index && (
-                  <TableRow className="md:hidden bg-blue  text-white">
+                  <TableRow className="md:hidden bg-signature  text-background">
                     <TableCell colSpan={6} className="p-0">
                       <div className="p-4">
                         <div className='flex justify-between items-center'>
@@ -145,7 +145,7 @@ const TableComp = () => {
                             <div><strong>Roles:</strong> {item.Roles}</div>
                             <div><strong>Date Applied:</strong> {item.dateApplied}</div>
                           </div>
-                          <BsThreeDots size={25} className='text-white' />
+                          <BsThreeDots size={25} className='text-background' />
                         </div>
                       </div>
                     </TableCell>

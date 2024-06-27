@@ -84,7 +84,7 @@ const SimilarJobs = () => {
         <h1 className="md:text-4xl text-2xl text-blackish">Similar Jobs</h1>
         <button
           onClick={toggleShowAll}
-          className="border text-blue text-lg px-4 py-2 rounded-md flex items-center"
+          className="border text-signature text-lg px-4 py-2 rounded-md flex items-center"
         >
           {showAll ? "Show Less" : "View All"} <FaArrowRight className="ml-2" />
         </button>
@@ -94,7 +94,7 @@ const SimilarJobs = () => {
         {displayedCategories.map((category, index) => (
           <div
             key={index}
-            className="p-4 bg-white w-full shadow-sm rounded-lg border flex flex-col"
+            className="p-4 bg-background w-full shadow-sm rounded-lg border flex flex-col"
           >
             <div className="flex justify-between items-center mb-8">
               <img
@@ -102,11 +102,11 @@ const SimilarJobs = () => {
                 className="w-10 h-10 object-cover  rounded-full"
               />
               <div className="h-8 w-px bg-gray-300 mx-4"></div>
-              <div className="text-sm text-blue bg-lightPink p-2 rounded-full">
+              <div className="text-sm text-signature bg-muted p-2 rounded-full">
                 Full Time
               </div>
               <div className="">
-                <CiBookmarkMinus size={30} className="text-blue" />
+                <CiBookmarkMinus size={30} className="text-signature" />
               </div>
             </div>
             <div className="mb-4">
@@ -116,7 +116,7 @@ const SimilarJobs = () => {
             <div className="">
               <Button asChild>
                 <Link
-                  className=" text-blue px-0 text-sm py-2 rounded-md"
+                  className=" text-signature px-0 text-sm py-2 rounded-md"
                   href="/moredetails"
                 >
                   More Details <GoArrowUpRight size={20} className="ml-2" />

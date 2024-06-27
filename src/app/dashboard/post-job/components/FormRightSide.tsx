@@ -189,7 +189,7 @@ const FormRightSide: React.FC<FormRightSideProps> = ({
       <div className=" ">
         <Button
           type="submit"
-          className="w-full bg-signature text-white py-3"
+          className="w-full bg-signature text-background py-3"
           onClick={handleSubmit}
         >
           Post a Job

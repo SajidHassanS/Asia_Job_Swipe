@@ -13,7 +13,7 @@ const Sidebar = () => {
   const { changeActivePage } = useCommonData();
   const isActive = (path: string): string => {
     return (path === "/" ? pathname === path : pathname.includes(path))
-      ? "bg-signature text-white"
+      ? "bg-signature text-background"
       : "hover:text-signature";
   };
 
@@ -42,7 +42,7 @@ const Sidebar = () => {
           <div className="text-black border-t border-blue"></div>
 
           <Link href={`${dashboardPath}/post-job`}>
-            <Button variant="outline" className="flex gap-5 justify-start w-full rounded-xl text-white py-7 bg-darkGrey">
+            <Button variant="outline" className="flex gap-5 justify-start w-full rounded-xl text-background py-7 bg-darkGrey">
               <FaPlus style={{ fontSize: 20 }} /> Post a New Job
             </Button>
           </Link>

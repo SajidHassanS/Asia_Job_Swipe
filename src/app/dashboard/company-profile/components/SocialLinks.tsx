@@ -13,7 +13,7 @@ const SocialLinks = () => {
     <div className="border rounded-[20px] py-6 px-5">
     <div className="flex justify-between">
       <h1 className="text-modaltext text-2xl">Social Links</h1>
-      <FaRegEdit  className="text-blue border rounded-lg p-2" size={40} />
+      <FaRegEdit  className="text-signature border rounded-lg p-2" size={40} />
     </div>
 
     <div className="pt-8">
@@ -22,7 +22,7 @@ const SocialLinks = () => {
         <div>
           <h1 className="text-lg text-signininput4">Linkedin</h1>
 
-          <p className="text-lg text-blue">www.linkedin.xyz</p>
+          <p className="text-lg text-signature">www.linkedin.xyz</p>
         </div>
       </div>
     
@@ -33,7 +33,7 @@ const SocialLinks = () => {
         <div>
           <h1 className="text-lg text-signininput4">Facebook</h1>
 
-          <p className="text-lg text-blue">www.facebook.xyz</p>
+          <p className="text-lg text-signature">www.facebook.xyz</p>
         </div>
       </div>
     
@@ -45,7 +45,7 @@ const SocialLinks = () => {
         <div>
           <h1 className="text-lg text-signininput4">Instagram</h1>
 
-          <p className="text-lg text-blue">www.Instagram.xyz</p>
+          <p className="text-lg text-signature">www.Instagram.xyz</p>
         </div>
       </div>
     

@@ -13,7 +13,7 @@ const ApplicationDialog = () => {
         </Button>
       </DialogTrigger>
       <DialogContent className="fixed inset-0 flex items-center justify-center p-4">
-        <div className="bg-white rounded-lg shadow-lg w-full max-w-2xl h-3/4 overflow-y-auto">
+        <div className="bg-background rounded-lg shadow-lg w-full max-w-2xl h-3/4 overflow-y-auto">
           <DialogHeader className="bg-signature  px-16 py-5 rounded-t-lg flex justify-center text-center">
             <DialogTitle className=" text-background text-center text-3xl">
               Review your Information
@@ -73,14 +73,14 @@ const ApplicationDialog = () => {
                   </div>
                 </div>
 
-                <button type="submit" className="w-full py-2 px-4 bg-green-600 text-white rounded hover:bg-green-700">
+                <button type="submit" className="w-full py-2 px-4 bg-green-600 text-background rounded hover:bg-green-700">
                   Submit Application
                 </button>
               </form>
             </DialogDescription>
             <div className="px-16 pb-10">
               <Button className="w-full px-24 py-6" asChild >
-                <Link className="bg-blue text-white text-sm rounded-md" href="/myprofile">
+                <Link className="bg-signature text-background text-sm rounded-md" href="/myprofile">
                   Go to My Profile
                 </Link>
               </Button>

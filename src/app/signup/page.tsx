@@ -153,7 +153,7 @@ const SignUpForm: React.FC = () => {
                     <Button
                       variant="outline"
                       size={"lg"}
-                      className="bg-blue w-full text-white"
+                      className="bg-signature w-full text-background"
                       onClick={handleSignUp}
                       disabled={auth.status === 'loading'}
                     >
@@ -163,20 +163,20 @@ const SignUpForm: React.FC = () => {
                   {errorMessage && <p className="text-red-500">{errorMessage}</p>}
                   <div className="flex items-center">
                     <h1 className="text-signinemail text-base">Already have an account?</h1>
-                    <Button asChild variant="link" className="text-blue">
+                    <Button asChild variant="link" className="text-signature">
                       <Link href="/signin">Login</Link>
                     </Button>
                   </div>
                   <div className="flex items-center">
                     <h1 className="text-signininput4 text-base">
                       By clicking &apos;Continue&apos;, you acknowledge that you have read and accept the{" "}
-                      <span className="text-blue">Terms of Service</span> and{" "}
-                      <span className="text-blue">Privacy Policy</span>.
+                      <span className="text-signature">Terms of Service</span> and{" "}
+                      <span className="text-signature">Privacy Policy</span>.
                     </h1>
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button asChild variant="link" className="w-full text-blue">
+                  <Button asChild variant="link" className="w-full text-signature">
                     <Link href="/home">
                       <FaArrowLeft size={20} className="mr-2" /> Back to Home
                     </Link>
@@ -249,7 +249,7 @@ const SignUpForm: React.FC = () => {
                     <Button
                       variant="outline"
                       size={"lg"}
-                      className="bg-blue w-full text-white"
+                      className="bg-signature w-full text-background"
                       onClick={handleSignUp}
                       disabled={auth.status === 'loading'}
                     >
@@ -259,20 +259,20 @@ const SignUpForm: React.FC = () => {
                   {errorMessage && <p className="text-red-500">{errorMessage}</p>}
                   <div className="flex items-center">
                     <h1 className="text-signinemail text-base">Already have an account?</h1>
-                    <Button asChild variant="link" className="text-blue">
+                    <Button asChild variant="link" className="text-signature">
                       <Link href="/signin">Login</Link>
                     </Button>
                   </div>
                   <div className="flex items-center">
                     <h1 className="text-signininput4 text-base">
                       By clicking &apos;Continue&apos;, you acknowledge that you have read and accept the{" "}
-                      <span className="text-blue">Terms of Service</span> and{" "}
-                      <span className="text-blue">Privacy Policy</span>.
+                      <span className="text-signature">Terms of Service</span> and{" "}
+                      <span className="text-signature">Privacy Policy</span>.
                     </h1>
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button asChild variant="link" className="w-full text-blue">
+                  <Button asChild variant="link" className="w-full text-signature">
                     <Link href="/home">
                       <FaArrowLeft size={20} className="mr-2" /> Back to Home
                     </Link>

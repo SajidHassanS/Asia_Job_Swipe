@@ -136,7 +136,7 @@ const SendOTPPage: React.FC = () => {
                     <Button
                       variant="outline"
                       size={"lg"}
-                      className="bg-blue w-full text-white"
+                      className="bg-signature w-full text-background"
                       onClick={step === 'sendOTP' ? handleSendOTP : handleVerifyOTP}
                     >
                       {step === 'sendOTP' ? 'Send OTP' : 'Verify OTP'}
@@ -145,13 +145,13 @@ const SendOTPPage: React.FC = () => {
                   {auth.error && <p className="text-red-500">{auth.error}</p>}
                   <div className="flex items-center">
                     <h1 className="text-signinemail text-base">Don’t have an account?</h1>
-                    <Button asChild variant="link" className="text-blue">
+                    <Button asChild variant="link" className="text-signature">
                       <Link href="/signup">Sign Up</Link>
                     </Button>
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button asChild variant="link" className="w-full text-blue">
+                  <Button asChild variant="link" className="w-full text-signature">
                     <Link href="/home">
                       <FaArrowLeft size={20} className="mr-2" /> Back to Home
                     </Link>
@@ -214,7 +214,7 @@ const SendOTPPage: React.FC = () => {
                     <Button
                       variant="outline"
                       size={"lg"}
-                      className="bg-blue w-full text-white"
+                      className="bg-signature w-full text-background"
                       onClick={step === 'sendOTP' ? handleSendOTP : handleVerifyOTP}
                     >
                       {step === 'sendOTP' ? 'Send OTP' : 'Verify OTP'}
@@ -223,13 +223,13 @@ const SendOTPPage: React.FC = () => {
                   {auth.error && <p className="text-red-500">{auth.error}</p>}
                   <div className="flex items-center">
                     <h1 className="text-signinemail text-base">Don’t have an account?</h1>
-                    <Button asChild variant="link" className="text-blue">
+                    <Button asChild variant="link" className="text-signature">
                       <Link href="/signup">Sign Up</Link>
                     </Button>
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button asChild variant="link" className="w-full text-blue">
+                  <Button asChild variant="link" className="w-full text-signature">
                     <Link href="/home">
                       <FaArrowLeft size={20} className="mr-2" /> Back to Home
                     </Link>

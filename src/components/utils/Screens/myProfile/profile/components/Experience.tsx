@@ -8,7 +8,7 @@ const Experience = () => {
     <div className="border rounded-[20px] py-6 px-5">
       <div className="flex justify-between mb-5">
         <h1 className="text-modaltext text-2xl">Experiences</h1>
-        <CiSquarePlus className="text-blue border rounded-lg p-2" size={40} />
+        <CiSquarePlus className="text-signature border rounded-lg p-2" size={40} />
       </div>
 
       <div className="border-b pb-5">
@@ -42,7 +42,7 @@ const Experience = () => {
             </div>
           </div>
           <div className="">
-            <FaRegEdit className="text-blue border rounded-lg p-2" size={40} />
+            <FaRegEdit className="text-signature border rounded-lg p-2" size={40} />
           </div>
         </div>
       </div>
@@ -77,7 +77,7 @@ const Experience = () => {
             </div>
           </div>
           <div className="">
-            <FaRegEdit className="text-blue border rounded-lg p-2" size={40} />
+            <FaRegEdit className="text-signature border rounded-lg p-2" size={40} />
           </div>
         </div>
       </div>

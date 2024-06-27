@@ -33,7 +33,7 @@ const Menu: React.FC = () => {
 
   const getLinkClasses = (path: string) => {
     return pathname === path
-      ? "text-blue border-b-2 border-blue"
+      ? "text-signature border-b-2 border-blue"
       : "text-darkGrey";
   };
 
@@ -98,13 +98,13 @@ const Menu: React.FC = () => {
               </>
             ) : (
               <Link href="/signin">
-                <Button className="bg-blue text-white text-sm px-4 py-2 rounded-md">Sign In</Button>
+                <Button className="bg-signature text-background text-sm px-4 py-2 rounded-md">Sign In</Button>
               </Link>
             )}
           </div>
         </div>
         {isOpen && (
-          <div className="bg-white mt-4 p-4 rounded-lg shadow-lg md:hidden">
+          <div className="bg-background mt-4 p-4 rounded-lg shadow-lg md:hidden">
             <Link href="/findjobs">
               <span className={`text-sm px-4 py-2 block cursor-pointer ${getLinkClasses('/findjobs')}`}>Find Jobs</span>
             </Link>
@@ -124,7 +124,7 @@ const Menu: React.FC = () => {
               <Button variant="outline" className='bg-signature text-background w-full mt-4' onClick={() => setIsDialogOpen(true)}>Sign Out</Button>
             ) : (
               <Link href="/signin">
-                <Button className="bg-blue text-white text-sm px-4 py-2 rounded-md w-full mt-4">Sign In</Button>
+                <Button className="bg-signature text-background text-sm px-4 py-2 rounded-md w-full mt-4">Sign In</Button>
               </Link>
             )}
           </div>

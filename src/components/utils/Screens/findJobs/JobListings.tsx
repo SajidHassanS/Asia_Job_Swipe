@@ -61,7 +61,7 @@ const JobListings: React.FC<JobListingsProps> = ({ jobs, totalJobs }) => {
         {jobs.map((job) => (
           <Card key={job.id} className="mb-5 p-4">
             <div className="">
-              <div className="bg-white">
+              <div className="bg-background">
                 <div className="flex justify-between mb-5 md:mb-2">
                   <div className="flex items-center">
                     <Image
@@ -78,14 +78,14 @@ const JobListings: React.FC<JobListingsProps> = ({ jobs, totalJobs }) => {
                           {job.company} • {job.location}
                         </p>
                         <div className="md:block hidden">
-                          <IoCheckmarkDoneSharp className="text-blue" />
+                          <IoCheckmarkDoneSharp className="text-signature" />
                         </div>
                       </div>
                     </div>
                   </div>
                   <div className="md:mt-3">
                     <div className="md:hidden mb-2 flex justify-end">
-                      <BsBookmarkDash className="text-blue" size={20} />
+                      <BsBookmarkDash className="text-signature" size={20} />
                     </div>
                     <p className="md:text-xl text-md font-bold">{job.salary}</p>
                   </div>
@@ -95,7 +95,7 @@ const JobListings: React.FC<JobListingsProps> = ({ jobs, totalJobs }) => {
                     {job.tags.map((tag) => (
                       <Link
                         key={tag}
-                        className="bg-sky-300 text-blue text-sm md:px-4 md:py-2 rounded-[30px] inline-block"
+                        className="bg-sky-300 text-signature text-sm md:px-4 md:py-2 rounded-[30px] inline-block"
                         href="/signin"
                       >
                         {tag}
@@ -112,7 +112,7 @@ const JobListings: React.FC<JobListingsProps> = ({ jobs, totalJobs }) => {
                       </Link>
                     ))}
                     <div className="md:block hidden">
-                      <BsBookmarkDash className="text-blue" size={30} />
+                      <BsBookmarkDash className="text-signature" size={30} />
                     </div>
                   </div>
 
@@ -123,9 +123,9 @@ const JobListings: React.FC<JobListingsProps> = ({ jobs, totalJobs }) => {
                           Apply
                         </Button>
                       </DialogTrigger>
-                      <DialogContent className="bg-white">
+                      <DialogContent className="bg-background">
                         <DialogHeader className="bg-signature rounded-lg px-16 py-5 flex text-center">
-                          <DialogTitle className="text-white text-3xl">
+                          <DialogTitle className="text-background text-3xl">
                             Your Profile Is Incomplete
                           </DialogTitle>
                         </DialogHeader>
@@ -139,7 +139,7 @@ const JobListings: React.FC<JobListingsProps> = ({ jobs, totalJobs }) => {
                         </DialogDescription>
                         <div className="px-16 pb-10">
                           <Link
-                            className="bg-blue text-white text-sm w-full inline-block text-center rounded-md py-6"
+                            className="bg-signature text-background text-sm w-full inline-block text-center rounded-md py-6"
                             href="/myprofile"
                           >
                             Go to My Profile

@@ -13,31 +13,31 @@ const Services = () => {
         <h1 className="text-modaltext text-2xl">Services</h1>
 
         <div className="flex gap-2">
-          <FiPlus className="text-blue border rounded-lg p-2" size={40} />
-          <FaRegEdit className="text-blue border rounded-lg p-2" size={40} />
+          <FiPlus className="text-signature border rounded-lg p-2" size={40} />
+          <FaRegEdit className="text-signature border rounded-lg p-2" size={40} />
         </div>
       </div>
 
       <div className="flex gap-3 flex-wrap ">
 
       <div >
-        <Button className="bg-bglite text-base text-blue">Communication</Button>
+        <Button className="bg-bglite text-base text-signature">Communication</Button>
       </div>
       <div >
-        <Button className="bg-bglite text-base text-blue">Analytics</Button>
+        <Button className="bg-bglite text-base text-signature">Analytics</Button>
       </div>
       <div >
-        <Button className="bg-bglite text-base text-blue">Facebook Ads</Button>
+        <Button className="bg-bglite text-base text-signature">Facebook Ads</Button>
       </div>
       <div >
-        <Button className="bg-bglite text-base text-blue">Content Planning</Button>
+        <Button className="bg-bglite text-base text-signature">Content Planning</Button>
       </div>
       <div >
-        <Button className="bg-bglite text-base text-blue">Community Manager</Button>
+        <Button className="bg-bglite text-base text-signature">Community Manager</Button>
       </div>
 
      < div >
-        <Button className="bg-bglite text-base text-blue">Community Manager</Button>
+        <Button className="bg-bglite text-base text-signature">Community Manager</Button>
       </div>
       </div>
     </div>

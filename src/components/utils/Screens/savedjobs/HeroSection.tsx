@@ -10,7 +10,7 @@ const HeroSection: React.FC = () => {
        
         
         titleClassName="text-3xl md:text-7xl md:pt-8 text-center font-bold text-darkGrey" // Custom title style for Page1
-        spanClassName="text-blue" // Custom span style for Page1
+        spanClassName="text-signature" // Custom span style for Page1
         showSuggestions={false}
         backgroundImage="url-to-image"
         showSearchBar={isSpecialPage}

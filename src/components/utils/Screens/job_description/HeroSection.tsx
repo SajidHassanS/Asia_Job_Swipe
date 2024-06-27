@@ -57,7 +57,7 @@ const jobs = [
 const HeroSection = () => {
   return (
     <>
-      <div className="bg-lightPink">
+      <div className="bg-muted">
         <div className="mx-3 md:container">
           <div>
             <Breadcrumb>
@@ -83,7 +83,7 @@ const HeroSection = () => {
 
           <div className="py-3 md:py-10">
             {jobs.map((job) => (
-              <Card className="my-5 bg-white p-4" key={job.id}>
+              <Card className="my-5 bg-background p-4" key={job.id}>
                 <div className="flex justify-between mb-5 md:mb-2">
                   <div className="flex items-center">
                     <Image
@@ -102,7 +102,7 @@ const HeroSection = () => {
                           {job.company} • {job.location}
                         </p>
                         <div className="md:block hidden">
-                          <IoCheckmarkDoneSharp className="text-blue" />
+                          <IoCheckmarkDoneSharp className="text-signature" />
                         </div>
                       </div>
                     </div>
@@ -110,7 +110,7 @@ const HeroSection = () => {
                   <div className="md:mt-3">
                     <div className="md:hidden mb-2 flex justify-end">
                       <IoShareSocialOutline
-                        className="text-blue"
+                        className="text-signature"
                         size={20}
                       />
                     </div>
@@ -132,7 +132,7 @@ const HeroSection = () => {
                       </Button>
                     ))}
                     <div className="md:block hidden">
-                      <IoShareSocialOutline className="text-blue" size={30} />
+                      <IoShareSocialOutline className="text-signature" size={30} />
                     </div>
                   </div>
                   <div className="flex flex-col mt-2">
@@ -142,9 +142,9 @@ const HeroSection = () => {
                           Apply
                         </Button>
                       </DialogTrigger>
-                      <DialogContent className="bg-white overflow-y-auto w-full max-h-full pb-32 mb-16 ">
-                        <DialogHeader className="bg-blue px-8 py-4 rounded-lg flex justify-center text-center">
-                          <DialogTitle className="text-white text-center text-3xl">
+                      <DialogContent className="bg-background overflow-y-auto w-full max-h-full pb-32 mb-16 ">
+                        <DialogHeader className="bg-signature px-8 py-4 rounded-lg flex justify-center text-center">
+                          <DialogTitle className="text-background text-center text-3xl">
                             Review your Information
                           </DialogTitle>
                         </DialogHeader>
@@ -193,7 +193,7 @@ const HeroSection = () => {
                             <div className="grid w-full items-center gap-1.5">
                               
                             </div>
-                            <button type="submit" className="w-full py-2 px-4 bg-green-600 text-white rounded hover:bg-green-700">
+                            <button type="submit" className="w-full py-2 px-4 bg-green-600 text-background rounded hover:bg-green-700">
                               Submit Application
                             </button>
                             <div className="flex items-center">

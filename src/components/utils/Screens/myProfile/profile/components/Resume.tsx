@@ -9,7 +9,7 @@ const Resume = () => {
     <div className="border rounded-[20px] py-6 px-5">
     <div className="flex justify-between">
       <h1 className="text-modaltext text-2xl">Resume/CV</h1>
-      <CiSquarePlus  className="text-blue border rounded-lg p-2" size={40} />
+      <CiSquarePlus  className="text-signature border rounded-lg p-2" size={40} />
     </div>
 
     <div className=" py-8">

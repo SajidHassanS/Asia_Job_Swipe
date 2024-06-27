@@ -8,7 +8,7 @@ const index = () => (
   <>
     
 
-    <div className='bg-white '>
+    <div className='bg-background '>
         <AllJobs/>
     </div>
   </>

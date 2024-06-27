@@ -92,7 +92,7 @@ const MultiStepForm = () => {
                 }`}
               >
                 {completedSteps[0] ? (
-                  <FaCheck  className="w-5 h-5 mx-auto mt-3 text-white" />
+                  <FaCheck  className="w-5 h-5 mx-auto mt-3 text-background" />
                 ) : (
                   <img
                     src="/images/companydetails.svg"
@@ -119,7 +119,7 @@ const MultiStepForm = () => {
                 }`}
               >
                 {completedSteps[1] ? (
-                  <FaCheck  className="w-5 h-5 mx-auto mt-3 text-white" />
+                  <FaCheck  className="w-5 h-5 mx-auto mt-3 text-background" />
                 ) : (
                   <img
                     src="/images/phone.svg"
@@ -146,7 +146,7 @@ const MultiStepForm = () => {
                 }`}
               >
                 {completedSteps[2] ? (
-                  <FaCheck  className="w-5 h-5 mx-auto mt-3 text-white" />
+                  <FaCheck  className="w-5 h-5 mx-auto mt-3 text-background" />
                 ) : (
                   <img
                     src="/images/notes.svg"
