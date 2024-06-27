@@ -1,101 +1,78 @@
-import React from 'react';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
-// import Sidebar from './Sidebar';
+"use client";
+import React, { useState } from 'react';
+
 import JobListings from './JobListings';
+import HeroComponent from "../../../../components/repeatComponents/Hero";
+import PaginationComponent from './Pagination';
+import jobs from '../../../../components/repeatComponents/JobList'; // Importing jobs data
 
+const SavedJobs: React.FC = () => {
+  const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [location, setLocation] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const jobsPerPage = 10;
 
+  const handleCheckboxChange = (filter: string) => {
+    setSelectedFilters(prevFilters =>
+      prevFilters.includes(filter)
+        ? prevFilters.filter(f => f !== filter)
+        : [...prevFilters, filter]
+    );
+  };
 
-const jobs = [
-    {
-      id: 1,
-      title: "Social Media Assistant",
-      company: "Nomad",
-      location: "Paris, France",
-      salary: "$15k/Monthly",
-      logo: "/images/66.png",
-      tags: ["Full-Time", "Marketing", "Design"]
-    },
-    {
-      id: 2,
-      title: "Brand Designer",
-      company: "Dropbox",
-      location: "San Francisco, USA",
-      salary: "$15k/Monthly",
-      logo: "/images/22.png",
-      tags: ["Part-Time", "Marketing", "Design"]
-    },
-    {
-      id: 3,
-      title: "Interactive Developer",
-      company: "Terraform",
-      location: "Hamburg, Germany",
-      salary: "$15k/Monthly",
-      logo: "/images/33.png",
-      tags: ["Full-Time", "Marketing", "Design"]
-    },
-    {
-      id: 4,
-      title: "Email Marketing",
-      company: "Revolut",
-      location: "Madrid, Spain",
-      salary: "$15k/Monthly",
-      logo: "/images/44.png",
-      tags: ["Full-Time", "Marketing", "Design"]
-    },
-    {
-      id: 5,
-      title: "Lead Engineer",
-      company: "Canva",
-      location: "Ankara, Turkey",
-      salary: "$15k/Monthly",
-      logo: "/images/77.png",
-      tags: ["Part-Time", "Marketing", "Design"]
-    },
-    {
-      id: 6,
-      title: "Product Designer",
-      company: "ClassPass",
-      location: "Berlin, Germany",
-      salary: "$15k/Monthly",
-      logo: "/images/55.png",
-      tags: ["Full-Time", "Marketing", "Design"]
-    },
-    {
-      id: 7,
-      title: "Customer Manager",
-      company: "Pitch",
-      location: "Berlin, Germany",
-      salary: "$15k/Monthly",
-      logo: "/images/88.png",
-      tags: ["Full-Time", "Marketing", "Design"]
-    }
-  ];
-  
-const SavedJobs = () => {
+  const handleSearch = (searchTerm: string, location: string) => {
+    setSearchTerm(searchTerm);
+    setLocation(location);
+    setCurrentPage(1); // Reset to first page on new search
+  };
+
+  const filteredJobs = jobs.filter(job => {
+    const matchesFilters = selectedFilters.length === 0 || selectedFilters.some(filter =>
+      job.tags.includes(filter) || (job.categories && job.categories.includes(filter))
+    );
+    const matchesSearchTerm = searchTerm === '' || job.title.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesLocation = location === '' || job.location.toLowerCase().includes(location.toLowerCase());
+
+    return matchesFilters && matchesSearchTerm && matchesLocation;
+  });
+
+  // Get current jobs
+  const indexOfLastJob = currentPage * jobsPerPage;
+  const indexOfFirstJob = indexOfLastJob - jobsPerPage;
+  const currentJobs = filteredJobs.slice(indexOfFirstJob, indexOfLastJob);
+
+  // Change page
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+
   return (
-<div className='md:container md:my-16 my-4'>
-      <div className="md:flex gap-5 ">
-       
-        {/* <Sidebar /> */}
-       
-    
-        
-   
-        <JobListings jobs={jobs} />
+    <div>
+      <div className='bg-lightPink md:pb-10'>
+        <HeroComponent
+          title="Your Saved Jobs."
+          titleClassName="text-3xl md:text-7xl md:pt-8 text-center font-bold text-darkGrey"
+          spanClassName="text-blue"
+          showSuggestions={false}
+          backgroundImage="url-to-image"
+          showSearchBar={true}
+          onSearch={handleSearch}
+          showSearchFields={false} // Hide the search and location fields
+        />
       </div>
-     
+      <div className="md:container md:my-16 my-4 md:flex gap-5">
+      
+        <div className="w-full">
+          <JobListings jobs={currentJobs} />
+          <PaginationComponent
+            jobsPerPage={jobsPerPage}
+            totalJobs={filteredJobs.length}
+            paginate={paginate}
+            currentPage={currentPage}
+          />
+        </div>
+      </div>
     </div>
-   
   );
-}
+};
 
 export default SavedJobs;
-
-
-
-
-   
- 
-
-

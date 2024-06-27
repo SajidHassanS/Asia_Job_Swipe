@@ -4,8 +4,7 @@ import { Input } from '@/components/ui/input';
 import { FiSearch } from 'react-icons/fi';
 import { TiLocationOutline } from 'react-icons/ti';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
-import PakistanCities from './CitiesName';
+import PakistanCities from '../../../../components/repeatComponents/CitiesName';
 
 interface HeroProps {
   title: string;
@@ -25,10 +24,10 @@ interface HeroProps {
 const Hero: React.FC<HeroProps> = ({
   title,
   subtitle,
-  suggestionText = 'Designer, Programming, Digital Marketing, Video, Animation',
+  suggestionText = 'Google, Tesla, NASA, Amazon',
   showSuggestions = true,
   backgroundImage,
-  titleClassName = 'text-2xl md:text-5xl md:pt-8 text-center font-bold text-customgrayblue',
+  titleClassName = 'text-3xl md:text-5xl md:pt-8 text-center font-bold text-customgrayblue',
   spanText,
   afterSpanText,
   spanClassName = 'text-signature',
@@ -95,42 +94,22 @@ const Hero: React.FC<HeroProps> = ({
   const suggestions = suggestionText.split(',').map((suggestion) => suggestion.trim());
 
   return (
-    <div className="md:max-w-4xl md:mx-auto mx-5">
-      <div className="pb-8">
-        {backgroundImage && (
-          <div
-            className="bg-cover bg-center md:pb-10 md:pt-24  bg-no-repeat"
-            style={{
-              backgroundImage: `url('${backgroundImage}')`,
-              backgroundSize: '600px 200px',
-              backgroundRepeat: 'no-repeat',
-              backgroundPosition: 'center',
-            }}
-          >
+    <>
+      <div className='bg-lightPink relative pb-24'>
+        <div className="md:max-w-4xl md:mx-auto pt-16 mx-5">
+          <div className=''>
             <h1 className={titleClassName}>
-              {title} {spanText && <span className={spanClassName}>{spanText}</span>}{afterSpanText}
+              {title} {spanText && <span className={spanClassName}>{spanText}</span>}
             </h1>
           </div>
-        )}
-        {!backgroundImage && (
-          <h1 className={titleClassName}>
-            {title} {spanText && <span className={spanClassName}>{spanText}</span>}
-          </h1>
-        )}
-        {subtitle && (
-          <div className="md:py-8">
-            <p className="text-lg md:text-2xl text-center text-paragraphBlue">
-              {subtitle}
-            </p>
-          </div>
-        )}
+        </div>
         {showSearchBar && showSearchFields && (
-          <div className="max-w-4xl bg-background border  justify-between rounded-lg p-3 flex flex-col md:flex-row gap-5 items-center mt-8 mx-auto">
+          <div className="max-w-4xl bg-background border justify-between rounded-lg p-3 flex flex-col md:flex-row gap-5 items-center mx-auto absolute bottom-0 left-0 right-0 transform translate-y-1/2">
             <div className="relative flex items-center">
               <FiSearch size={35} className="absolute inset-y-1 text-signature left-0 pl-3 pointer-events-none" />
               <Input
                 type="text"
-                placeholder="Job title, Keyword..."
+                placeholder="Company name..."
                 className="pl-12 text-inputGrey text-lg md:border-none md:outline-none"
                 disableFocusStyles
                 value={searchTerm}
@@ -167,26 +146,24 @@ const Hero: React.FC<HeroProps> = ({
                 </div>
               )}
             </div>
-            <Button className="bg-signature text-background text-sm px-4 py-3 rounded-md" >
-             
-                Find Jobs
-             
+            <Button className="bg-signature text-background text-sm px-4 py-3 rounded-md">
+              Find Companies
             </Button>
           </div>
         )}
-        {showSuggestions && (
-          <div className="max-w-4xl text-suggestion flex md:justify-start text-center mt-4 flex-wrap">
-            <span className=" mr-2">Suggestion:</span>
-            {suggestions.map((suggestion, index) => (
-              <span key={index} className="mr-2">
-                {suggestion}
-                {index < suggestions.length - 1 && ','}
-              </span>
-            ))}
-          </div>
-        )}
       </div>
-    </div>
+      {showSuggestions && (
+        <div className="max-w-4xl text-suggestion flex md:justify-start text-center mt-12 flex-wrap mx-auto">
+          <span className=" mr-2">Suggestion:</span>
+          {suggestions.map((suggestion, index) => (
+            <span key={index} className="mr-2">
+              {suggestion}
+              {index < suggestions.length - 1 && ','}
+            </span>
+          ))}
+        </div>
+      )}
+    </>
   );
 };
 

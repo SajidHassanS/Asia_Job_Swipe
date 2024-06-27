@@ -1,39 +1,43 @@
 "use client";
-import React, { useState } from 'react';
-import { Accordion, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Card } from "@/components/ui/card";
-import { MdGridView } from "react-icons/md";
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState, AppDispatch } from '../../../../store';
+import { fetchCompanies } from '../../../../store/slices/companySlice';
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { BiMessageRoundedDetail } from "react-icons/bi";
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { MdGridView } from "react-icons/md";
 import Image from "next/image";
 
-interface Job {
-  id: number;
-  company: string;
-  location: string;
-  job: string;
-  logo: string;
-  tags: string[];
-  categories?: string[];
-}
+const JobListings: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { companies, status, error, totalPages, currentPage } = useSelector((state: RootState) => state.company);
+  const [isGridView, setIsGridView] = useState(true); // State to track the view mode
 
-interface JobListingsProps {
-  jobs: Job[];
-  searchTerm: string;
-  location: string;
-}
+  useEffect(() => {
+    dispatch(fetchCompanies({ page: currentPage }));
+  }, [dispatch, currentPage]);
 
-const JobListings: React.FC<JobListingsProps> = ({ jobs, searchTerm, location }) => {
-  const [isGridView, setIsGridView] = useState(true);
-
-  const toggleViewMode = () => {
-    setIsGridView(!isGridView);
+  const handlePageChange = (page: number) => {
+    dispatch(fetchCompanies({ page }));
   };
 
-  const filteredJobs = jobs.filter((job) => {
-    const matchesSearchTerm = job.company.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesLocation = job.location.toLowerCase().includes(location.toLowerCase());
-    return matchesSearchTerm && matchesLocation;
-  });
+  const toggleViewMode = () => {
+    setIsGridView(!isGridView); // Toggle the view mode
+  };
 
   return (
     <div className="md:w-full p-4">
@@ -43,7 +47,7 @@ const JobListings: React.FC<JobListingsProps> = ({ jobs, searchTerm, location })
         </div>
         <div className="flex items-center gap-3">
           <div>
-            <p className='text-sm md:text-lg'>Sort by: </p>
+            <p className="text-sm md:text-lg">Sort by: </p>
           </div>
           <div>
             <Accordion type="single" collapsible className="w-full text-sm md:text-lg">
@@ -59,41 +63,42 @@ const JobListings: React.FC<JobListingsProps> = ({ jobs, searchTerm, location })
         </div>
       </div>
       <div className="md:mb-10 text-sm mb-4 md:text-lg">
-        <p>Showing {filteredJobs.length} results</p>
+        <p>Showing {Math.min(companies.length, 3)} results</p>
       </div>
 
       <div className={isGridView ? "grid md:grid-cols-3 gap-8" : "grid md:grid-cols-1 gap-8"}>
-        {filteredJobs.map((job) => (
-          <Card key={job.id} className="px-5 py-8">
-            <div className="bg-background">
+        {companies.slice(0, 3).map((company) => (
+          <Card key={company._id} className="p-8 flex flex-col justify-between">
+            <div className="bg-background square-card">
               <div className="flex justify-between mb-5 md:mb-2">
                 <div>
                   <Image
                     width={61}
                     height={61}
-                    src={job.logo || '/images/default.png'}
-                    alt={job.company}
+                    src={company.companyImages[0] || '/public/images/22.png'}
+                    alt={company.companyName}
                     className="mr-4"
                   />
                 </div>
-                <div className="md:mt-3">
-                  <p className="md:text-xl text-md bg-muted p-2 font-bold">{job.job}</p>
+                <div className="flex text-signature items-center gap-3">
+                  <BiMessageRoundedDetail size={25} />
+                  <p className="md:text-sm bg-muted p-2 font-bold">3 Jobs{company.plan}</p>
                 </div>
               </div>
               <div>
                 <h3 className="md:text-xl mb-5 text-lg font-bold">
-                  {job.company}
+                  {company.companyName}
                 </h3>
                 <div className="flex md:gap-3 items-center">
                   <p className="text-sm mb-5 text-gray-600">
-                    {job.location}
+                    Nomad is located in Paris, France. Nomad has generates $728,000 in sales (USD).
                   </p>
                 </div>
               </div>
               <div className="flex justify-between">
                 <div className="flex flex-wrap gap-2 items-center mt-2">
                   <Link
-                    className="border text-signature text-sm md:px-4 p-2 md:py-2 rounded-[30px]"
+                    className="border text-signature text-sm md:px-4 md:py-2 rounded-[30px]"
                     href="/signin"
                   >
                     Business Service

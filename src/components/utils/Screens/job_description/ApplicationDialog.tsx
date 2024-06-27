@@ -8,14 +8,14 @@ const ApplicationDialog = () => {
   return (
     <Dialog>
       <DialogTrigger>
-        <Button className="bg-blue text-white text-sm px-8 py-2 rounded-md">
+        <Button className="bg-signature text-background text-sm px-8 py-2 rounded-md">
           Apply
         </Button>
       </DialogTrigger>
       <DialogContent className="fixed inset-0 flex items-center justify-center p-4">
         <div className="bg-white rounded-lg shadow-lg w-full max-w-2xl h-3/4 overflow-y-auto">
-          <DialogHeader className="bg-blue px-16 py-5 rounded-t-lg flex justify-center text-center">
-            <DialogTitle className="text-white text-center text-3xl">
+          <DialogHeader className="bg-signature  px-16 py-5 rounded-t-lg flex justify-center text-center">
+            <DialogTitle className=" text-background text-center text-3xl">
               Review your Information
             </DialogTitle>
           </DialogHeader>

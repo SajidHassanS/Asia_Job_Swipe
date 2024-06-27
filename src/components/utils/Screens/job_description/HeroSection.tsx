@@ -138,7 +138,7 @@ const HeroSection = () => {
                   <div className="flex flex-col mt-2">
                     <Dialog>
                       <DialogTrigger>
-                        <Button className="bg-blue text-white text-sm px-8 py-2 rounded-md">
+                        <Button className="bg-signature text-background text-sm px-8 py-2 rounded-md">
                           Apply
                         </Button>
                       </DialogTrigger>
