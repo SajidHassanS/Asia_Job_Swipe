@@ -1,16 +1,17 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://ajs-server.hostdonor.com/api/v1';
+
 interface JobSeeker {
   _id: string;
-  email: string;
   firstName: string;
   lastName: string;
   profession?: string;
   city?: string;
   country?: string;
-  openToOpportunities?: boolean;
-  // Add other relevant fields here
+  introduction?: string;
+  [key: string]: any;
 }
 
 interface ProfileState {
@@ -25,14 +26,16 @@ const initialState: ProfileState = {
   error: null,
 };
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://ajs-server.hostdonor.com/api/v1';
-
-export const fetchProfile = createAsyncThunk<JobSeeker, string, { rejectValue: string }>(
+export const fetchProfile = createAsyncThunk<JobSeeker, { id: string; token: string }, { rejectValue: string }>(
   'profile/fetchProfile',
-  async (id, { rejectWithValue }) => {
+  async ({ id, token }, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${API_URL}/job-seeker/${id}`);
-      return response.data;
+      const response = await axios.get(`${API_URL}/job-seeker/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data.jobSeeker;
     } catch (error: any) {
       if (axios.isAxiosError(error) && error.response) {
         return rejectWithValue(error.response.data.message || 'An error occurred while fetching the profile.');
@@ -43,12 +46,18 @@ export const fetchProfile = createAsyncThunk<JobSeeker, string, { rejectValue: s
   }
 );
 
-export const updateProfile = createAsyncThunk<JobSeeker, { id: string; updates: Partial<JobSeeker> }, { rejectValue: string }>(
+export const updateProfile = createAsyncThunk<JobSeeker, { id: string; updates: Partial<JobSeeker>; token: string }, { rejectValue: string }>(
   'profile/updateProfile',
-  async ({ id, updates }, { rejectWithValue }) => {
+  async ({ id, updates, token }, { rejectWithValue }) => {
     try {
-      const response = await axios.patch(`${API_URL}/job-seeker/${id}`, updates);
-      return response.data;
+      const response = await axios.patch(`${API_URL}/job-seeker/${id}`, updates, {
+       
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log(response, 'responsexxxx');
+      return response.data.jobSeeker;
     } catch (error: any) {
       if (axios.isAxiosError(error) && error.response) {
         return rejectWithValue(error.response.data.message || 'An error occurred while updating the profile.');
@@ -71,6 +80,7 @@ const profileSlice = createSlice({
       .addCase(fetchProfile.fulfilled, (state, action: PayloadAction<JobSeeker>) => {
         state.status = 'succeeded';
         state.jobSeeker = action.payload;
+        state.error = null;
       })
       .addCase(fetchProfile.rejected, (state, action: PayloadAction<string | undefined>) => {
         state.status = 'failed';
@@ -82,6 +92,7 @@ const profileSlice = createSlice({
       .addCase(updateProfile.fulfilled, (state, action: PayloadAction<JobSeeker>) => {
         state.status = 'succeeded';
         state.jobSeeker = action.payload;
+        state.error = null;
       })
       .addCase(updateProfile.rejected, (state, action: PayloadAction<string | undefined>) => {
         state.status = 'failed';

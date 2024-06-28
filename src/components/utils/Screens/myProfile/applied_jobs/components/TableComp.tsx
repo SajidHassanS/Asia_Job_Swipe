@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Table,
   TableBody,
@@ -8,8 +8,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { BsThreeDots, BsChevronRight, BsChevronDown } from "react-icons/bs";
+import { BsChevronRight, BsChevronDown } from "react-icons/bs";
+import { RiDeleteBin5Line } from "react-icons/ri";
 import Image from 'next/image';
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 import {
   Pagination,
@@ -24,52 +27,28 @@ import {
 // Define the possible status values
 type Status = 'In Review' | 'Shortlisted' | 'Processing';
 
-const tableData = [
-  {
-    serial: "1",
-    companyName: "Nomad",
-    icon: "/images/harvard.png",
-    Roles: "Social Media Assistant",
-    dateApplied: "24 July 2021",
-    status: "In Review" as Status,
-  },
-  {
-    serial: "2",
-    companyName: "Nomad",
-    icon: "/images/harvard.png",
-    Roles: "Social Media Assistant",
-    dateApplied: "24 July 2021",
-    status: "Shortlisted" as Status,
-  },
-  {
-    serial: "3",
-    companyName: "Nomad",
-    icon: "/images/harvard.png",
-    Roles: "Social Media Assistant",
-    dateApplied: "24 July 2021",
-    status: "Processing" as Status,
-  },
-  {
-    serial: "4",
-    companyName: "Nomad",
-    icon: "/images/harvard.png",
-    Roles: "Social Media Assistant",
-    dateApplied: "24 July 2021",
-    status: "In Review" as Status,
-  },
-  {
-    serial: "5",
-    companyName: "Nomad",
-    icon: "/images/harvard.png",
-    Roles: "Social Media Assistant",
-    dateApplied: "24 July 2021",
-    status: "In Review" as Status,
-  },
-];
+interface TableCompProps {
+  filteredData: {
+    serial: string;
+    companyName: string;
+    icon: string;
+    Roles: string;
+    dateApplied: string;
+    status: Status;
+  }[];
+}
 
-const TableComp = () => {
+const TableComp: React.FC<TableCompProps> = ({ filteredData = [] }) => {
   const [selectedRow, setSelectedRow] = useState<number | null>(null);
   const [expandedRow, setExpandedRow] = useState<number | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [data, setData] = useState(filteredData);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<string | null>(null);
+
+  useEffect(() => {
+    setData(filteredData);
+  }, [filteredData]);
 
   const getStatusClass = (status: Status) => {
     switch (status) {
@@ -92,6 +71,25 @@ const TableComp = () => {
     }
   };
 
+  const handleDelete = () => {
+    if (itemToDelete) {
+      setData(prevData => prevData.filter(item => item.serial !== itemToDelete));
+      setItemToDelete(null);
+      setDeleteModalOpen(false);
+    }
+  };
+
+  const openDeleteModal = (serial: string) => {
+    setItemToDelete(serial);
+    setDeleteModalOpen(true);
+  };
+
+  const itemsPerPage = 10;
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentItems = data.slice(startIndex, endIndex);
+  const totalPages = Math.ceil(data.length / itemsPerPage);
+
   return (
     <>
       <div className='border rounded-[20px] my-10'>
@@ -107,7 +105,7 @@ const TableComp = () => {
             </TableRow>
           </TableHeader>
           <TableBody className='text-modaltext text-base'>
-            {tableData.map((item, index) => (
+            {currentItems.map((item, index) => (
               <React.Fragment key={item.serial}>
                 <TableRow
                   className={`hover:bg-signature-300 cursor-pointer ${getRowClass(index)}`}
@@ -133,7 +131,7 @@ const TableComp = () => {
                     )}
                   </TableCell>
                   <TableCell className="text-right hidden md:table-cell">
-                    <BsThreeDots size={25} />
+                    <RiDeleteBin5Line onClick={() => openDeleteModal(item.serial)} size={25} className="cursor-pointer text-red-500" />
                   </TableCell>
                 </TableRow>
                 {expandedRow === index && (
@@ -145,7 +143,7 @@ const TableComp = () => {
                             <div><strong>Roles:</strong> {item.Roles}</div>
                             <div><strong>Date Applied:</strong> {item.dateApplied}</div>
                           </div>
-                          <BsThreeDots size={25} className='text-background' />
+                          <RiDeleteBin5Line onClick={() => openDeleteModal(item.serial)} size={25} className='text-background cursor-pointer text-red-500' />
                         </div>
                       </div>
                     </TableCell>
@@ -157,28 +155,34 @@ const TableComp = () => {
         </Table>
       </div>
 
+      <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
+        <DialogContent className="sm:max-w-[400px] p-6">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold">Confirm Deletion</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">Are you sure you want to delete this job application?</div>
+          <DialogFooter className="flex justify-end gap-4">
+            <Button variant="outline" onClick={() => setDeleteModalOpen(false)}>Cancel</Button>
+            <Button variant="destructive" onClick={handleDelete}>Delete</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <div className='my-10'>
         <Pagination>
           <PaginationContent>
             <PaginationItem>
-              <PaginationPrevious href="#" />
+              <PaginationPrevious href="#" onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))} />
             </PaginationItem>
+            {[...Array(totalPages)].map((_, i) => (
+              <PaginationItem key={i}>
+                <PaginationLink href="#" isActive={i + 1 === currentPage} onClick={() => setCurrentPage(i + 1)}>
+                  {i + 1}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
             <PaginationItem>
-              <PaginationLink href="#">1</PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationLink href="#" isActive>
-                2
-              </PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationLink href="#">3</PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationEllipsis />
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationNext href="#" />
+              <PaginationNext href="#" onClick={() => setCurrentPage(Math.min(currentPage + 1, totalPages))} />
             </PaginationItem>
           </PaginationContent>
         </Pagination>

@@ -1,29 +1,15 @@
-import React from "react";
+"use client";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { BsBookmarkDash } from "react-icons/bs";
 import { IoCheckmarkDoneSharp } from "react-icons/io5";
-import PaginationComponent from "./Pagination";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-
+import { Accordion, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Card } from "@/components/ui/card";
 import { MdGridView } from "react-icons/md";
 import Image from "next/image";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
-// Define an interface for the shape of each job object
 interface Job {
   id: number;
   title: string;
@@ -35,123 +21,142 @@ interface Job {
   categories?: string[];
 }
 
-// Specify the type of the jobs parameter using the Job interface
-const JobListings: React.FC<{ jobs: Job[] }> = ({ jobs }) => {
+interface JobListingsProps {
+  jobs: Job[];
+  totalJobs: number;
+}
+
+const JobListings: React.FC<JobListingsProps> = ({ jobs, totalJobs }) => {
+  const [isGridView, setIsGridView] = useState(false);
+
   return (
     <div className="md:w-full p-4">
       <div className="flex justify-between items-center mb-2">
         <div className="">
-          <h2 className="lg:text-3xl md:text-2xl text-xl font-bold ">All Declined Jobs</h2>
+          <h2 className="lg:text-3xl md:text-2xl text-xl font-bold ">
+            All Declined Jobs
+          </h2>
         </div>
-        <div className="flex  items-center  gap-3">
+        <div className="flex items-center gap-3">
           <div>
             <p>Sort by: </p>
           </div>
           <div>
             <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="item-1">
-                <AccordionTrigger> Most relevant</AccordionTrigger>
+                <AccordionTrigger>Most relevant</AccordionTrigger>
               </AccordionItem>
             </Accordion>
           </div>
           <div className="h-5 border border-black hidden md:block"></div>
-          <div className="hidden md:block">
+          <div className="hidden md:block cursor-pointer" onClick={() => setIsGridView(!isGridView)}>
             <MdGridView />
           </div>
         </div>
       </div>
       <div className="md:mb-10">
-        <p>Showing 73 results</p>
+        <p>Showing {totalJobs} results</p>
       </div>
-      {jobs.map((job) => (
-        <Card key={job.id} className="mb-5 p-4">
-          <div className="">
-            <div className=" bg-background  ">
-              <div className="flex justify-between mb-5 md:mb-2">
-                <div className="flex items-center">
-                  <Image
-                    width={61}
-                    height={61}
-                    src={job.logo}
-                    alt={job.company}
-                    className="rounded-full mr-4"
-                  />
-                  <div>
-                    <h3 className="md:text-xl text-lg font-bold">
-                      {job.title}
-                    </h3>
-                    <div className="flex md:gap-3 items-center">
-                      <p className="text-sm text-gray-600">
-                        {job.company} • {job.location}
-                      </p>
-                      <div className="md:block hidden">
-                        <IoCheckmarkDoneSharp className="text-signature" />
+      <div className={isGridView ? "grid grid-cols-1 md:grid-cols-2 gap-5" : ""}>
+        {jobs.map((job) => (
+          <Card key={job.id} className="mb-5 p-4">
+            <div className="">
+              <div className="bg-background">
+                <div className="flex justify-between mb-5 md:mb-2">
+                  <div className="flex items-center">
+                    <Image
+                      width={61}
+                      height={61}
+                      src={job.logo}
+                      alt={job.company}
+                      className="rounded-full mr-4"
+                    />
+                    <div>
+                      <h3 className="md:text-xl text-lg font-bold">{job.title}</h3>
+                      <div className="flex md:gap-3 items-center">
+                        <p className="text-sm text-gray-600">
+                          {job.company} • {job.location}
+                        </p>
+                        <div className="md:block hidden">
+                          <IoCheckmarkDoneSharp className="text-signature" />
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-                <div className="md:mt-3">
-                  <div className="md:hidden mb-2 flex justify-end">
-                    <BsBookmarkDash className="text-signature " size={20} />
-                  </div>
-                  <p className="md:text-xl text-md font-bold">{job.salary}</p>
-                </div>
-              </div>
-              <div className="flex justify-between">
-                <div className="flex flex-wrap gap-3 md:ml-20  items-center mt-2">
-                  {/* Render buttons for different categories */}
-                  <Button asChild className="rounded-[30px] " >
-                    <Link
-                      className="bg-sky-300 text-signature text-sm md:px-4 md:py-2"
-                      href="/signin"
-                    >
-                      Full-Time
-                    </Link>
-                  </Button>
-                  <div className="hidden md:block h-5 border border-lightgrey"></div>
-                  <Button asChild className="rounded-[30px]" >
-                    <Link
-                      className="border border-darkGrey text-darkGrey text-sm px-4 py-2"
-                      href="/signin"
-                    >
-                      Marketing
-                    </Link>
-                  </Button>
-                  <Button asChild className="rounded-[30px]" >
-                    <Link
-                      className="border border-darkGrey text-darkGrey text-sm px-4 py-2"
-                      href="/signin"
-                    >
-                      Design
-                    </Link>
-                  </Button>
-                  <div className="md:block hidden">
-                    <BsBookmarkDash className="text-signature " size={30} />
+                  <div className="md:mt-3">
+                    <div className="md:hidden mb-2 flex justify-end">
+                      <BsBookmarkDash className="text-signature" size={20} />
+                    </div>
+                    <p className="md:text-xl text-md font-bold">{job.salary}</p>
                   </div>
                 </div>
+                <div className="flex justify-between">
+                  <div className="flex flex-wrap gap-3 md:ml-20 items-center mt-2">
+                    {job.tags.map((tag) => (
+                      <Link
+                        key={tag}
+                        className="bg-sky-300 text-signature text-sm md:px-4 md:py-2 rounded-[30px] inline-block"
+                        href="/signin"
+                      >
+                        {tag}
+                      </Link>
+                    ))}
+                    <div className="hidden md:block h-5 border border-lightgrey"></div>
+                    {job.categories?.map((category) => (
+                      <Link
+                        key={category}
+                        className="border border-darkGrey text-darkGrey text-sm px-4 py-2 rounded-[30px] inline-block"
+                        href="/signin"
+                      >
+                        {category}
+                      </Link>
+                    ))}
+                    <div className="md:block hidden">
+                      <BsBookmarkDash className="text-signature" size={30} />
+                    </div>
+                  </div>
 
-                <div className="flex flex-col mt-2">
-                  <Button asChild >
-                    <Link
-                      className="bg-signature text-background text-sm px-4 py-2 rounded-md"
-                      href=""
-                    >
-                      Apply
-                    </Link>
-                  </Button >
-                  <Button variant={"ghost"}  className="text-red-500 text-sm px-4 py-2 rounded-md" >
-                    
-                      Decline
-                   
-                  </Button>
+                  <div className="flex flex-col mt-2">
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button className="bg-signature text-background text-sm px-8 py-2 rounded-md">
+                          Apply
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="bg-background">
+                        <DialogHeader className="bg-signature rounded-lg px-16 py-5 flex text-center">
+                          <DialogTitle className="text-background text-3xl">
+                            Your Profile Is Incomplete
+                          </DialogTitle>
+                        </DialogHeader>
+                        <DialogDescription className="px-16">
+                          <h1 className="modaltext text-2xl">
+                            Complete your Profile to Apply for job!
+                          </h1>
+                          <p className="text-signininput4">
+                            Click on button to complete your profile.
+                          </p>
+                        </DialogDescription>
+                        <div className="px-16 pb-10">
+                          <Link
+                            className="bg-signature text-background text-sm w-full inline-block text-center rounded-md py-6"
+                            href="/myprofile"
+                          >
+                            Go to My Profile
+                          </Link>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                    <Button variant="ghost" className="text-red-500 text-sm px-4 py-2 rounded-md">
+                      Declined
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </Card>
-      ))}
-
-      <PaginationComponent />
+          </Card>
+        ))}
+      </div>
     </div>
   );
 };

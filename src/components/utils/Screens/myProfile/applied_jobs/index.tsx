@@ -7,7 +7,7 @@ const index = () => {
     <>
     <AppliedJobs/>
     <div>
-    <TableComp/>
+    {/* <TableComp/> */}
     </div>
     </>
   )
