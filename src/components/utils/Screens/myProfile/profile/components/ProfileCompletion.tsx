@@ -133,7 +133,7 @@ const ProfileCompletion: React.FC = () => {
                   <DialogHeader>
                     <DialogTitle className="text-2xl font-bold">Edit Profile</DialogTitle>
                     <DialogDescription className="text-md text-gray-500">
-                      Make changes to your profile here. Click save when you're done.
+                      Make changes to your profile here. Click save when you&apos;re done.
                     </DialogDescription>
                   </DialogHeader>
                   <div className="grid gap-4 py-4">

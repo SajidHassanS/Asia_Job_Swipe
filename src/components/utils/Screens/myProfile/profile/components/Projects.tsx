@@ -123,7 +123,7 @@ const Projects = () => {
             <DialogHeader>
               <DialogTitle className="text-3xl font-bold">Add Project</DialogTitle>
               <DialogDescription className="text-md text-gray-500">
-                Add your new project here. Click save when you're done.
+                Add your new project here. Click save when you&apos;re done.
               </DialogDescription>
             </DialogHeader>
             <div className="grid grid-cols-2 gap-4 py-4">
@@ -229,7 +229,7 @@ const Projects = () => {
                         <DialogHeader>
                           <DialogTitle className="text-3xl font-bold">Edit Project</DialogTitle>
                           <DialogDescription className="text-md text-gray-500">
-                            Make changes to your project here. Click save when you're done.
+                            Make changes to your project here. Click save when you&apos;re done.
                           </DialogDescription>
                         </DialogHeader>
                         <div className="grid grid-cols-2 gap-4 py-4">

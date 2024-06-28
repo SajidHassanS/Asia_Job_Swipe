@@ -65,9 +65,9 @@ const Experience = () => {
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [location, setLocation] = useState("");
-  const [imagePreview, setImagePreview] = useState<
-    string | ArrayBuffer | null
-  >(null);
+  const [imagePreview, setImagePreview] = useState<string | ArrayBuffer | null>(
+    null
+  );
 
   const handleEditClick = (experience: ExperienceData) => {
     setSelectedExperience(experience);
@@ -118,7 +118,9 @@ const Experience = () => {
         location,
         description: experienceText,
         image:
-          typeof imagePreview === "string" ? imagePreview : "/images/default.png", // Placeholder image
+          typeof imagePreview === "string"
+            ? imagePreview
+            : "/images/default.png", // Placeholder image
       };
       setExperiences([...experiences, newExperience]);
     }
@@ -156,7 +158,7 @@ const Experience = () => {
             <DialogHeader>
               <DialogTitle className="text-3xl font-bold">Add Experience</DialogTitle>
               <DialogDescription className="text-md text-gray-500">
-                Add your new experience here. Click save when you're done.
+                Add your new experience here. Click save when you&apos;re done.
               </DialogDescription>
             </DialogHeader>
             <div className="grid grid-cols-2 gap-4 py-4">
@@ -288,7 +290,7 @@ const Experience = () => {
                   <DialogHeader>
                     <DialogTitle className="text-3xl font-bold">Edit Experience</DialogTitle>
                     <DialogDescription className="text-md text-gray-500">
-                      Make changes to your experience here. Click save when you're done.
+                      Make changes to your experience here. Click save when you&apos;re done.
                     </DialogDescription>
                   </DialogHeader>
                   <div className="grid grid-cols-2 gap-4 py-4">

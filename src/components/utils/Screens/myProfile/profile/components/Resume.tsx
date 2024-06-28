@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CiLinkedin, CiSquarePlus } from "react-icons/ci";
+import { CiSquarePlus } from "react-icons/ci";
 import { RiDeleteBin5Line } from "react-icons/ri";
 import {
   Dialog,
@@ -58,7 +58,7 @@ const Resume = () => {
             <DialogHeader>
               <DialogTitle className="text-3xl font-bold">Add Resume/CV</DialogTitle>
               <DialogDescription className="text-md text-gray-500">
-                Upload your resume or CV file here. Click save when you're done.
+                Upload your resume or CV file here. Click save when you&apos;re done.
               </DialogDescription>
             </DialogHeader>
             <div className="py-4">

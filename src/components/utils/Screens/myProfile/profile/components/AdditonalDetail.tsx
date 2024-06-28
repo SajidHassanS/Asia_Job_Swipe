@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import Image from "next/image";
 import { FaRegEdit } from "react-icons/fa";
 import { MdOutlineMailOutline, MdPhoneAndroid } from "react-icons/md";
 import { TbLanguage } from "react-icons/tb";
@@ -38,7 +37,7 @@ const AdditionalDetails = () => {
             <DialogHeader>
               <DialogTitle className="text-3xl font-bold">Edit Additional Details</DialogTitle>
               <DialogDescription className="text-md text-gray-500">
-                Make changes to your additional details here. Click save when you're done.
+                Make changes to your additional details here. Click save when you&apos;re done.
               </DialogDescription>
             </DialogHeader>
             <div className="py-4">

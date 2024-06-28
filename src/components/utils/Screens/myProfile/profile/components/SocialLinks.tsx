@@ -34,7 +34,7 @@ const SocialLinks = () => {
             <DialogHeader>
               <DialogTitle className="text-3xl font-bold">Edit Social Links</DialogTitle>
               <DialogDescription className="text-md text-gray-500">
-                Make changes to your social links here. Click save when you're done.
+                Make changes to your social links here. Click save when you&apos;re done.
               </DialogDescription>
             </DialogHeader>
             <div className="py-4">
