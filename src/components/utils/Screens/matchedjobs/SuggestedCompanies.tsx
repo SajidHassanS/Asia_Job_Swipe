@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from 'react';
+import React, {useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../../../../store';
 import { fetchCompanies } from '../../../../store/slices/companySlice';
@@ -13,31 +13,29 @@ import {
 } from "@/components/ui/accordion";
 import {
   Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import { MdGridView } from "react-icons/md";
 import Image from "next/image";
 
 const JobListings: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { companies, status, error, totalPages, currentPage } = useSelector((state: RootState) => state.company);
-  const [isGridView, setIsGridView] = useState(true); // State to track the view mode
+  const { companies, status, error, pagination } = useSelector((state: RootState) => state.company);
+  const [isGridView, setIsGridView] = useState(true);
 
   useEffect(() => {
-    dispatch(fetchCompanies({ page: currentPage }));
-  }, [dispatch, currentPage]);
+    dispatch(fetchCompanies({ page: pagination.currentPage }));
+  }, [dispatch, pagination.currentPage]);
 
   const handlePageChange = (page: number) => {
     dispatch(fetchCompanies({ page }));
   };
 
   const toggleViewMode = () => {
-    setIsGridView(!isGridView); // Toggle the view mode
+    setIsGridView(!isGridView);
   };
+
+  if (status === 'loading') return <div>Loading...</div>;
+  if (status === 'failed') return <div>Error: {error}</div>;
 
   return (
     <div className="md:w-full p-4">
@@ -108,6 +106,19 @@ const JobListings: React.FC = () => {
             </div>
           </Card>
         ))}
+      </div>
+
+      <div className="mt-4 flex justify-center">
+        {pagination.hasPreviousPage && (
+          <Button onClick={() => handlePageChange(pagination.previousPage!)}>
+            Previous
+          </Button>
+        )}
+        {pagination.hasNextPage && (
+          <Button onClick={() => handlePageChange(pagination.nextPage!)}>
+            Next
+          </Button>
+        )}
       </div>
     </div>
   );
