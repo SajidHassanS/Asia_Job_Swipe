@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { RootState, AppDispatch } from '../../../../../../store';
-import { updateProfile, fetchProfile } from '../../../../../../store/slices/ProfileSlice';
+// import { RootState, AppDispatch } from '../../../../../../store';
+// import { updateProfile, fetchProfile } from '../../../../../../store/slices/ProfileSlice';
 import Image from 'next/image';
 import { FaMapMarkerAlt } from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
@@ -12,9 +12,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 const ProfileCompletion: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>();
-  const { jobSeeker, status, error } = useSelector((state: RootState) => state.profile);
-  const token = useSelector((state: RootState) => state.auth.accessToken) as string;
+  // const dispatch = useDispatch<AppDispatch>();
+  // const { jobSeeker, status, error } = useSelector((state: RootState) => state.profile);
+  // const token = useSelector((state: RootState) => state.auth.accessToken) as string;
   const [progress, setProgress] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
@@ -33,35 +33,35 @@ const ProfileCompletion: React.FC = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  useEffect(() => {
-    const userId = localStorage.getItem('_id') as string;
-    if (token && userId) {
-      console.log("Fetching profile with userId:", userId);
-      dispatch(fetchProfile({ id: userId, token }));
-    }
-  }, [dispatch, token]);
+  // useEffect(() => {
+  //   const userId = localStorage.getItem('_id') as string;
+  //   if (token && userId) {
+  //     console.log("Fetching profile with userId:", userId);
+  //     dispatch(fetchProfile({ id: userId, token }));
+  //   }
+  // }, [dispatch, token]);
 
-  useEffect(() => {
-    if (jobSeeker) {
-      setFormData({
-        firstName: jobSeeker.firstName || '',
-        lastName: jobSeeker.lastName || '',
-        profession: jobSeeker.profession || '',
-        company: jobSeeker.company || '',
-        city: jobSeeker.city || '',
-        country: jobSeeker.country || '',
-      });
-      setProfileImagePreview(jobSeeker.profileImage || '/images/profil.png');
-    }
-  }, [jobSeeker]);
+  // useEffect(() => {
+  //   if (jobSeeker) {
+  //     setFormData({
+  //       firstName: jobSeeker.firstName || '',
+  //       lastName: jobSeeker.lastName || '',
+  //       profession: jobSeeker.profession || '',
+  //       company: jobSeeker.company || '',
+  //       city: jobSeeker.city || '',
+  //       country: jobSeeker.country || '',
+  //     });
+  //     setProfileImagePreview(jobSeeker.profileImage || '/images/profil.png');
+  //   }
+  // }, [jobSeeker]);
 
-  const handleSave = () => {
-    if (token && jobSeeker?._id) {
-      console.log("Updating profile with jobSeekerId:", jobSeeker._id);
-      dispatch(updateProfile({ id: jobSeeker._id, updates: { ...formData, profileImage }, token }));
-      setIsEditing(false);
-    }
-  };
+  // const handleSave = () => {
+  //   if (token && jobSeeker?._id) {
+  //     console.log("Updating profile with jobSeekerId:", jobSeeker._id);
+  //     dispatch(updateProfile({ id: jobSeeker._id, updates: { ...formData, profileImage }, token }));
+  //     setIsEditing(false);
+  //   }
+  // };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -79,8 +79,8 @@ const ProfileCompletion: React.FC = () => {
     }
   };
 
-  if (status === 'loading') return <p>Loading...</p>;
-  if (status === 'failed') return <p>Error: {error}</p>;
+  // if (status === 'loading') return <p>Loading...</p>;
+  // if (status === 'failed') return <p>Error: {error}</p>;
 
   return (
     <div className="border rounded-[20px] relative">
@@ -169,7 +169,7 @@ const ProfileCompletion: React.FC = () => {
                     </div>
                   </div>
                   <DialogFooter>
-                    <Button type="submit" onClick={handleSave}>Save changes</Button>
+                    <Button type="submit" >Save changes</Button>
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
