@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState, AppDispatch } from "../../store";
-import { sendOTP, verifyOTP } from "../../store/slices/authSlice";
+import { sendOTP, verifyOTP, clearErrors } from "../../store/slices/authSlice";
 import {
   Card,
   CardContent,
@@ -31,6 +31,8 @@ const SendOTPPage: React.FC = () => {
   const [role, setRole] = useState<string>("jobSeeker"); // 'jobSeeker' or 'company'
   const [message, setMessage] = useState<string>("");
   const [messageType, setMessageType] = useState<string>(""); // 'success' or 'error'
+  const [timer, setTimer] = useState<number>(0);
+  const [canResend, setCanResend] = useState<boolean>(false);
   const router = useRouter();
   const { data: session, status } = useSession();
 
@@ -42,13 +44,33 @@ const SendOTPPage: React.FC = () => {
     }
   }, [session, router, auth.accessToken, auth.refreshToken]);
 
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+    if (timer > 0) {
+      interval = setInterval(() => {
+        setTimer((prevTimer) => prevTimer - 1);
+      }, 1000);
+    } else if (timer === 0 && !canResend) {
+      setCanResend(true);
+      if (interval) clearInterval(interval);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [timer, canResend]);
+
   const handleSendOTP = async () => {
+    setMessage("");
+    setMessageType("");
+    setCanResend(false);
+    setTimer(60);
+    dispatch(clearErrors());
     const response = await dispatch(sendOTP({ email }));
     if (response.meta.requestStatus === "fulfilled") {
       setStep("verifyOTP");
       setMessage("OTP has been sent to your email.");
       setMessageType("success");
-    } else if (response.payload === "User already exists with this email") {
+    } else if (Array.isArray(response.payload) && response.payload.some(error => error.message === "User already exists with this email")) {
       setMessage("User already exists with this email.");
       setMessageType("error");
     } else {
@@ -58,6 +80,8 @@ const SendOTPPage: React.FC = () => {
   };
 
   const handleVerifyOTP = async () => {
+    setMessage("");
+    setMessageType("");
     const response = await dispatch(verifyOTP({ email, otp }));
     if (response.meta.requestStatus === "fulfilled") {
       router.push(`/signup?email=${email}&otp=${otp}&role=${role}`);
@@ -149,6 +173,25 @@ const SendOTPPage: React.FC = () => {
                     >
                       {step === "sendOTP" ? "Send OTP" : "Verify OTP"}
                     </Button>
+                    {step === "verifyOTP" && (
+                      <div className="flex justify-between items-center mt-4">
+                        <span className="text-sm text-gray-600">
+                          {canResend
+                            ? "Didn't receive the code?"
+                            : `Resend code in ${timer}s`}
+                        </span>
+                        {canResend && (
+                          <Button
+                            variant="link"
+                            onClick={handleSendOTP}
+                            disabled={!canResend}
+                            className="text-signature"
+                          >
+                            Resend OTP
+                          </Button>
+                        )}
+                      </div>
+                    )}
                   </div>
                   {auth.otpError && <p className="text-red-500">{auth.otpError}</p>}
                   <div className="flex items-center">
@@ -216,7 +259,7 @@ const SendOTPPage: React.FC = () => {
                         onChange={(e) => setOtp(e.target.value)}
                         placeholder="Enter OTP"
                       />
-                    </div>
+                    </div> 
                   )}
                   <div>
                     <Button
@@ -227,6 +270,25 @@ const SendOTPPage: React.FC = () => {
                     >
                       {step === "sendOTP" ? "Send OTP" : "Verify OTP"}
                     </Button>
+                    {step === "verifyOTP" && (
+                      <div className="flex justify-between items-center mt-4">
+                        <span className="text-sm text-gray-600">
+                          {canResend
+                            ? "Didn't receive the code?"
+                            : `Resend code in ${timer}s`}
+                        </span>
+                        {canResend && (
+                          <Button
+                            variant="link"
+                            onClick={handleSendOTP}
+                            disabled={!canResend}
+                            className="text-signature"
+                          >
+                            Resend OTP
+                          </Button>
+                        )}
+                      </div>
+                    )}
                   </div>
                   {auth.otpError && <p className="text-red-500">{auth.otpError}</p>}
                   <div className="flex items-center">

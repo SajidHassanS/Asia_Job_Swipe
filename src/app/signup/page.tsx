@@ -3,7 +3,7 @@ import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../../store';
-import { registerJobSeeker, registerCompany } from '../../store/slices/authSlice';
+import { registerJobSeeker, registerCompany, clearErrors } from '../../store/slices/authSlice';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,6 +11,11 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useRouter, useSearchParams } from 'next/navigation';
 import { FaArrowLeft, FaEye, FaEyeSlash } from "react-icons/fa6";
+
+interface AuthError {
+  path: string;
+  message: string;
+}
 
 const SignUpForm: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -27,6 +32,7 @@ const SignUpForm: React.FC = () => {
   const [companyName, setCompanyName] = useState<string>('');
   const [role, setRole] = useState<string>('jobSeeker'); // Correct casing for role
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
 
   useEffect(() => {
     if (auth?.user) {
@@ -43,10 +49,56 @@ const SignUpForm: React.FC = () => {
     setShowPassword(!showPassword);
   };
 
+  const validateForm = (): boolean => {
+    const errors: { [key: string]: string } = {};
+
+    if (!firstName) {
+      errors.firstName = "First name cannot be empty";
+    } else if (firstName.length < 3 || /[^a-zA-Z]/.test(firstName)) {
+      errors.firstName = "First name must contain only letters and be at least 3 characters long";
+    }
+
+    if (!lastName) {
+      errors.lastName = "Last name cannot be empty";
+    } else if (lastName.length < 3 || /[^a-zA-Z]/.test(lastName)) {
+      errors.lastName = "Last name must contain only letters and be at least 3 characters long";
+    }
+
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email) {
+      errors.email = "Email cannot be empty";
+    } else if (!emailPattern.test(email)) {
+      errors.email = "Invalid email address";
+    }
+
+    if (!password) {
+      errors.password = "Password cannot be empty";
+    } else {
+      const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+      if (!passwordPattern.test(password)) {
+        errors.password = "Password must be at least 8 characters long, contain uppercase, lowercase, number, and special character";
+      }
+    }
+
+    if (!confirmPassword) {
+      errors.confirmPassword = "Confirm password cannot be empty";
+    } else if (password !== confirmPassword) {
+      errors.confirmPassword = "Passwords do not match";
+    }
+
+    if (role === 'company' && !companyName) {
+      errors.companyName = "Company name cannot be empty";
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleSignUp = async () => {
     setErrorMessage(null); // Clear previous error messages
-    if (password !== confirmPassword) {
-      setErrorMessage("Passwords do not match");
+    dispatch(clearErrors()); // Clear any previous errors from the Redux state
+
+    if (!validateForm()) {
       return;
     }
 
@@ -64,8 +116,17 @@ const SignUpForm: React.FC = () => {
         router.push(role === 'company' ? '/dashboard' : '/');
       }
     } catch (error: any) {
-      setErrorMessage(error.message || 'An error occurred during registration.');
+      if (Array.isArray(error)) {
+        setErrorMessage(error.map((err: AuthError) => `${err.path}: ${err.message}`).join(', '));
+      } else {
+        setErrorMessage(error.message || 'An error occurred during registration.');
+      }
     }
+  };
+
+  const getErrorMessage = (field: string): string | null => {
+    const error = auth.errors.find((error: AuthError) => error.path === field);
+    return error ? error.message : validationErrors[field] || null;
   };
 
   return (
@@ -93,6 +154,9 @@ const SignUpForm: React.FC = () => {
                       onChange={(e) => setFirstName(e.target.value)}
                       placeholder="Enter your first name"
                     />
+                    {getErrorMessage('firstName') && (
+                      <span className="text-red-500">{getErrorMessage('firstName')}</span>
+                    )}
                   </div>
                   <div className="space-y-1">
                     <Label htmlFor="lastName" className="text-signininput text-base">Last Name</Label>
@@ -103,6 +167,9 @@ const SignUpForm: React.FC = () => {
                       onChange={(e) => setLastName(e.target.value)}
                       placeholder="Enter your last name"
                     />
+                    {getErrorMessage('lastName') && (
+                      <span className="text-red-500">{getErrorMessage('lastName')}</span>
+                    )}
                   </div>
                   <div className="space-y-1">
                     <Label htmlFor="email" className="text-signininput text-base">Email Address</Label>
@@ -114,6 +181,9 @@ const SignUpForm: React.FC = () => {
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="Enter email address"
                     />
+                    {getErrorMessage('email') && (
+                      <span className="text-red-500">{getErrorMessage('email')}</span>
+                    )}
                   </div>
                   <div className="space-y-1 relative">
                     <Label htmlFor="password" className="text-signininput text-base">Password</Label>
@@ -125,12 +195,15 @@ const SignUpForm: React.FC = () => {
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Enter Password"
                     />
-                      <div
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center top-5 cursor-pointer"
+                    <div
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center top-3 cursor-pointer"
                       onClick={togglePasswordVisibility}
                     >
-                      {showPassword ? <FaEye /> : <FaEyeSlash /> }
+                      {showPassword ? <FaEye /> : <FaEyeSlash />}
                     </div>
+                    {getErrorMessage('password') && (
+                      <span className="text-red-500">{getErrorMessage('password')}</span>
+                    )}
                   </div>
                   <div className="space-y-1 relative">
                     <Label htmlFor="confirmPassword" className="text-signininput text-base">Confirm Password</Label>
@@ -142,12 +215,15 @@ const SignUpForm: React.FC = () => {
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="Confirm Password"
                     />
-                      <div
+                    <div
                       className="absolute inset-y-0 right-0 pr-3 flex items-center top-5 cursor-pointer"
                       onClick={togglePasswordVisibility}
                     >
-                      {showPassword ? <FaEye /> : <FaEyeSlash /> }
+                      {showPassword ? <FaEye /> : <FaEyeSlash />}
                     </div>
+                    {getErrorMessage('confirmPassword') && (
+                      <span className="text-red-500">{getErrorMessage('confirmPassword')}</span>
+                    )}
                   </div>
                   <div>
                     <Button
@@ -199,6 +275,9 @@ const SignUpForm: React.FC = () => {
                       onChange={(e) => setCompanyName(e.target.value)}
                       placeholder="Enter company name"
                     />
+                    {getErrorMessage('companyName') && (
+                      <span className="text-red-500">{getErrorMessage('companyName')}</span>
+                    )}
                   </div>
                   <div className="space-y-1">
                     <Label htmlFor="email" className="text-signininput text-base">Email Address</Label>
@@ -210,6 +289,9 @@ const SignUpForm: React.FC = () => {
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="Enter email address"
                     />
+                    {getErrorMessage('email') && (
+                      <span className="text-red-500">{getErrorMessage('email')}</span>
+                    )}
                   </div>
                   <div className="space-y-1 relative">
                     <Label htmlFor="password" className="text-signininput text-base">Password</Label>
@@ -221,12 +303,15 @@ const SignUpForm: React.FC = () => {
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Enter Password"
                     />
-                      <div
+                    <div
                       className="absolute inset-y-0 right-0 pr-3 flex items-center top-5 cursor-pointer"
                       onClick={togglePasswordVisibility}
                     >
-                      {showPassword ? <FaEye /> : <FaEyeSlash /> }
+                      {showPassword ? <FaEye /> : <FaEyeSlash />}
                     </div>
+                    {getErrorMessage('password') && (
+                      <span className="text-red-500">{getErrorMessage('password')}</span>
+                    )}
                   </div>
                   <div className="space-y-1 relative">
                     <Label htmlFor="confirmPassword" className="text-signininput text-base">Confirm Password</Label>
@@ -238,12 +323,15 @@ const SignUpForm: React.FC = () => {
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="Confirm Password"
                     />
-                      <div
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center top-5 cursor-pointer"
+                    <div
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center  cursor-pointer"
                       onClick={togglePasswordVisibility}
                     >
-                      {showPassword ? <FaEye /> : <FaEyeSlash /> }
+                      {showPassword ? <FaEye /> : <FaEyeSlash />}
                     </div>
+                    {getErrorMessage('confirmPassword') && (
+                      <span className="text-red-500">{getErrorMessage('confirmPassword')}</span>
+                    )}
                   </div>
                   <div>
                     <Button

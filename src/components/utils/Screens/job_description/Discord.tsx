@@ -14,9 +14,9 @@ const Discord = () => {
             <div className='p-5 border rounded-full bg-discordbg'><BsDiscord size={60} color='white' /></div>
             <div className=''>
             <h1 className='text-3xl font-bold text-modaltext'>Discord</h1>
-            <div className='text-signature justify-start'>
+            <div className=' justify-start'>
 
-            <Button>More Details <FiArrowUpRight /></Button>
+            <Button variant={"link"}>More Details <FiArrowUpRight /></Button>
             </div>
            
             </div>

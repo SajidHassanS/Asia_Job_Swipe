@@ -1,32 +1,43 @@
 "use client";
-import withAuthenticatedRoutes from "@/components/HOC/AuthenticatedRoutes";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../store";
+import { signIn, clearErrors } from "../../store/slices/authSlice";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
-import { useRouter } from 'next/navigation';
-import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { FaArrowLeft, FaEye, FaEyeSlash } from "react-icons/fa6";
 import { FcGoogle } from "react-icons/fc";
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '../../store';
-import { signIn } from '../../store/slices/authSlice';
+
+interface AuthError {
+  path: string;
+  message: string;
+}
 
 const SignInPage = () => {
-  const [userType, setUserType] = useState('jobSeeker'); 
+  const [userType, setUserType] = useState("jobSeeker");
   const dispatch = useDispatch<AppDispatch>();
   const auth = useSelector((state: RootState) => state.auth);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [roleError, setRoleError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (auth?.user) {
+    if (auth?.user && !roleError) {
       const role = auth.role;
       if (role === "company") {
         router.push("/dashboard");
@@ -34,16 +45,23 @@ const SignInPage = () => {
         router.push("/");
       }
     }
-  }, [auth?.user, router, auth.role]);
+  }, [auth?.user, router, auth.role, roleError]);
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
 
   const handleSignIn = async () => {
-    setErrorMessage(null); // Clear previous error messages
+    dispatch(clearErrors()); // Clear previous error messages
+    setRoleError(null); // Clear previous role error
     try {
-      const response = await dispatch(signIn({ email, password, userType })).unwrap();
+      const response = await dispatch(
+        signIn({ email, password, userType })
+      ).unwrap();
+      if (response.role !== userType) {
+        setRoleError("Unauthorized: role mismatch");
+        return;
+      }
       if (response) {
         if (userType === "company") {
           router.push("/dashboard");
@@ -51,21 +69,36 @@ const SignInPage = () => {
           router.push("/");
         }
       }
-    } catch (error: any) {
-      setErrorMessage(error.message || error);
+    } catch (error) {
+      // Errors are already handled in the Redux slice
     }
+  };
+
+  const getErrorMessage = (field: string): string | null => {
+    const error = auth.errors.find((error: AuthError) => error.path === field);
+    return error ? error.message : null;
   };
 
   return (
     <div className="md:flex">
-      <div className="hidden md:flex md:w-1/2 w-full min-h-screen bg-cover bg-center" style={{ backgroundImage: "url('/images/signupimage.png')" }}>
-      </div>
+      <div
+        className="hidden md:flex md:w-1/2 w-full min-h-screen bg-cover bg-center"
+        style={{ backgroundImage: "url('/images/signupimage.png')" }}
+      ></div>
       <div className="md:w-1/2 w-full flex items-center justify-center min-h-screen py-8">
         <div className="w-[550px]">
-          <Tabs defaultValue="jobSeeker" className="w-full" onValueChange={setUserType}>
+          <Tabs
+            defaultValue="jobSeeker"
+            className="w-full"
+            onValueChange={setUserType}
+          >
             <TabsList className="flex justify-center w-full mb-4">
-              <TabsTrigger value="jobSeeker" className="w-1/3">Job Seeker</TabsTrigger>
-              <TabsTrigger value="company" className="w-1/3">Employer</TabsTrigger>
+              <TabsTrigger value="jobSeeker" className="w-1/3">
+                Job Seeker
+              </TabsTrigger>
+              <TabsTrigger value="company" className="w-1/3">
+                Employer
+              </TabsTrigger>
             </TabsList>
             <TabsContent value="jobSeeker">
               <Card className="border-none shadow-none">
@@ -75,14 +108,19 @@ const SignInPage = () => {
                   </CardTitle>
                   <CardDescription>
                     <Button className="w-full text-darkGrey" variant="outline">
-                      <FcGoogle size={25} className="mr-2" /> Sign In with Google
+                      <FcGoogle size={25} className="mr-2" /> Sign In with
+                      Google
                     </Button>
                   </CardDescription>
                   <CardDescription>
                     <div className="flex items-center justify-center">
                       <div className="flex-grow border-t border-gray-300"></div>
-                      <Button asChild variant="link" className="mx-4 text-signinemail">
-                        <Link href="/send-otp">Or Sign In with email</Link> 
+                      <Button
+                        asChild
+                        variant="link"
+                        className="mx-4 text-signinemail"
+                      >
+                        <Link href="/send-otp">Or Sign In with email</Link>
                       </Button>
                       <div className="flex-grow border-t border-gray-300"></div>
                     </div>
@@ -90,7 +128,12 @@ const SignInPage = () => {
                 </CardHeader>
                 <CardContent className="space-y-5">
                   <div className="space-y-1">
-                    <Label htmlFor="email" className="text-signininput text-base">Email Address</Label>
+                    <Label
+                      htmlFor="email"
+                      className="text-signininput text-base"
+                    >
+                      Email Address
+                    </Label>
                     <Input
                       type="email"
                       id="email"
@@ -99,12 +142,22 @@ const SignInPage = () => {
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="Enter email address"
                     />
+                    {getErrorMessage("email") && (
+                      <span className="text-red-500">
+                        {getErrorMessage("email")}
+                      </span>
+                    )}
                   </div>
                   <div className="space-y-1 relative">
-                    <Label htmlFor="password" className="text-signininput text-base">Password</Label>
+                    <Label
+                      htmlFor="password"
+                      className="text-signininput text-base"
+                    >
+                      Password
+                    </Label>
                     <Input
                       id="password"
-                      type={showPassword ? 'text' : 'password'}
+                      type={showPassword ? "text" : "password"}
                       className="text-signininput3 text-base"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
@@ -114,17 +167,29 @@ const SignInPage = () => {
                       className="absolute inset-y-0 right-0 pr-3 flex items-center top-5 cursor-pointer"
                       onClick={togglePasswordVisibility}
                     >
-                      {showPassword ? <FaEye /> : <FaEyeSlash /> }
+                      {showPassword ? <FaEye /> : <FaEyeSlash />}
                     </div>
+                    {getErrorMessage("password") && (
+                      <span className="text-red-500">
+                        {getErrorMessage("password")}
+                      </span>
+                    )}
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox id="terms" />
-                    <label
-                      htmlFor="terms"
-                      className="text-sm signininput font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
-                      Remember me
-                    </label>
+                  <div className="flex justify-between">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox id="terms" />
+                      <label
+                        htmlFor="terms"
+                        className="text-sm signininput font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      >
+                        Remember me
+                      </label>
+                    </div>
+                    <div className="flex items-center justify-between mt-4">
+                      <Button asChild variant="link" className="text-signature">
+                        <Link href="/forgot-password">Forgot Password?</Link>
+                      </Button>
+                    </div>
                   </div>
                   <div>
                     <Button
@@ -132,21 +197,42 @@ const SignInPage = () => {
                       size={"lg"}
                       className="bg-signature w-full text-background"
                       onClick={handleSignIn}
-                      disabled={auth.status === 'loading'}
+                      disabled={auth.status === "loading"}
                     >
                       Continue
                     </Button>
                   </div>
-                  {errorMessage && <p className="text-red-500">{errorMessage}</p>}
+                  {auth.errors.length > 0 && (
+                    <div className="mt-4">
+                      {auth.errors
+                        .filter((error: AuthError) => error.path === "unknown")
+                        .map((error: AuthError, index: number) => (
+                          <p key={index} className="text-red-500">
+                            {error.message}
+                          </p>
+                        ))}
+                    </div>
+                  )}
+                  {roleError && (
+                    <div className="mt-4">
+                      <p className="text-red-500">{roleError}</p>
+                    </div>
+                  )}
                   <div className="flex items-center">
-                    <h1 className="text-signinemail text-base">Don’t have an account?</h1>
+                    <h1 className="text-signinemail text-base">
+                      Don’t have an account?
+                    </h1>
                     <Button asChild variant="link" className="text-signature">
                       <Link href="/send-otp">Sign Up</Link>
                     </Button>
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button asChild variant="link" className="w-full text-signature">
+                  <Button
+                    asChild
+                    variant="link"
+                    className="w-full text-signature"
+                  >
                     <Link href="/home">
                       <FaArrowLeft size={20} className="mr-2" /> Back to Home
                     </Link>
@@ -162,14 +248,19 @@ const SignInPage = () => {
                   </CardTitle>
                   <CardDescription>
                     <Button className="w-full text-darkGrey" variant="outline">
-                      <FcGoogle size={25} className="mr-2" /> Sign In with Google
+                      <FcGoogle size={25} className="mr-2" /> Sign In with
+                      Google
                     </Button>
                   </CardDescription>
-                  <CardDescription> 
+                  <CardDescription>
                     <div className="flex items-center justify-center">
                       <div className="flex-grow border-t border-gray-300"></div>
-                      <Button asChild variant="link" className="mx-4 text-signinemail">
-                        <Link href="/send-otp">Or Sign In with email</Link> 
+                      <Button
+                        asChild
+                        variant="link"
+                        className="mx-4 text-signinemail"
+                      >
+                        <Link href="/send-otp">Or Sign In with email</Link>
                       </Button>
                       <div className="flex-grow border-t border-gray-300"></div>
                     </div>
@@ -177,7 +268,12 @@ const SignInPage = () => {
                 </CardHeader>
                 <CardContent className="space-y-5">
                   <div className="space-y-1">
-                    <Label htmlFor="email" className="text-signininput text-base">Email Address</Label>
+                    <Label
+                      htmlFor="email"
+                      className="text-signininput text-base"
+                    >
+                      Email Address
+                    </Label>
                     <Input
                       type="email"
                       id="email"
@@ -186,12 +282,22 @@ const SignInPage = () => {
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="Enter email address"
                     />
+                    {getErrorMessage("email") && (
+                      <span className="text-red-500">
+                        {getErrorMessage("email")}
+                      </span>
+                    )}
                   </div>
                   <div className="space-y-1 relative">
-                    <Label htmlFor="password" className="text-signininput text-base">Password</Label>
+                    <Label
+                      htmlFor="password"
+                      className="text-signininput text-base"
+                    >
+                      Password
+                    </Label>
                     <Input
                       id="password"
-                      type={showPassword ? 'text' : 'password'}
+                      type={showPassword ? "text" : "password"}
                       className="text-signininput3 text-base"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
@@ -203,37 +309,71 @@ const SignInPage = () => {
                     >
                       {showPassword ? <FaEye /> : <FaEyeSlash />}
                     </div>
+                    {getErrorMessage("password") && (
+                      <span className="text-red-500">
+                        {getErrorMessage("password")}
+                      </span>
+                    )}
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox id="terms" />
-                    <label
-                      htmlFor="terms"
-                      className="text-sm signininput font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
-                      Remember me
-                    </label>
+                  <div className="flex justify-between">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox id="terms" />
+                      <label
+                        htmlFor="terms"
+                        className="text-sm signininput font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      >
+                        Remember me
+                      </label>
+                    </div>
+                    <div className="flex items-center justify-between mt-4">
+                      <Button asChild variant="link" className="text-signature">
+                        <Link href="/forgot-password">Forgot Password?</Link>
+                      </Button>
+                    </div>
                   </div>
+
                   <div>
                     <Button
                       variant="outline"
                       size={"lg"}
                       className="bg-signature w-full text-background"
                       onClick={handleSignIn}
-                      disabled={auth.status === 'loading'}
+                      disabled={auth.status === "loading"}
                     >
                       Continue
                     </Button>
                   </div>
-                  {errorMessage && <p className="text-red-500">{errorMessage}</p>}
+                  {auth.errors.length > 0 && (
+                    <div className="mt-4">
+                      {auth.errors
+                        .filter((error: AuthError) => error.path === "unknown")
+                        .map((error: AuthError, index: number) => (
+                          <p key={index} className="text-red-500">
+                            {error.message}
+                          </p>
+                        ))}
+                    </div>
+                  )}
+                  {roleError && (
+                    <div className="mt-4">
+                      <p className="text-red-500">{roleError}</p>
+                    </div>
+                  )}
                   <div className="flex items-center">
-                    <h1 className="text-signinemail text-base">Don’t have an account?</h1>
+                    <h1 className="text-signinemail text-base">
+                      Don’t have an account?
+                    </h1>
                     <Button asChild variant="link" className="text-signature">
                       <Link href="/send-otp">Sign Up</Link>
                     </Button>
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button asChild variant="link" className="w-full text-signature">
+                  <Button
+                    asChild
+                    variant="link"
+                    className="w-full text-signature"
+                  >
                     <Link href="/home">
                       <FaArrowLeft size={20} className="mr-2" /> Back to Home
                     </Link>
@@ -248,4 +388,4 @@ const SignInPage = () => {
   );
 };
 
-export default withAuthenticatedRoutes(SignInPage);
+export default SignInPage;

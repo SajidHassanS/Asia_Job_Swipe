@@ -79,10 +79,10 @@ const ApplicationDialog = () => {
               </form>
             </DialogDescription>
             <div className="px-16 pb-10">
-              <Button className="w-full px-24 py-6" asChild >
-                <Link className="bg-signature text-background text-sm rounded-md" href="/myprofile">
+              <Button className="w-full px-24 py-6  text-background text-sm rounded-md"  >
+             
                   Go to My Profile
-                </Link>
+          
               </Button>
             </div>
           </div>

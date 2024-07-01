@@ -1,6 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
- // Adjust the import paths according to your project structure
 
 interface User {
   _id: string;
@@ -14,6 +13,7 @@ interface AuthState {
   user: User | null;
   emailForSignUp: string | null;
   otpForSignUp: string | null;
+  errors: { path: string; message: string }[];
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null;
   otpStatus: 'idle' | 'loading' | 'succeeded' | 'failed';
@@ -29,6 +29,7 @@ const initialState: AuthState = {
   otpForSignUp: null,
   status: 'idle',
   error: null,
+  errors: [],
   otpStatus: 'idle',
   otpError: null,
   accessToken: null,
@@ -36,9 +37,14 @@ const initialState: AuthState = {
   role: null,
 };
 
+interface AuthError {
+  path: string;
+  message: string;
+}
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://ajs-server.hostdonor.com/api/v1';
 
-export const registerJobSeeker = createAsyncThunk<User, { email: string; password: string; firstName: string; lastName: string; otp: string; role: string }, { rejectValue: string }>(
+export const registerJobSeeker = createAsyncThunk<User, { email: string; password: string; firstName: string; lastName: string; otp: string; role: string }, { rejectValue: AuthError[] }>(
   'auth/registerJobSeeker',
   async (userData, { rejectWithValue }) => {
     try {
@@ -50,15 +56,19 @@ export const registerJobSeeker = createAsyncThunk<User, { email: string; passwor
       return response.data.user; // Adjust the return value to only include user data
     } catch (error: any) {
       if (axios.isAxiosError(error) && error.response) {
-        return rejectWithValue(error.response.data.message || 'An error occurred during job seeker registration.');
-      } else {
-        return rejectWithValue('An unknown error occurred');
+        if (error.response.data.errors) {
+          return rejectWithValue(error.response.data.errors);
+        }
+        if (error.response.data.message) {
+          return rejectWithValue([{ path: 'unknown', message: error.response.data.message }]);
+        }
       }
+      return rejectWithValue([{ path: 'unknown', message: 'An unknown error occurred' }]);
     }
   }
 );
 
-export const registerCompany = createAsyncThunk<User, { email: string; password: string;  otp: string; role: string; companyName: string }, { rejectValue: string }>(
+export const registerCompany = createAsyncThunk<User, { email: string; password: string; otp: string; role: string; companyName: string }, { rejectValue: AuthError[] }>(
   'auth/registerCompany',
   async (userData, { rejectWithValue }) => {
     try {
@@ -70,30 +80,38 @@ export const registerCompany = createAsyncThunk<User, { email: string; password:
       return response.data.user; // Adjust the return value to only include user data
     } catch (error: any) {
       if (axios.isAxiosError(error) && error.response) {
-        return rejectWithValue(error.response.data.message || 'An error occurred during company registration.');
-      } else {
-        return rejectWithValue('An unknown error occurred');
+        if (error.response.data.errors) {
+          return rejectWithValue(error.response.data.errors);
+        }
+        if (error.response.data.message) {
+          return rejectWithValue([{ path: 'unknown', message: error.response.data.message }]);
+        }
       }
+      return rejectWithValue([{ path: 'unknown', message: 'An unknown error occurred' }]);
     }
   }
 );
 
-export const sendOTP = createAsyncThunk<void, { email: string }, { rejectValue: string }>(
+export const sendOTP = createAsyncThunk<void, { email: string }, { rejectValue: AuthError[] }>(
   'auth/sendOTP',
   async ({ email }, { rejectWithValue }) => {
     try {
       await axios.post(`${API_URL}/auth/send-otp`, { email });
     } catch (error: any) {
       if (axios.isAxiosError(error) && error.response) {
-        return rejectWithValue(error.response.data.message || 'An error occurred while sending OTP.');
-      } else {
-        return rejectWithValue('An unknown error occurred');
+        if (error.response.data.errors) {
+          return rejectWithValue(error.response.data.errors);
+        }
+        if (error.response.data.message) {
+          return rejectWithValue([{ path: 'unknown', message: error.response.data.message }]);
+        }
       }
+      return rejectWithValue([{ path: 'unknown', message: 'An unknown error occurred' }]);
     }
   }
 );
 
-export const verifyOTP = createAsyncThunk<void, { email: string; otp: string }, { rejectValue: string }>(
+export const verifyOTP = createAsyncThunk<void, { email: string; otp: string }, { rejectValue: AuthError[] }>(
   'auth/verifyOTP',
   async ({ email, otp }, { dispatch, rejectWithValue }) => {
     try {
@@ -102,16 +120,19 @@ export const verifyOTP = createAsyncThunk<void, { email: string; otp: string }, 
       dispatch(setOtpForSignUp(otp));
     } catch (error: any) {
       if (axios.isAxiosError(error) && error.response) {
-        return rejectWithValue(error.response.data.message || 'An error occurred while verifying OTP.');
-      } else {
-        return rejectWithValue('An unknown error occurred');
+        if (error.response.data.errors) {
+          return rejectWithValue(error.response.data.errors);
+        }
+        if (error.response.data.message) {
+          return rejectWithValue([{ path: 'unknown', message: error.response.data.message }]);
+        }
       }
+      return rejectWithValue([{ path: 'unknown', message: 'An unknown error occurred' }]);
     }
   }
 );
 
-
-export const logout = createAsyncThunk<void, void, { rejectValue: string }>(
+export const logout = createAsyncThunk<void, void, { rejectValue: AuthError[] }>(
   'auth/logout',
   async (_, { rejectWithValue }) => {
     try {
@@ -119,13 +140,12 @@ export const logout = createAsyncThunk<void, void, { rejectValue: string }>(
       localStorage.removeItem('refreshToken');
       return;
     } catch (error: any) {
-      return rejectWithValue(error.message || 'An error occurred during logout.');
+      return rejectWithValue([{ path: 'unknown', message: error.message || 'An error occurred during logout.' }]);
     }
   }
 );
 
-
-export const signIn = createAsyncThunk<User, { email: string; password: string; userType: string }, { rejectValue: string }>(
+export const signIn = createAsyncThunk<User, { email: string; password: string; userType: string }, { rejectValue: AuthError[] }>(
   'auth/login',
   async ({ email, password, userType }, { rejectWithValue }) => {
     try {
@@ -133,7 +153,7 @@ export const signIn = createAsyncThunk<User, { email: string; password: string; 
       const user = response.data.user.userInfo;
 
       if (user.role !== userType) {
-        return rejectWithValue('Unauthorized: role mismatch');
+        return rejectWithValue([{ path: 'userType', message: 'Unauthorized: role mismatch' }]);
       }
 
       localStorage.setItem('accessToken', response.data.accessToken);
@@ -144,17 +164,19 @@ export const signIn = createAsyncThunk<User, { email: string; password: string; 
       return user;
     } catch (error: any) {
       if (axios.isAxiosError(error) && error.response) {
-        return rejectWithValue(error.response.data.message || 'An error occurred during sign-in.');
-      } else {
-        return rejectWithValue('An unknown error occurred');
+        if (error.response.data.errors) {
+          return rejectWithValue(error.response.data.errors);
+        }
+        if (error.response.data.message) {
+          return rejectWithValue([{ path: 'unknown', message: error.response.data.message }]);
+        }
       }
+      return rejectWithValue([{ path: 'unknown', message: 'An unknown error occurred' }]);
     }
   }
 );
 
-
-
-export const googleSignIn = createAsyncThunk<User, { code: string; role: string }, { rejectValue: string }>(
+export const googleSignIn = createAsyncThunk<User, { code: string; role: string }, { rejectValue: AuthError[] }>(
   'auth/googleSignIn',
   async ({ code, role }, { rejectWithValue }) => {
     try {
@@ -164,17 +186,19 @@ export const googleSignIn = createAsyncThunk<User, { code: string; role: string 
       return response.data.user; // Adjust the return value to only include user data
     } catch (error: any) {
       if (axios.isAxiosError(error) && error.response) {
-        return rejectWithValue(error.response.data.message || 'An error occurred during Google sign-in.');
-      } else {
-        return rejectWithValue('An unknown error occurred');
+        if (error.response.data.errors) {
+          return rejectWithValue(error.response.data.errors);
+        }
+        if (error.response.data.message) {
+          return rejectWithValue([{ path: 'unknown', message: error.response.data.message }]);
+        }
       }
+      return rejectWithValue([{ path: 'unknown', message: 'An unknown error occurred' }]);
     }
   }
 );
 
-
-
-export const initializeAuth = createAsyncThunk(
+export const initializeAuth = createAsyncThunk<void, void, { rejectValue: AuthError[] }>(
   'auth/initializeAuth',
   async (_, { dispatch, rejectWithValue }) => {
     const accessToken = localStorage.getItem('accessToken');
@@ -191,14 +215,44 @@ export const initializeAuth = createAsyncThunk(
         dispatch(setTokens({ accessToken, refreshToken }));
       } catch (error) {
         console.error('Failed to fetch user profile', error);
-        return rejectWithValue('Failed to fetch user profile');
+        return rejectWithValue([{ path: 'unknown', message: 'Failed to fetch user profile' }]);
       }
     } else {
-      return rejectWithValue('No tokens found');
+      return rejectWithValue([{ path: 'unknown', message: 'No tokens found' }]);
     }
   }
 );
 
+export const sendForgotPasswordOTP = createAsyncThunk<void, { email: string }, { rejectValue: string }>(
+  'auth/sendForgotPasswordOTP',
+  async ({ email }, { rejectWithValue }) => {
+    try {
+      console.log('Making API call to send OTP'); // Log before API call
+      await axios.post(`${API_URL}/auth/forgot-password`, { email });
+      console.log('OTP sent successfully'); // Log success
+    } catch (error: any) {
+      console.log('Error sending OTP:', error); // Log error
+      if (axios.isAxiosError(error) && error.response) {
+        return rejectWithValue(error.response.data.message || 'Failed to send OTP.');
+      }
+      return rejectWithValue('Failed to send OTP.');
+    }
+  }
+);
+
+export const resetPassword = createAsyncThunk<void, { email: string; otp: string; newPassword: string }, { rejectValue: string }>(
+  'auth/resetPassword',
+  async ({ email, otp, newPassword }, { rejectWithValue }) => {
+    try {
+      await axios.patch(`${API_URL}/auth/reset-password`, { email, otp, newPassword });
+    } catch (error: any) {
+      if (axios.isAxiosError(error) && error.response) {
+        return rejectWithValue(error.response.data.message || 'Failed to reset password.');
+      }
+      return rejectWithValue('Failed to reset password.');
+    }
+  }
+);
 
 const authSlice = createSlice({
   name: 'auth',
@@ -220,6 +274,9 @@ const authSlice = createSlice({
     setEmailForSignUp: (state: AuthState, action: PayloadAction<string>) => {
       state.emailForSignUp = action.payload;
     },
+    clearErrors: (state: AuthState) => {
+      state.errors = [];
+    },
     setOtpForSignUp: (state: AuthState, action: PayloadAction<string>) => {
       state.otpForSignUp = action.payload;
     },
@@ -238,9 +295,8 @@ const authSlice = createSlice({
         state.accessToken = null;
         state.refreshToken = null;
       })
-      .addCase(logout.rejected, (state: AuthState, action) => {
-        // Handle any errors during logout if needed
-        state.error = action.error.message || 'An unknown error occurred';
+      .addCase(logout.rejected, (state: AuthState, action: PayloadAction<AuthError[] | undefined>) => {
+        state.errors = action.payload || [{ path: 'unknown', message: 'An unknown error occurred' }];
       })
       .addCase(registerJobSeeker.pending, (state: AuthState) => {
         state.status = 'loading';
@@ -250,9 +306,9 @@ const authSlice = createSlice({
         state.user = action.payload;
         state.error = null;
       })
-      .addCase(registerJobSeeker.rejected, (state: AuthState, action: PayloadAction<string | undefined>) => {
+      .addCase(registerJobSeeker.rejected, (state: AuthState, action: PayloadAction<AuthError[] | undefined>) => {
         state.status = 'failed';
-        state.error = action.payload || 'An unknown error occurred';
+        state.errors = action.payload || [{ path: 'unknown', message: 'An unknown error occurred' }];
       })
       .addCase(registerCompany.pending, (state: AuthState) => {
         state.status = 'loading';
@@ -262,9 +318,9 @@ const authSlice = createSlice({
         state.user = action.payload;
         state.error = null;
       })
-      .addCase(registerCompany.rejected, (state: AuthState, action: PayloadAction<string | undefined>) => {
+      .addCase(registerCompany.rejected, (state: AuthState, action: PayloadAction<AuthError[] | undefined>) => {
         state.status = 'failed';
-        state.error = action.payload || 'An unknown error occurred';
+        state.errors = action.payload || [{ path: 'unknown', message: 'An unknown error occurred' }];
       })
       .addCase(signIn.pending, (state: AuthState) => {
         state.status = 'loading';
@@ -273,11 +329,11 @@ const authSlice = createSlice({
         state.status = 'succeeded';
         state.user = action.payload;
         state.role = action.payload.role || null;
-        state.error = null;
+        state.errors = [];
       })
-      .addCase(signIn.rejected, (state: AuthState, action: PayloadAction<string | undefined>) => {
+      .addCase(signIn.rejected, (state: AuthState, action: PayloadAction<AuthError[] | undefined>) => {
         state.status = 'failed';
-        state.error = action.payload || 'An unknown error occurred';
+        state.errors = action.payload || [{ path: 'unknown', message: 'An unknown error occurred' }];
       })
       .addCase(sendOTP.pending, (state: AuthState) => {
         state.otpStatus = 'loading';
@@ -286,9 +342,9 @@ const authSlice = createSlice({
         state.otpStatus = 'succeeded';
         state.otpError = null;
       })
-      .addCase(sendOTP.rejected, (state: AuthState, action: PayloadAction<string | undefined>) => {
+      .addCase(sendOTP.rejected, (state: AuthState, action: PayloadAction<AuthError[] | undefined>) => {
         state.otpStatus = 'failed';
-        state.otpError = action.payload || 'An unknown error occurred';
+        state.errors = action.payload || [{ path: 'unknown', message: 'An unknown error occurred' }];
       })
       .addCase(verifyOTP.pending, (state: AuthState) => {
         state.otpStatus = 'loading';
@@ -297,9 +353,9 @@ const authSlice = createSlice({
         state.otpStatus = 'succeeded';
         state.otpError = null;
       })
-      .addCase(verifyOTP.rejected, (state: AuthState, action: PayloadAction<string | undefined>) => {
+      .addCase(verifyOTP.rejected, (state: AuthState, action: PayloadAction<AuthError[] | undefined>) => {
         state.otpStatus = 'failed';
-        state.otpError = action.payload || 'An unknown error occurred';
+        state.errors = action.payload || [{ path: 'unknown', message: 'An unknown error occurred' }];
       })
       .addCase(initializeAuth.pending, (state: AuthState) => {
         state.status = 'loading';
@@ -308,9 +364,9 @@ const authSlice = createSlice({
         state.status = 'succeeded';
         state.error = null;
       })
-      .addCase(initializeAuth.rejected, (state: AuthState, action) => {
+      .addCase(initializeAuth.rejected, (state: AuthState, action: PayloadAction<AuthError[] | undefined>) => {
         state.status = 'failed';
-        state.error = action.error.message || 'An unknown error occurred';
+        state.errors = action.payload || [{ path: 'unknown', message: 'An unknown error occurred' }];
       })
       .addCase(googleSignIn.pending, (state: AuthState) => {
         state.status = 'loading';
@@ -320,14 +376,34 @@ const authSlice = createSlice({
         state.user = action.payload;
         state.error = null;
       })
-      .addCase(googleSignIn.rejected, (state: AuthState, action: PayloadAction<string | undefined>) => {
+      .addCase(googleSignIn.rejected, (state: AuthState, action: PayloadAction<AuthError[] | undefined>) => {
+        state.status = 'failed';
+        state.errors = action.payload || [{ path: 'unknown', message: 'An unknown error occurred' }];
+      })
+      .addCase(sendForgotPasswordOTP.pending, (state: AuthState) => {
+        state.otpStatus = 'loading';
+      })
+      .addCase(sendForgotPasswordOTP.fulfilled, (state: AuthState) => {
+        state.otpStatus = 'succeeded';
+        state.otpError = null;
+      })
+      .addCase(sendForgotPasswordOTP.rejected, (state: AuthState, action: PayloadAction<string | undefined>) => {
+        state.otpStatus = 'failed';
+        state.otpError = action.payload || 'An unknown error occurred';
+      })
+      .addCase(resetPassword.pending, (state: AuthState) => {
+        state.status = 'loading';
+      })
+      .addCase(resetPassword.fulfilled, (state: AuthState) => {
+        state.status = 'succeeded';
+      })
+      .addCase(resetPassword.rejected, (state: AuthState, action: PayloadAction<string | undefined>) => {
         state.status = 'failed';
         state.error = action.payload || 'An unknown error occurred';
       });
   },
 });
 
-export const { setUser, signOut, setEmailForSignUp, setOtpForSignUp, setTokens } = authSlice.actions;
+export const { setUser, signOut, clearErrors, setEmailForSignUp, setOtpForSignUp, setTokens } = authSlice.actions;
 
 export default authSlice.reducer;
-// Ensure googleSignIn is only exported once

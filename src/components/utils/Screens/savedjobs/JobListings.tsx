@@ -123,8 +123,7 @@ const JobListings: React.FC<{ jobs: Job[] }> = ({ jobs }) => {
                 <div className="flex flex-col mt-2">
                   <Link
                     className="bg-signature text-background text-sm px-4 py-2 rounded-md inline-block text-center"
-                    href=""
-                  >
+                    href="/job-description">
                     Apply
                   </Link>
                   <Button variant="ghost" className="text-red-500 text-sm px-4 py-2 rounded-md">

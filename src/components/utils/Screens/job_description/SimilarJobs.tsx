@@ -113,15 +113,15 @@ const SimilarJobs = () => {
               <h3 className="text-xl font-semibold">{category.title}</h3>
             </div>
            
-            <div className="">
-              <Button asChild>
+            <div className="flex items-center  text-signature">
+              
                 <Link
-                  className=" text-signature px-0 text-sm py-2 rounded-md"
+                  className=" px-0 text-sm py-2 rounded-md"
                   href="/moredetails"
                 >
-                  More Details <GoArrowUpRight size={20} className="ml-2" />
+                  More Details
                 </Link>
-              </Button>
+                <GoArrowUpRight size={20} className="ml-2" />
             </div>
           </div>
         ))}
