@@ -33,8 +33,19 @@ const SignInPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const router = useRouter();
   const [roleError, setRoleError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const savedEmail = localStorage.getItem("rememberedEmail");
+    const savedPassword = localStorage.getItem("rememberedPassword");
+    if (savedEmail && savedPassword) {
+      setEmail(savedEmail);
+      setPassword(savedPassword);
+      setRememberMe(true);
+    }
+  }, []);
 
   useEffect(() => {
     if (auth?.user && !roleError) {
@@ -61,6 +72,13 @@ const SignInPage = () => {
       if (response.role !== userType) {
         setRoleError("Unauthorized: role mismatch");
         return;
+      }
+      if (rememberMe) {
+        localStorage.setItem("rememberedEmail", email);
+        localStorage.setItem("rememberedPassword", password);
+      } else {
+        localStorage.removeItem("rememberedEmail");
+        localStorage.removeItem("rememberedPassword");
       }
       if (response) {
         if (userType === "company") {
@@ -177,7 +195,13 @@ const SignInPage = () => {
                   </div>
                   <div className="flex justify-between">
                     <div className="flex items-center space-x-2">
-                      <Checkbox id="terms" />
+                      <Checkbox
+                        id="terms"
+                        checked={rememberMe}
+                        onCheckedChange={(checked) =>
+                          setRememberMe(checked as boolean)
+                        }
+                      />
                       <label
                         htmlFor="terms"
                         className="text-sm signininput font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -244,7 +268,7 @@ const SignInPage = () => {
               <Card className="border-none shadow-none">
                 <CardHeader>
                   <CardTitle className="flex mb-5 justify-center text-darkGrey md:text-3xl">
-                    Get more opportunities
+                    Find the best talent
                   </CardTitle>
                   <CardDescription>
                     <Button className="w-full text-darkGrey" variant="outline">
@@ -304,7 +328,7 @@ const SignInPage = () => {
                       placeholder="Enter Password"
                     />
                     <div
-                      className="absolute inset-y-0 right-0 pr-3 top-5 flex items-center cursor-pointer"
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center top-5 cursor-pointer"
                       onClick={togglePasswordVisibility}
                     >
                       {showPassword ? <FaEye /> : <FaEyeSlash />}
@@ -317,7 +341,13 @@ const SignInPage = () => {
                   </div>
                   <div className="flex justify-between">
                     <div className="flex items-center space-x-2">
-                      <Checkbox id="terms" />
+                      <Checkbox
+                        id="terms"
+                        checked={rememberMe}
+                        onCheckedChange={(checked) =>
+                          setRememberMe(checked as boolean)
+                        }
+                      />
                       <label
                         htmlFor="terms"
                         className="text-sm signininput font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -331,7 +361,6 @@ const SignInPage = () => {
                       </Button>
                     </div>
                   </div>
-
                   <div>
                     <Button
                       variant="outline"

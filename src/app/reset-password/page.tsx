@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
+import { useRouter } from 'next/navigation';
 import { AppDispatch } from '../../store';
 import { resetPassword } from '../../store/slices/authSlice';
 import { Button } from '@/components/ui/button';
@@ -15,6 +16,7 @@ const ResetPasswordPage: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState<string>('');
   const [message, setMessage] = useState<string>('');
   const dispatch = useDispatch<AppDispatch>();
+  const router = useRouter();
 
   const handleResetPassword = async () => {
     if (newPassword !== confirmPassword) {
@@ -22,11 +24,12 @@ const ResetPasswordPage: React.FC = () => {
       return;
     }
 
-    const response = await dispatch(resetPassword({ email, otp, newPassword })).unwrap();
-    if (response === undefined) {
+    try {
+      await dispatch(resetPassword({ email, otp, newPassword })).unwrap();
       setMessage('Password has been reset successfully.');
-    } else {
-      setMessage('Failed to reset password. Please try again.');
+      router.push('/login'); // Redirect to login page
+    } catch (error) {
+      setMessage(error as string);
     }
   };
 

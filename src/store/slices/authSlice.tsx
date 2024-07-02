@@ -244,7 +244,8 @@ export const resetPassword = createAsyncThunk<void, { email: string; otp: string
   'auth/resetPassword',
   async ({ email, otp, newPassword }, { rejectWithValue }) => {
     try {
-      await axios.patch(`${API_URL}/auth/reset-password`, { email, otp, newPassword });
+      const response = await axios.patch(`${API_URL}/auth/reset-password`, { email, otp, newPassword });
+      return response.data;
     } catch (error: any) {
       if (axios.isAxiosError(error) && error.response) {
         return rejectWithValue(error.response.data.message || 'Failed to reset password.');
