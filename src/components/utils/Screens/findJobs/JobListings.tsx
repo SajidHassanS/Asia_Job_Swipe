@@ -1,24 +1,46 @@
+// components/utils/Screens/findJobs/JobListings.tsx
 "use client";
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { BsBookmarkDash } from "react-icons/bs";
 import { IoCheckmarkDoneSharp } from "react-icons/io5";
-import { Accordion, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Card } from "@/components/ui/card";
 import { MdGridView } from "react-icons/md";
 import Image from "next/image";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 interface Job {
-  id: number;
+  _id: string;
   title: string;
-  company: string;
-  location: string;
-  salary: string;
-  logo: string;
-  tags: string[];
-  categories?: string[];
+  company: {
+    companyLogo: string;
+    companyName: string;
+    city: string;
+    province: string;
+    country: string;
+  };
+  salary: {
+    from: number;
+    to: number;
+  };
+  skills: string[];
+  jobType: string;
+  city: string;
+  province: string;
+  country: string;
 }
 
 interface JobListingsProps {
@@ -33,7 +55,7 @@ const JobListings: React.FC<JobListingsProps> = ({ jobs, totalJobs }) => {
     <div className="md:w-full p-4">
       <div className="flex justify-between items-center mb-2">
         <div className="">
-          <h2 className="lg:text-3xl md:text-2xl text-xl font-bold ">
+          <h2 className="lg:text-3xl md:text-2xl text-xl font-bold">
             All Jobs
           </h2>
         </div>
@@ -49,7 +71,10 @@ const JobListings: React.FC<JobListingsProps> = ({ jobs, totalJobs }) => {
             </Accordion>
           </div>
           <div className="h-5 border border-black hidden md:block"></div>
-          <div className="hidden md:block cursor-pointer" onClick={() => setIsGridView(!isGridView)}>
+          <div
+            className="hidden md:block cursor-pointer"
+            onClick={() => setIsGridView(!isGridView)}
+          >
             <MdGridView />
           </div>
         </div>
@@ -57,9 +82,11 @@ const JobListings: React.FC<JobListingsProps> = ({ jobs, totalJobs }) => {
       <div className="md:mb-10">
         <p>Showing {totalJobs} results</p>
       </div>
-      <div className={isGridView ? "grid grid-cols-1 md:grid-cols-2 gap-5" : ""}>
+      <div
+        className={isGridView ? "grid grid-cols-1 md:grid-cols-2 gap-5" : ""}
+      >
         {jobs.map((job) => (
-          <Card key={job.id} className="mb-5 p-4">
+          <Card key={job._id} className="mb-5 p-4">
             <div className="">
               <div className="bg-background">
                 <div className="flex justify-between mb-5 md:mb-2">
@@ -67,15 +94,18 @@ const JobListings: React.FC<JobListingsProps> = ({ jobs, totalJobs }) => {
                     <Image
                       width={61}
                       height={61}
-                      src={job.logo}
-                      alt={job.company}
+                      src={job.company.companyLogo}
+                      alt={job.company.companyName}
                       className="rounded-full mr-4"
                     />
                     <div>
-                      <h3 className="md:text-xl text-lg font-bold">{job.title}</h3>
+                      <h3 className="md:text-xl text-lg font-bold">
+                        {job.title}
+                      </h3>
                       <div className="flex md:gap-3 items-center">
                         <p className="text-sm text-gray-600">
-                          {job.company} • {job.location}
+                          {job.company.companyName} • {job.city}, {job.province}
+                          , {job.country}
                         </p>
                         <div className="md:block hidden">
                           <IoCheckmarkDoneSharp className="text-signature" />
@@ -87,30 +117,31 @@ const JobListings: React.FC<JobListingsProps> = ({ jobs, totalJobs }) => {
                     <div className="md:hidden mb-2 flex justify-end">
                       <BsBookmarkDash className="text-signature" size={20} />
                     </div>
-                    <p className="md:text-xl text-md font-bold">{job.salary}</p>
+                    <p className="md:text-xl text-md font-bold">
+                      ${job.salary.from}/Monthly
+                    </p>
                   </div>
                 </div>
                 <div className="flex justify-between">
                   <div className="flex flex-wrap gap-3 md:ml-20 items-center mt-2">
-                    {job.tags.map((tag) => (
+                    
                       <Link
-                        key={tag}
                         className="bg-sky-300 text-signature text-sm md:px-4 md:py-2 rounded-[30px] inline-block"
                         href="/signin"
                       >
-                        {tag}
+                        {job.jobType}
                       </Link>
-                    ))}
+                   
                     <div className="hidden md:block h-5 border border-lightgrey"></div>
-                    {job.categories?.map((category) => (
-                      <Link
-                        key={category}
-                        className="border border-darkGrey text-darkGrey text-sm px-4 py-2 rounded-[30px] inline-block"
-                        href="/signin"
-                      >
-                        {category}
-                      </Link>
-                    ))}
+                    {job.skills.map((skill) => (
+                    <Link
+                      key={skill}
+                      className="border border-darkGrey text-darkGrey text-sm px-4 py-2 rounded-[30px] inline-block"
+                      href="/signin"
+                    >
+                      {skill}
+                    </Link>
+                     ))}
                     <div className="md:block hidden">
                       <BsBookmarkDash className="text-signature" size={30} />
                     </div>
@@ -147,7 +178,10 @@ const JobListings: React.FC<JobListingsProps> = ({ jobs, totalJobs }) => {
                         </div>
                       </DialogContent>
                     </Dialog>
-                    <Button variant="ghost" className="text-red-500 text-sm px-4 py-2 rounded-md">
+                    <Button
+                      variant="ghost"
+                      className="text-red-500 text-sm px-4 py-2 rounded-md"
+                    >
                       Declined
                     </Button>
                   </div>

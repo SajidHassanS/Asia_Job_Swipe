@@ -1,17 +1,49 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import Sidebar from './Sidebar';
 import JobListings from './JobListings';
 import HeroComponent from "../../../../components/repeatComponents/Hero";
 import PaginationComponent from './Pagination';
-import jobs from '../../../../components/repeatComponents/JobList'; // Importing jobs data
+import { RootState, AppDispatch } from '../../../../store';
+import { fetchJobs, setCurrentPage } from '../../../../store/slices/jobSlice';
+
+interface Job {
+  _id: string;
+  title: string;
+  company: {
+    companyLogo: string;
+    companyName: string;
+    city: string;
+    province: string;
+    country: string;
+  };
+  salary: {
+    from: number;
+    to: number;
+  };
+  skills: string[];
+  jobType: string;
+  city: string;
+  province: string;
+  country: string;
+}
 
 const AllJobs: React.FC = () => {
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [location, setLocation] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const jobsPerPage = 10;
+
+  const dispatch = useDispatch<AppDispatch>();
+
+  const currentPage = useSelector((state: RootState) => state.job.pagination.currentPage);
+  const jobs = useSelector((state: RootState) => state.job.jobs);
+  const loading = useSelector((state: RootState) => state.job.status === 'loading');
+  const totalPages = useSelector((state: RootState) => state.job.pagination.totalPages);
+
+  useEffect(() => {
+    dispatch(fetchJobs(currentPage));
+  }, [dispatch, currentPage]);
 
   const handleCheckboxChange = (filter: string) => {
     setSelectedFilters(prevFilters =>
@@ -19,31 +51,30 @@ const AllJobs: React.FC = () => {
         ? prevFilters.filter(f => f !== filter)
         : [...prevFilters, filter]
     );
+    dispatch(setCurrentPage(1)); // Reset to first page on filter change
   };
 
   const handleSearch = (searchTerm: string, location: string) => {
     setSearchTerm(searchTerm);
     setLocation(location);
-    setCurrentPage(1); // Reset to first page on new search
+    dispatch(setCurrentPage(1)); // Reset to first page on new search
   };
 
-  const filteredJobs = jobs.filter(job => {
+  const filteredJobs = jobs.filter((job: Job) => {
     const matchesFilters = selectedFilters.length === 0 || selectedFilters.some(filter =>
-      job.tags.includes(filter) || (job.categories && job.categories.includes(filter))
+      job.skills.includes(filter) || job.jobType.includes(filter)
     );
     const matchesSearchTerm = searchTerm === '' || job.title.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesLocation = location === '' || job.location.toLowerCase().includes(location.toLowerCase());
+    const matchesLocation = location === '' || job.city.toLowerCase().includes(location.toLowerCase());
 
     return matchesFilters && matchesSearchTerm && matchesLocation;
   });
 
-  // Get current jobs
-  const indexOfLastJob = currentPage * jobsPerPage;
-  const indexOfFirstJob = indexOfLastJob - jobsPerPage;
-  const currentJobs = filteredJobs.slice(indexOfFirstJob, indexOfLastJob);
+  const paginate = (pageNumber: number) => dispatch(setCurrentPage(pageNumber));
 
-  // Change page
-  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+  if (loading) {
+    return <p>Loading...</p>;
+  }
 
   return (
     <div>
@@ -61,9 +92,9 @@ const AllJobs: React.FC = () => {
       <div className="md:container md:my-16 my-4 md:flex gap-5">
         <Sidebar onCheckboxChange={handleCheckboxChange} selectedFilters={selectedFilters} />
         <div className="w-full">
-          <JobListings jobs={currentJobs} totalJobs={filteredJobs.length} />
+          <JobListings jobs={filteredJobs} totalJobs={filteredJobs.length} />
           <PaginationComponent
-            jobsPerPage={jobsPerPage}
+            jobsPerPage={10}
             totalJobs={filteredJobs.length}
             paginate={paginate}
             currentPage={currentPage}

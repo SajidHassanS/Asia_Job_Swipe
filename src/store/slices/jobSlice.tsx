@@ -1,126 +1,102 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import axios from 'axios';
 
-// Define the Job type
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://ajs-server.hostdonor.com/api/v1';
+
+export const fetchJobs = createAsyncThunk('jobs/fetchJobs', async (page: number) => {
+  const response = await axios.get(`${API_URL}/jobs `);
+  return response.data;
+});
+
 interface Job {
-  id: number;
+  _id: string;
   title: string;
-  company: string;
-  location: string;
-  salary: string;
-  logo: string;
-  tags: string[];
+  company: {
+    companyLogo: string;
+    companyName: string;
+    city: string;
+    province: string;
+    country: string;
+  };
+  salary: {
+    from: number;
+    to: number;
+  };
+  skills: string[];
+  jobType: string;
+  city: string;
+  province: string;
+  country: string;
 }
 
-// Define the FilterType type
-type FilterType = 'jobType' | 'categories' | 'careerLevel' | 'candidateType' | 'salaryRange';
+interface Pagination {
+  totalPages: number;
+  currentPage: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+  nextPage: number;
+  prevPage: number;
+}
 
-// Define the initial state
 interface JobState {
-  filters: {
-    jobType: string[];
-    categories: string[];
-    careerLevel: string[];
-    candidateType: string[];
-    salaryRange: string[];
-  };
   jobs: Job[];
+  status: 'idle' | 'loading' | 'succeeded' | 'failed';
+  error: string | null;
+  pagination: Pagination;
 }
 
 const initialState: JobState = {
-  filters: {
-    jobType: [],
-    categories: [],
-    careerLevel: [],
-    candidateType: [],
-    salaryRange: [],
+  jobs: [],
+  status: 'idle',
+  error: null,
+  pagination: {
+    totalPages: 0,
+    currentPage: 1,
+    hasNextPage: false,
+    hasPreviousPage: false,
+    nextPage: 2,
+    prevPage: 0,
   },
-  jobs: [
-    {
-      id: 1,
-      title: "Social Media Assistant",
-      company: "Nomad",
-      location: "Paris, France",
-      salary: "$15k/Monthly",
-      logo: "/images/66.png",
-      tags: ["Full-Time", "Marketing", "Design"]
-    },
-    {
-      id: 2,
-      title: "Brand Designer",
-      company: "Dropbox",
-      location: "San Francisco, USA",
-      salary: "$15k/Monthly",
-      logo: "/images/22.png",
-      tags: ["Part-Time", "Marketing", "Design"]
-    },
-    {
-      id: 3,
-      title: "Interactive Developer",
-      company: "Terraform",
-      location: "Hamburg, Germany",
-      salary: "$15k/Monthly",
-      logo: "/images/33.png",
-      tags: ["Full-Time", "Marketing", "Design"]
-    },
-    {
-      id: 4,
-      title: "Email Marketing",
-      company: "Revolut",
-      location: "Madrid, Spain",
-      salary: "$15k/Monthly",
-      logo: "/images/44.png",
-      tags: ["Full-Time", "Marketing", "Design"]
-    },
-    {
-      id: 5,
-      title: "Lead Engineer",
-      company: "Canva",
-      location: "Ankara, Turkey",
-      salary: "$15k/Monthly",
-      logo: "/images/77.png",
-      tags: ["Part-Time", "Marketing", "Design"]
-    },
-    {
-      id: 6,
-      title: "Product Designer",
-      company: "ClassPass",
-      location: "Berlin, Germany",
-      salary: "$15k/Monthly",
-      logo: "/images/55.png",
-      tags: ["Full-Time", "Marketing", "Design"]
-    },
-    {
-      id: 7,
-      title: "Customer Manager",
-      company: "Pitch",
-      location: "Berlin, Germany",
-      salary: "$15k/Monthly",
-      logo: "/images/88.png",
-      tags: ["Part-Time", "Marketing", "Design"]
-    }
-  ],
 };
 
 const jobSlice = createSlice({
   name: 'jobs',
   initialState,
   reducers: {
-    setFilters(state, action: PayloadAction<{ filterType: FilterType; value: string }>) {
-      const { filterType, value } = action.payload;
-      const filterValues = state.filters[filterType];
-
-      if (filterValues.includes(value)) {
-        state.filters[filterType] = filterValues.filter((item) => item !== value);
-      } else {
-        state.filters[filterType].push(value);
-      }
+    setCurrentPage(state, action) {
+      state.pagination.currentPage = action.payload;
     },
-    setJobs(state, action: PayloadAction<Job[]>) {
+    setFilters(state, action) {
+      // Handle filters if needed
+    },
+    setFilteredJobs(state, action) {
       state.jobs = action.payload;
+      state.pagination.totalPages = Math.ceil(action.payload.length / 10);
     },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchJobs.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchJobs.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.jobs = action.payload.jobs;
+        state.pagination = {
+          totalPages: action.payload.pagination.totalPages,
+          currentPage: action.payload.pagination.currentPage,
+          hasNextPage: action.payload.pagination.hasNextPage,
+          hasPreviousPage: action.payload.pagination.hasPreviousPage,
+          nextPage: action.payload.pagination.nextPage,
+          prevPage: action.payload.pagination.prevPage,
+        };
+      })
+      .addCase(fetchJobs.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message || null;
+      });
   },
 });
 
-export const { setFilters, setJobs } = jobSlice.actions;
-
+export const { setCurrentPage, setFilters, setFilteredJobs } = jobSlice.actions;
 export default jobSlice.reducer;

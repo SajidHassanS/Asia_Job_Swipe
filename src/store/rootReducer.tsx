@@ -1,22 +1,21 @@
-"use client"
+// store/rootReducer.ts
 import { combineReducers } from '@reduxjs/toolkit';
 import companyReducer from './slices/companySlice';
 import authReducer from './slices/authSlice';
-import jobSlice from './slices/jobSlice';
+import jobReducer from './slices/jobSlice'; // Ensure correct naming
 import userSettingsReducer from './slices/userSettingsSlice';
 import jobSeekersReducer from './slices/jobSeekerSlice';
 import profileReducer from './slices/ProfileSlice';
 import tokens from './slices/tokens';
-const rootReducer = combineReducers({
 
+const rootReducer = combineReducers({
   auth: authReducer,
   jobSeekers: jobSeekersReducer,
   profile: profileReducer,
-  job:jobSlice,
+  job: jobReducer, // Ensure correct naming
   company: companyReducer,
   userSettings: userSettingsReducer,
   // token: tokens,
-
 });
 
 export default rootReducer;
