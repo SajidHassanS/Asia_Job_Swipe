@@ -22,16 +22,22 @@ const ForgotPasswordPage: React.FC = () => {
   const router = useRouter();
 
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: NodeJS.Timeout | null = null;
     if (step === 2 && timer > 0) {
       interval = setInterval(() => {
         setTimer((prev) => prev - 1);
       }, 1000);
     } else if (timer === 0) {
       setResendEnabled(true);
-      clearInterval(interval);
+      if (interval) {
+        clearInterval(interval);
+      }
     }
-    return () => clearInterval(interval);
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
   }, [step, timer]);
 
   const handleSendOTP = async () => {
