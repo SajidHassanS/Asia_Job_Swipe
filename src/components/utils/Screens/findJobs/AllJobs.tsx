@@ -8,6 +8,7 @@ import PaginationComponent from './Pagination';
 import { RootState, AppDispatch } from '../../../../store';
 import { fetchJobs, setCurrentPage } from '../../../../store/slices/jobSlice';
 
+// Define the Job type here
 interface Job {
   _id: string;
   title: string;
@@ -17,6 +18,7 @@ interface Job {
     city: string;
     province: string;
     country: string;
+    sector: string;
   };
   salary: {
     from: number;
@@ -24,22 +26,25 @@ interface Job {
   };
   skills: string[];
   jobType: string;
+  careerLevel: string;
+  candidateType: string;
   city: string;
   province: string;
   country: string;
 }
 
-const AllJobs: React.FC = () => {
+const AllJobs: React.FC = () => { 
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [location, setLocation] = useState('');
 
   const dispatch = useDispatch<AppDispatch>();
 
-  const currentPage = useSelector((state: RootState) => state.job.pagination.currentPage);
-  const jobs = useSelector((state: RootState) => state.job.jobs);
+  const currentPage = useSelector((state: RootState) => state.job.currentPage);
+  const jobs = useSelector((state: RootState) => state.job.jobs) as Job[];
   const loading = useSelector((state: RootState) => state.job.status === 'loading');
-  const totalPages = useSelector((state: RootState) => state.job.pagination.totalPages);
+  const totalPages = useSelector((state: RootState) => state.job.totalPages);
+  const totalJobs = useSelector((state: RootState) => state.job.totalJobs);
 
   useEffect(() => {
     dispatch(fetchJobs(currentPage));
@@ -60,12 +65,23 @@ const AllJobs: React.FC = () => {
     dispatch(setCurrentPage(1)); // Reset to first page on new search
   };
 
-  const filteredJobs = jobs.filter((job: Job) => {
-    const matchesFilters = selectedFilters.length === 0 || selectedFilters.some(filter =>
-      job.skills.includes(filter) || job.jobType.includes(filter)
-    );
-    const matchesSearchTerm = searchTerm === '' || job.title.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesLocation = location === '' || job.city.toLowerCase().includes(location.toLowerCase());
+  const salaryRanges: { [key: string]: [number, number] } = {
+    "15000-25000": [15000, 25000],
+    "25000-35000": [25000, 35000],
+    "35000-45000": [35000, 45000]
+  };
+
+  const filteredJobs = jobs.filter((job) => {
+    const matchesFilters = selectedFilters.length === 0 || selectedFilters.some(filter => {
+      if (filter in salaryRanges) {
+        const [minSalary, maxSalary] = salaryRanges[filter];
+        return job.salary.from >= minSalary && job.salary.from <= maxSalary;
+      } else {
+        return job.skills.includes(filter) || job.jobType.includes(filter) || job.company.sector.includes(filter) || job.careerLevel.includes(filter) || job.candidateType.includes(filter);
+      }
+    });
+    const matchesSearchTerm = searchTerm === '' || job.title.toLowerCase().includes(searchTerm.toLowerCase()) || job.company.companyName.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesLocation = location === '' || job.city.toLowerCase().includes(location.toLowerCase()) || job.province.toLowerCase().includes(location.toLowerCase()) || job.country.toLowerCase().includes(location.toLowerCase());
 
     return matchesFilters && matchesSearchTerm && matchesLocation;
   });
@@ -95,9 +111,10 @@ const AllJobs: React.FC = () => {
           <JobListings jobs={filteredJobs} totalJobs={filteredJobs.length} />
           <PaginationComponent
             jobsPerPage={10}
-            totalJobs={filteredJobs.length}
+            totalJobs={totalJobs}
             paginate={paginate}
             currentPage={currentPage}
+            totalPages={totalPages}
           />
         </div>
       </div>

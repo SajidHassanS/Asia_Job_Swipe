@@ -1,4 +1,3 @@
-// components/utils/Screens/findJobs/JobListings.tsx
 "use client";
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";

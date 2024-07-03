@@ -4,7 +4,7 @@ import axios from 'axios';
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://ajs-server.hostdonor.com/api/v1';
 
 export const fetchJobs = createAsyncThunk('jobs/fetchJobs', async (page: number) => {
-  const response = await axios.get(`${API_URL}/jobs `);
+  const response = await axios.get(`${API_URL}/jobs?page=${page}`);
   return response.data;
 });
 
@@ -29,34 +29,22 @@ interface Job {
   country: string;
 }
 
-interface Pagination {
-  totalPages: number;
-  currentPage: number;
-  hasNextPage: boolean;
-  hasPreviousPage: boolean;
-  nextPage: number;
-  prevPage: number;
-}
-
 interface JobState {
   jobs: Job[];
+  totalJobs: number;
+  totalPages: number;
+  currentPage: number;
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null;
-  pagination: Pagination;
 }
 
 const initialState: JobState = {
   jobs: [],
+  totalJobs: 0,
+  totalPages: 0,
+  currentPage: 1,
   status: 'idle',
   error: null,
-  pagination: {
-    totalPages: 0,
-    currentPage: 1,
-    hasNextPage: false,
-    hasPreviousPage: false,
-    nextPage: 2,
-    prevPage: 0,
-  },
 };
 
 const jobSlice = createSlice({
@@ -64,14 +52,7 @@ const jobSlice = createSlice({
   initialState,
   reducers: {
     setCurrentPage(state, action) {
-      state.pagination.currentPage = action.payload;
-    },
-    setFilters(state, action) {
-      // Handle filters if needed
-    },
-    setFilteredJobs(state, action) {
-      state.jobs = action.payload;
-      state.pagination.totalPages = Math.ceil(action.payload.length / 10);
+      state.currentPage = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -82,14 +63,8 @@ const jobSlice = createSlice({
       .addCase(fetchJobs.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.jobs = action.payload.jobs;
-        state.pagination = {
-          totalPages: action.payload.pagination.totalPages,
-          currentPage: action.payload.pagination.currentPage,
-          hasNextPage: action.payload.pagination.hasNextPage,
-          hasPreviousPage: action.payload.pagination.hasPreviousPage,
-          nextPage: action.payload.pagination.nextPage,
-          prevPage: action.payload.pagination.prevPage,
-        };
+        state.totalJobs = action.payload.total;
+        state.totalPages = action.payload.pagination.totalPages;
       })
       .addCase(fetchJobs.rejected, (state, action) => {
         state.status = 'failed';
@@ -98,5 +73,5 @@ const jobSlice = createSlice({
   },
 });
 
-export const { setCurrentPage, setFilters, setFilteredJobs } = jobSlice.actions;
+export const { setCurrentPage } = jobSlice.actions;
 export default jobSlice.reducer;

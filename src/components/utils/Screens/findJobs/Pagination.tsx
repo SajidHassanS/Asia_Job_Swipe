@@ -1,3 +1,4 @@
+"use client";
 import React from 'react';
 import {
   Pagination,
@@ -13,12 +14,13 @@ interface PaginationComponentProps {
   totalJobs: number;
   paginate: (pageNumber: number) => void;
   currentPage: number;
+  totalPages: number;
 }
 
-const PaginationComponent: React.FC<PaginationComponentProps> = ({ jobsPerPage, totalJobs, paginate, currentPage }) => {
+const PaginationComponent: React.FC<PaginationComponentProps> = ({ jobsPerPage, totalJobs, paginate, currentPage, totalPages }) => {
   const pageNumbers = [];
 
-  for (let i = 1; i <= Math.ceil(totalJobs / jobsPerPage); i++) {
+  for (let i = 1; i <= totalPages; i++) {
     pageNumbers.push(i);
   }
 
@@ -38,7 +40,7 @@ const PaginationComponent: React.FC<PaginationComponentProps> = ({ jobsPerPage, 
               </PaginationLink>
             </PaginationItem>
           ))}
-          {currentPage < pageNumbers.length && (
+          {currentPage < totalPages && (
             <PaginationItem>
               <PaginationNext onClick={() => paginate(currentPage + 1)} />
             </PaginationItem>

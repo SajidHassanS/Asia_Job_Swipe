@@ -92,14 +92,14 @@ const Sidebar: React.FC<SidebarProps> = ({ onCheckboxChange, selectedFilters }) 
             <AccordionItem value="item-5">
               <AccordionTrigger className="text-base">Salary Range</AccordionTrigger>
               <AccordionContent>
-                <Checkbox id="15000" checked={selectedFilters.includes("15000")} onChange={() => onCheckboxChange("15000")}>
-                  $15k/Monthly
+                <Checkbox id="15000-25000" checked={selectedFilters.includes("15000-25000")} onChange={() => onCheckboxChange("15000-25000")}>
+                  $15k - $25k/Monthly
                 </Checkbox>
-                <Checkbox id="25000" checked={selectedFilters.includes("25000")} onChange={() => onCheckboxChange("25000")}>
-                  $25k/Monthly
+                <Checkbox id="25000-35000" checked={selectedFilters.includes("25000-35000")} onChange={() => onCheckboxChange("25000-35000")}>
+                  $25k - $35k/Monthly
                 </Checkbox>
-                <Checkbox id="35000" checked={selectedFilters.includes("35000")} onChange={() => onCheckboxChange("35000")}>
-                  $35k/Monthly
+                <Checkbox id="35000-45000" checked={selectedFilters.includes("35000-45000")} onChange={() => onCheckboxChange("35000-45000")}>
+                  $35k - $45k/Monthly
                 </Checkbox>
               </AccordionContent>
             </AccordionItem>
@@ -190,14 +190,14 @@ const Sidebar: React.FC<SidebarProps> = ({ onCheckboxChange, selectedFilters }) 
                 <AccordionItem value="item-5">
                   <AccordionTrigger className="text-base">Salary Range</AccordionTrigger>
                   <AccordionContent>
-                    <Checkbox id="15000" checked={selectedFilters.includes("15000")} onChange={() => onCheckboxChange("15000")}>
-                      $15k/Monthly
+                    <Checkbox id="15000-25000" checked={selectedFilters.includes("15000-25000")} onChange={() => onCheckboxChange("15000-25000")}>
+                      $15k - $25k/Monthly
                     </Checkbox>
-                    <Checkbox id="25000" checked={selectedFilters.includes("25000")} onChange={() => onCheckboxChange("25000")}>
-                      $25k/Monthly
+                    <Checkbox id="25000-35000" checked={selectedFilters.includes("25000-35000")} onChange={() => onCheckboxChange("25000-35000")}>
+                      $25k - $35k/Monthly
                     </Checkbox>
-                    <Checkbox id="35000" checked={selectedFilters.includes("35000")} onChange={() => onCheckboxChange("35000")}>
-                      $35k/Monthly
+                    <Checkbox id="35000-45000" checked={selectedFilters.includes("35000-45000")} onChange={() => onCheckboxChange("35000-45000")}>
+                      $35k - $45k/Monthly
                     </Checkbox>
                   </AccordionContent>
                 </AccordionItem>
