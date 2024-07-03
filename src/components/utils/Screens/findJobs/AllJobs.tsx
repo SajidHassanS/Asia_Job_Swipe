@@ -3,12 +3,12 @@ import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import Sidebar from './Sidebar';
 import JobListings from './JobListings';
+import SkeletonJobCard from './SkeletonJobCard';
 import HeroComponent from "../../../../components/repeatComponents/Hero";
 import PaginationComponent from './Pagination';
 import { RootState, AppDispatch } from '../../../../store';
 import { fetchJobs, setCurrentPage } from '../../../../store/slices/jobSlice';
 
-// Define the Job type here
 interface Job {
   _id: string;
   title: string;
@@ -88,10 +88,6 @@ const AllJobs: React.FC = () => {
 
   const paginate = (pageNumber: number) => dispatch(setCurrentPage(pageNumber));
 
-  if (loading) {
-    return <p>Loading...</p>;
-  }
-
   return (
     <div>
       <div className='bg-muted md:pb-10'>
@@ -108,14 +104,21 @@ const AllJobs: React.FC = () => {
       <div className="md:container md:my-16 my-4 md:flex gap-5">
         <Sidebar onCheckboxChange={handleCheckboxChange} selectedFilters={selectedFilters} />
         <div className="w-full">
-          <JobListings jobs={filteredJobs} totalJobs={filteredJobs.length} />
-          <PaginationComponent
-            jobsPerPage={10}
-            totalJobs={totalJobs}
-            paginate={paginate}
-            currentPage={currentPage}
-            totalPages={totalPages}
-          />
+          {loading ? (
+            // Render skeleton loaders
+            Array.from({ length: 10 }).map((_, index) => <SkeletonJobCard key={index} />)
+          ) : (
+            <>
+              <JobListings jobs={filteredJobs} totalJobs={filteredJobs.length} />
+              <PaginationComponent
+                jobsPerPage={10}
+                totalJobs={totalJobs}
+                paginate={paginate}
+                currentPage={currentPage}
+                totalPages={totalPages}
+              />
+            </>
+          )}
         </div>
       </div>
     </div>
