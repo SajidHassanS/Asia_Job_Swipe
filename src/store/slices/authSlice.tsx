@@ -21,6 +21,7 @@ interface AuthState {
   accessToken: string | null;
   refreshToken: string | null;
   role: string | null;
+  jobSeekerId: string | null; 
 }
 
 const initialState: AuthState = {
@@ -35,6 +36,7 @@ const initialState: AuthState = {
   accessToken: null,
   refreshToken: null,
   role: null,
+  jobSeekerId: null, 
 };
 
 interface AuthError {
@@ -138,6 +140,8 @@ export const logout = createAsyncThunk<void, void, { rejectValue: AuthError[] }>
     try {
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
+      localStorage.removeItem('role');
+      localStorage.removeItem('_id');
       return;
     } catch (error: any) {
       return rejectWithValue([{ path: 'unknown', message: error.message || 'An error occurred during logout.' }]);
@@ -150,18 +154,18 @@ export const signIn = createAsyncThunk<User, { email: string; password: string; 
   async ({ email, password, userType }, { rejectWithValue }) => {
     try {
       const response = await axios.post(`${API_URL}/auth/login`, { email, password });
-      const user = response.data.user.userInfo;
+      const user = response.data.user;
 
-      if (user.role !== userType) {
+      if (user.userInfo.role !== userType) {
         return rejectWithValue([{ path: 'userType', message: 'Unauthorized: role mismatch' }]);
       }
 
       localStorage.setItem('accessToken', response.data.accessToken);
       localStorage.setItem('refreshToken', response.data.refreshToken);
-      localStorage.setItem('role', user.role);
+      localStorage.setItem('role', user.userInfo.role);
       localStorage.setItem('_id', user._id);
 
-      return user;
+      return { ...user.userInfo, _id: user._id };
     } catch (error: any) {
       if (axios.isAxiosError(error) && error.response) {
         if (error.response.data.errors) {
@@ -200,25 +204,15 @@ export const googleSignIn = createAsyncThunk<User, { code: string; role: string 
 
 export const initializeAuth = createAsyncThunk<void, void, { rejectValue: AuthError[] }>(
   'auth/initializeAuth',
-  async (_, { dispatch, rejectWithValue }) => {
+  async (_, { dispatch }) => {
     const accessToken = localStorage.getItem('accessToken');
     const refreshToken = localStorage.getItem('refreshToken');
+    const role = localStorage.getItem('role');
+    const _id = localStorage.getItem('_id');
 
-    if (accessToken && refreshToken) {
-      try {
-        const response = await axios.get(`${API_URL}/auth/profile`, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
-        dispatch(setUser(response.data));
-        dispatch(setTokens({ accessToken, refreshToken }));
-      } catch (error) {
-        console.error('Failed to fetch user profile', error);
-        return rejectWithValue([{ path: 'unknown', message: 'Failed to fetch user profile' }]);
-      }
-    } else {
-      return rejectWithValue([{ path: 'unknown', message: 'No tokens found' }]);
+    if (accessToken && refreshToken && role && _id) {
+      dispatch(setTokens({ accessToken, refreshToken }));
+      dispatch(setUser({ _id, role } as User)); // Cast to User, add other necessary fields
     }
   }
 );
@@ -262,11 +256,13 @@ const authSlice = createSlice({
     setUser: (state: AuthState, action: PayloadAction<User>) => {
       state.user = action.payload;
       state.role = action.payload.role || null;
+      state.jobSeekerId = action.payload.role === 'jobseeker' ? action.payload._id : null;
     },
     signOut: (state: AuthState) => {
       state.user = null;
       state.accessToken = null;
       state.refreshToken = null;
+      state.jobSeekerId = null;
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
       localStorage.removeItem('role');
@@ -295,6 +291,7 @@ const authSlice = createSlice({
         state.user = null;
         state.accessToken = null;
         state.refreshToken = null;
+        state.jobSeekerId = null;
       })
       .addCase(logout.rejected, (state: AuthState, action: PayloadAction<AuthError[] | undefined>) => {
         state.errors = action.payload || [{ path: 'unknown', message: 'An unknown error occurred' }];
@@ -306,6 +303,7 @@ const authSlice = createSlice({
         state.status = 'succeeded';
         state.user = action.payload;
         state.error = null;
+        state.jobSeekerId = action.payload._id;
       })
       .addCase(registerJobSeeker.rejected, (state: AuthState, action: PayloadAction<AuthError[] | undefined>) => {
         state.status = 'failed';
@@ -318,6 +316,7 @@ const authSlice = createSlice({
         state.status = 'succeeded';
         state.user = action.payload;
         state.error = null;
+        state.jobSeekerId = action.payload.role === 'jobseeker' ? action.payload._id : null;
       })
       .addCase(registerCompany.rejected, (state: AuthState, action: PayloadAction<AuthError[] | undefined>) => {
         state.status = 'failed';
@@ -331,6 +330,7 @@ const authSlice = createSlice({
         state.user = action.payload;
         state.role = action.payload.role || null;
         state.errors = [];
+        state.jobSeekerId = action.payload.role === 'jobSeeker' ? action.payload._id : null;
       })
       .addCase(signIn.rejected, (state: AuthState, action: PayloadAction<AuthError[] | undefined>) => {
         state.status = 'failed';
@@ -376,6 +376,7 @@ const authSlice = createSlice({
         state.status = 'succeeded';
         state.user = action.payload;
         state.error = null;
+        state.jobSeekerId = action.payload.role === 'jobseeker' ? action.payload._id : null;
       })
       .addCase(googleSignIn.rejected, (state: AuthState, action: PayloadAction<AuthError[] | undefined>) => {
         state.status = 'failed';
