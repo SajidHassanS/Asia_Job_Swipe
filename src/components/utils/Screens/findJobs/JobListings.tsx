@@ -1,8 +1,10 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../../../store"; // Import the correct types
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { BsBookmarkDash } from "react-icons/bs";
+import { BsBookmarkDash, BsBookmarkDashFill } from "react-icons/bs";
 import { IoCheckmarkDoneSharp } from "react-icons/io5";
 import {
   Accordion,
@@ -20,9 +22,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { toggleSaveJob, fetchJobById, getSavedJobs } from "../../../../store/slices/jobSeekerSlice";
 
 interface Job {
-  _id: string;
+  _id: string; // Ensure your job data includes a unique jobId
   title: string;
   company: {
     companyLogo: string;
@@ -49,14 +52,59 @@ interface JobListingsProps {
 
 const JobListings: React.FC<JobListingsProps> = ({ jobs, totalJobs }) => {
   const [isGridView, setIsGridView] = useState(false);
+  const dispatch: AppDispatch = useDispatch(); // Use the correct dispatch type
+  const { jobSeeker, status } = useSelector((state: RootState) => state.jobSeeker);
+
+  useEffect(() => {
+    const jobSeekerId = localStorage.getItem("_id");
+    const accessToken = localStorage.getItem("accessToken");
+    if (jobSeekerId && accessToken) {
+      dispatch(getSavedJobs({ jobSeekerId, accessToken }));
+    }
+  }, [dispatch]);
+
+  const getJobSeekerId = (): string | null => {
+    const jobSeekerId = localStorage.getItem("_id");
+    return jobSeekerId ? jobSeekerId.trim() : null;
+  };
+
+  const getAccessToken = (): string | null => {
+    const accessToken = localStorage.getItem("accessToken");
+    return accessToken ? accessToken.trim() : null;
+  };
+
+  const handleBookmarkClick = async (jobId: string) => {
+    const jobSeekerId = getJobSeekerId();
+    const accessToken = getAccessToken();
+
+    console.log('handleBookmarkClick:', { jobId, jobSeekerId, accessToken }); // Debug log
+
+    if (jobSeekerId && accessToken) {
+      try {
+        // Fetch the job details by ID
+        const job = await dispatch(fetchJobById(jobId)).unwrap();
+        console.log('Fetched job details:', job); // Debug log
+
+        // Then toggle the save state
+        await dispatch(toggleSaveJob({ jobId, jobSeekerId, accessToken })).unwrap();
+        console.log('Job saved successfully!'); // Debug log
+      } catch (error) {
+        console.error('Failed to save job:', error); // Debug log
+      }
+    } else {
+      console.error('Missing jobSeekerId or accessToken'); // Debug log
+    }
+  };
+
+  const isJobSaved = (jobId: string) => {
+    return jobSeeker?.savedJobs.some((job) => job._id === jobId);
+  };
 
   return (
     <div className="md:w-full p-4">
       <div className="flex justify-between items-center mb-2">
         <div className="">
-          <h2 className="lg:text-3xl md:text-2xl text-xl font-bold">
-            All Jobs
-          </h2>
+          <h2 className="lg:text-3xl md:text-2xl text-xl font-bold">All Jobs</h2>
         </div>
         <div className="flex items-center gap-3">
           <div>
@@ -81,9 +129,7 @@ const JobListings: React.FC<JobListingsProps> = ({ jobs, totalJobs }) => {
       <div className="md:mb-10">
         <p>Showing {totalJobs} results</p>
       </div>
-      <div
-        className={isGridView ? "grid grid-cols-1 md:grid-cols-2 gap-5" : ""}
-      >
+      <div className={isGridView ? "grid grid-cols-1 md:grid-cols-2 gap-5" : ""}>
         {jobs.map((job) => (
           <Card key={job._id} className="mb-5 p-4">
             <div className="">
@@ -98,13 +144,10 @@ const JobListings: React.FC<JobListingsProps> = ({ jobs, totalJobs }) => {
                       className="rounded-full mr-4"
                     />
                     <div>
-                      <h3 className="md:text-xl text-lg font-bold">
-                        {job.title}
-                      </h3>
+                      <h3 className="md:text-xl text-lg font-bold">{job.title}</h3>
                       <div className="flex md:gap-3 items-center">
                         <p className="text-sm text-gray-600">
-                          {job.company.companyName} • {job.city}, {job.province}
-                          , {job.country}
+                          {job.company.companyName} • {job.city}, {job.province}, {job.country}
                         </p>
                         <div className="md:block hidden">
                           <IoCheckmarkDoneSharp className="text-signature" />
@@ -113,39 +156,48 @@ const JobListings: React.FC<JobListingsProps> = ({ jobs, totalJobs }) => {
                     </div>
                   </div>
                   <div className="md:mt-3">
-                    <div className="md:hidden mb-2 flex justify-end">
-                      <BsBookmarkDash className="text-signature" size={20} />
+                    <div
+                      className="md:hidden mb-2 flex justify-end cursor-pointer"
+                      onClick={() => handleBookmarkClick(job._id)}
+                    >
+                      {isJobSaved(job._id) ? (
+                        <BsBookmarkDashFill className="text-signature" size={20} />
+                      ) : (
+                        <BsBookmarkDash className="text-signature" size={20} />
+                      )}
                     </div>
-                    <p className="md:text-xl text-md font-bold">
-                      ${job.salary.from}/Monthly
-                    </p>
+                    <p className="md:text-xl text-md font-bold">${job.salary.from}/Monthly</p>
                   </div>
                 </div>
                 <div className="flex justify-between">
                   <div className="flex flex-wrap gap-3 md:ml-20 items-center mt-2">
-                    
-                      <Link
-                        className="bg-sky-300 text-signature text-sm md:px-4 md:py-2 rounded-[30px] inline-block"
-                        href="/signin"
-                      >
-                        {job.jobType}
-                      </Link>
-                   
-                    <div className="hidden md:block h-5 border border-lightgrey"></div>
-                    {job.skills.map((skill) => (
                     <Link
-                      key={skill}
-                      className="border border-darkGrey text-darkGrey text-sm px-4 py-2 rounded-[30px] inline-block"
+                      className="bg-sky-300 text-signature text-sm md:px-4 md:py-2 rounded-[30px] inline-block"
                       href="/signin"
                     >
-                      {skill}
+                      {job.jobType}
                     </Link>
-                     ))}
-                    <div className="md:block hidden">
-                      <BsBookmarkDash className="text-signature" size={30} />
+                    <div className="hidden md:block h-5 border border-lightgrey"></div>
+                    {job.skills.map((skill) => (
+                      <Link
+                        key={skill}
+                        className="border border-darkGrey text-darkGrey text-sm px-4 py-2 rounded-[30px] inline-block"
+                        href="/signin"
+                      >
+                        {skill}
+                      </Link>
+                    ))}
+                    <div
+                      className="md:block hidden cursor-pointer"
+                      onClick={() => handleBookmarkClick(job._id)}
+                    >
+                      {isJobSaved(job._id) ? (
+                        <BsBookmarkDashFill className="text-signature" size={30} />
+                      ) : (
+                        <BsBookmarkDash className="text-signature" size={30} />
+                      )}
                     </div>
                   </div>
-
                   <div className="flex flex-col mt-2">
                     <Dialog>
                       <DialogTrigger asChild>

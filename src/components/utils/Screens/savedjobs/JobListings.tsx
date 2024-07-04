@@ -1,8 +1,10 @@
 "use client";
 import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../../../store";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { BsBookmarkDash } from "react-icons/bs";
+import { BsBookmarkDash, BsBookmarkDashFill } from "react-icons/bs";
 import { IoCheckmarkDoneSharp } from "react-icons/io5";
 import {
   Accordion,
@@ -20,7 +22,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Job } from '../../../../store/slices/types';
+import { Job } from "../../../../store/slices/types";
+import { toggleSaveJob } from "../../../../store/slices/jobSeekerSlice";
 
 interface JobListingsProps {
   jobs: Job[];
@@ -29,14 +32,27 @@ interface JobListingsProps {
 
 const JobListings: React.FC<JobListingsProps> = ({ jobs, totalJobs }) => {
   const [isGridView, setIsGridView] = useState(false);
+  const dispatch: AppDispatch = useDispatch();
+  const jobSeeker = useSelector((state: RootState) => state.jobSeeker.jobSeeker);
+
+  const handleBookmarkClick = async (jobId: string) => {
+    const jobSeekerId = localStorage.getItem("_id");
+    const accessToken = localStorage.getItem("accessToken");
+
+    if (jobSeekerId && accessToken) {
+      await dispatch(toggleSaveJob({ jobId, jobSeekerId, accessToken }));
+    }
+  };
+
+  const isJobSaved = (jobId: string) => {
+    return jobSeeker?.savedJobs.some((job) => job._id === jobId);
+  };
 
   return (
     <div className="md:w-full p-4">
       <div className="flex justify-between items-center mb-2">
         <div className="">
-          <h2 className="lg:text-3xl md:text-2xl text-xl font-bold">
-            All Jobs
-          </h2>
+          <h2 className="lg:text-3xl md:text-2xl text-xl font-bold">All Jobs</h2>
         </div>
         <div className="flex items-center gap-3">
           <div>
@@ -61,9 +77,7 @@ const JobListings: React.FC<JobListingsProps> = ({ jobs, totalJobs }) => {
       <div className="md:mb-10">
         <p>Showing {totalJobs} results</p>
       </div>
-      <div
-        className={isGridView ? "grid grid-cols-1 md:grid-cols-2 gap-5" : ""}
-      >
+      <div className={isGridView ? "grid grid-cols-1 md:grid-cols-2 gap-5" : ""}>
         {jobs.map((job) => (
           <Card key={job._id} className="mb-5 p-4">
             <div className="">
@@ -73,17 +87,15 @@ const JobListings: React.FC<JobListingsProps> = ({ jobs, totalJobs }) => {
                     <Image
                       width={61}
                       height={61}
-                      src={job.company.companyLogo || "/default-logo.png"}
-                      alt={job.company.companyName}
+                      src={job.company?.companyLogo || "/default-logo.png"}
+                      alt={job.company?.companyName || "Company Logo"}
                       className="rounded-full mr-4"
                     />
                     <div>
-                      <h3 className="md:text-xl text-lg font-bold">
-                        {job.title}
-                      </h3>
+                      <h3 className="md:text-xl text-lg font-bold">{job.title}</h3>
                       <div className="flex md:gap-3 items-center">
                         <p className="text-sm text-gray-600">
-                          {job.company.companyName} • {job.city || "N/A"}, {job.province || "N/A"}
+                          {job.company?.companyName} • {job.city || "N/A"}, {job.province || "N/A"}
                           , {job.country || "N/A"}
                         </p>
                         <div className="md:block hidden">
@@ -93,8 +105,15 @@ const JobListings: React.FC<JobListingsProps> = ({ jobs, totalJobs }) => {
                     </div>
                   </div>
                   <div className="md:mt-3">
-                    <div className="md:hidden mb-2 flex justify-end">
-                      <BsBookmarkDash className="text-signature" size={20} />
+                    <div
+                      className="md:hidden mb-2 flex justify-end cursor-pointer"
+                      onClick={() => handleBookmarkClick(job._id)}
+                    >
+                      {isJobSaved(job._id) ? (
+                        <BsBookmarkDashFill className="text-signature" size={20} />
+                      ) : (
+                        <BsBookmarkDash className="text-signature" size={20} />
+                      )}
                     </div>
                     <p className="md:text-xl text-md font-bold">
                       ${job.salary?.from || 0}/Monthly
@@ -119,11 +138,17 @@ const JobListings: React.FC<JobListingsProps> = ({ jobs, totalJobs }) => {
                         {skill}
                       </Link>
                     ))}
-                    <div className="md:block hidden">
-                      <BsBookmarkDash className="text-signature" size={30} />
+                    <div
+                      className="md:block hidden cursor-pointer"
+                      onClick={() => handleBookmarkClick(job._id)}
+                    >
+                      {isJobSaved(job._id) ? (
+                        <BsBookmarkDashFill className="text-signature" size={30} />
+                      ) : (
+                        <BsBookmarkDash className="text-signature" size={30} />
+                      )}
                     </div>
                   </div>
-
                   <div className="flex flex-col mt-2">
                     <Dialog>
                       <DialogTrigger asChild>
