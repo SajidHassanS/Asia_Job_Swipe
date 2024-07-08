@@ -1,8 +1,11 @@
 "use client";
+
 import React, { useState } from "react";
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState, AppDispatch } from '../../../store';
+import { postJob } from '../../../store/slices/postJobSlice';
 import FormLeftSide from "./components/FormLeftSide";
 import FormRightSide from "./components/FormRightSide";
-// import DashboardLayout from "../dashboard/layout";
 
 interface FormData {
   jobTitle: string;
@@ -15,16 +18,17 @@ interface FormData {
   benefits: string[];
   salaryFrom: string;
   salaryTo: string;
-  urgency: string[];
-  careerLevel: string[];
-  jobType: string[];
-  candidateType: string[];
+  urgency: string;
+  careerLevel: string;
+  jobType: string;
+  candidateType: string;
   workPermitNeeded: boolean;
 }
 
-type FormDataKey = keyof FormData;
-
 const PostJob: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { status, error } = useSelector((state: RootState) => state.postJob);
+
   const [formData, setFormData] = useState<FormData>({
     jobTitle: "",
     sector: "",
@@ -36,10 +40,10 @@ const PostJob: React.FC = () => {
     benefits: [],
     salaryFrom: "",
     salaryTo: "",
-    urgency: [],
-    careerLevel: [],
-    jobType: [],
-    candidateType: [],
+    urgency: "",
+    careerLevel: "",
+    jobType: "",
+    candidateType: "",
     workPermitNeeded: false,
   });
 
@@ -51,35 +55,77 @@ const PostJob: React.FC = () => {
     const { name, value, type } = e.target;
     if (type === "checkbox") {
       const checked = (e.target as HTMLInputElement).checked;
-      setFormData({ ...formData, [name]: checked } as FormData);
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: checked
+      }));
     } else {
-      setFormData({ ...formData, [name]: value } as FormData);
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: value
+      }));
     }
   };
 
   const handleMultiSelectChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    field: string
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+    field: keyof FormData
   ) => {
-    const { value, checked } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [field]: checked
-        ? [...(prevData[field as FormDataKey] as string[]), value]
-        : (prevData[field as FormDataKey] as string[]).filter((item) => item !== value),
-    }));
+    if (e.target instanceof HTMLSelectElement) {
+      const { selectedOptions } = e.target;
+      const values = Array.from(selectedOptions, option => option.value);
+      setFormData((prevData) => ({
+        ...prevData,
+        [field]: values
+      }));
+    } else if (e.target instanceof HTMLInputElement) {
+      const { value, checked } = e.target;
+      setFormData((prevData) => ({
+        ...prevData,
+        [field]: checked
+          ? [...(prevData[field] as string[]), value]
+          : (prevData[field] as string[]).filter((item) => item !== value),
+      }));
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission
-    console.log(formData);
+    const jobData = {
+      title: formData.jobTitle,
+      sector: formData.sector,
+      skills: formData.skillsRequired,
+      benefits: formData.benefits,
+      salary: {
+        from: parseInt(formData.salaryFrom),
+        to: parseInt(formData.salaryTo)
+      },
+      availability: formData.urgency,
+      careerLevel: formData.careerLevel,
+      jobType: formData.jobType,
+      candidateType: formData.candidateType,
+      city: formData.city,
+      province: formData.province,
+      country: formData.country,
+      description: formData.description,
+    };
+    console.log("Submitting job data:", jobData); // Debug logging
+    dispatch(postJob(jobData))
+      .unwrap()
+      .then((response) => {
+        console.log("Dispatch response:", response); // Debug logging
+      })
+      .catch((error) => {
+        console.error("Dispatch error:", error);
+      });
   };
 
   return (
-    // <DashboardLayout>
-       <div className="w-full max-w-7xl mx-auto p-8 rounded-lg">
+    <div className="w-full max-w-7xl mx-auto p-8 rounded-lg">
       <h2 className="text-3xl font-bold text-center mb-10">Post a New Job</h2>
+      {status === 'loading' && <p>Loading...</p>}
+      {status === 'failed' && <p className="text-red-500">{error}</p>}
+      {status === 'succeeded' && <p className="text-green-500">Job posted successfully!</p>}
       <form onSubmit={handleSubmit} className="flex flex-wrap -mx-4">
         <div className="w-full md:w-1/2 px-4 mb-4">
           <FormLeftSide
@@ -98,8 +144,6 @@ const PostJob: React.FC = () => {
         </div>
       </form>
     </div>
-    // </DashboardLayout>
-   
   );
 };
 

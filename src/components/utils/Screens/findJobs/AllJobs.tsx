@@ -31,9 +31,11 @@ interface Job {
   city: string;
   province: string;
   country: string;
+  createdAt: string; // Ensure createdAt or updatedAt field is included
+  updatedAt: string; // Ensure createdAt or updatedAt field is included
 }
 
-const AllJobs: React.FC = () => { 
+const AllJobs: React.FC = () => {
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [location, setLocation] = useState('');
@@ -84,7 +86,7 @@ const AllJobs: React.FC = () => {
     const matchesLocation = location === '' || job.city.toLowerCase().includes(location.toLowerCase()) || job.province.toLowerCase().includes(location.toLowerCase()) || job.country.toLowerCase().includes(location.toLowerCase());
 
     return matchesFilters && matchesSearchTerm && matchesLocation;
-  });
+  }).sort((a: Job, b: Job) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()); // Ensure latest jobs are shown first
 
   const paginate = (pageNumber: number) => dispatch(setCurrentPage(pageNumber));
 

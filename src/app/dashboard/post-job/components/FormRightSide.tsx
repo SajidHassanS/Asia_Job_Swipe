@@ -17,21 +17,21 @@ interface FormData {
   benefits: string[];
   salaryFrom: string;
   salaryTo: string;
-  urgency: string[];
-  careerLevel: string[];
-  jobType: string[];
-  candidateType: string[];
+  urgency: string;
+  careerLevel: string;
+  jobType: string;
+  candidateType: string;
   workPermitNeeded: boolean;
 }
+
+type FormDataKey = keyof FormData;
 
 interface FormRightSideProps {
   formData: FormData;
   handleChange: (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => void;
-  handleMultiSelectChange: (e: React.ChangeEvent<HTMLInputElement>, field: string) => void;
+  handleMultiSelectChange: (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>, field: FormDataKey) => void;
   handleSubmit: (e: React.FormEvent) => void;
 }
 
@@ -49,8 +49,9 @@ const FormRightSide: React.FC<FormRightSideProps> = ({
           id="benefits"
           name="benefits"
           value={formData.benefits}
-          onChange={handleChange}
+          onChange={(e) => handleMultiSelectChange(e, "benefits")}
           className="w-full border rounded p-2"
+          multiple
         >
           <option value="Dental">Dental</option>
           <option value="Car">Car</option>
@@ -58,7 +59,7 @@ const FormRightSide: React.FC<FormRightSideProps> = ({
           <option value="Overtimepay">Overtimepay</option>
         </select>
         <div className="flex gap-2 flex-wrap">
-          {["Dental Insurance", "Gratuity", "Overtime Pay"].map((benefit) => (
+          {formData.benefits.map((benefit) => (
             <div
               key={benefit}
               className="rounded-lg mt-2 bg-background text-signature p-1"
@@ -72,30 +73,24 @@ const FormRightSide: React.FC<FormRightSideProps> = ({
       <div className="mb-8 gap-4">
         <div>
           <Label htmlFor="salaryFrom">Salary Indication</Label>
-          <select
+          <Input
+            type="text"
             id="salaryFrom"
             name="salaryFrom"
+            placeholder="Enter minimum salary"
             value={formData.salaryFrom}
             onChange={handleChange}
             className="w-full border mb-2 rounded p-2"
-          >
-            <option value="From">From</option>
-            <option value="Car">Car</option>
-            <option value="Flat">Flat</option>
-            <option value="Overtimepay">Overtimepay</option>
-          </select>
-          <select
+          />
+          <Input
+            type="text"
             id="salaryTo"
             name="salaryTo"
+            placeholder="Enter maximum salary"
             value={formData.salaryTo}
             onChange={handleChange}
             className="w-full border rounded p-2"
-          >
-            <option value="To">To</option>
-            <option value="Car">Car</option>
-            <option value="Flat">Flat</option>
-            <option value="Overtimepay">Overtimepay</option>
-          </select>
+          />
         </div>
       </div>
 
@@ -105,11 +100,11 @@ const FormRightSide: React.FC<FormRightSideProps> = ({
           {["High", "Medium", "Low"].map((level) => (
             <label key={level} className="flex items-center">
               <input
-                type="checkbox"
+                type="radio"
                 name="urgency"
                 value={level}
-                checked={formData.urgency.includes(level)}
-                onChange={(e) => handleMultiSelectChange(e, "urgency")}
+                checked={formData.urgency === level}
+                onChange={handleChange}
                 className="mr-2"
               />
               {level}
@@ -121,14 +116,14 @@ const FormRightSide: React.FC<FormRightSideProps> = ({
       <div className="mb-8">
         <Label>Career Level</Label>
         <div className="flex border justify-around items-center p-2 bg-background gap-2">
-          {["Entry", "Middle", "Senior", "Executive"].map((level) => (
+          {["entry", "middle", "senior", "executive"].map((level) => (
             <label key={level} className="flex items-center">
               <input
-                type="checkbox"
+                type="radio"
                 name="careerLevel"
                 value={level}
-                checked={formData.careerLevel.includes(level)}
-                onChange={(e) => handleMultiSelectChange(e, "careerLevel")}
+                checked={formData.careerLevel === level}
+                onChange={handleChange}
                 className="mr-2"
               />
               {level}
@@ -140,14 +135,14 @@ const FormRightSide: React.FC<FormRightSideProps> = ({
       <div className="mb-8">
         <Label>Job Type</Label>
         <div className="flex border justify-around items-center p-2 bg-background gap-2">
-          {["Full Time", "Part Time"].map((type) => (
+          {["full-time", "part-time"].map((type) => (
             <label key={type} className="flex items-center">
               <input
-                type="checkbox"
+                type="radio"
                 name="jobType"
                 value={type}
-                checked={formData.jobType.includes(type)}
-                onChange={(e) => handleMultiSelectChange(e, "jobType")}
+                checked={formData.jobType === type}
+                onChange={handleChange}
                 className="mr-2"
               />
               {type}
@@ -159,14 +154,14 @@ const FormRightSide: React.FC<FormRightSideProps> = ({
       <div className="mb-8">
         <Label>Candidate Type</Label>
         <div className="flex border justify-around items-center p-2 bg-background gap-2">
-          {["Remote", "Contract", "Internship", "Foreigner"].map((type) => (
+          {["remote", "contractual", "internship", "foreigner"].map((type) => (
             <label key={type} className="flex items-center">
               <input
-                type="checkbox"
+                type="radio"
                 name="candidateType"
                 value={type}
-                checked={formData.candidateType.includes(type)}
-                onChange={(e) => handleMultiSelectChange(e, "candidateType")}
+                checked={formData.candidateType === type}
+                onChange={handleChange}
                 className="mr-2"
               />
               {type}

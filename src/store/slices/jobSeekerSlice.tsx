@@ -14,6 +14,11 @@ interface ToggleSaveJobArgs {
   accessToken: string;
 }
 
+interface ApplyForJobArgs {
+  jobId: string;
+  jobSeekerId: string;
+}
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://ajs-server.hostdonor.com/api/v1';
 
 export const getSavedJobs = createAsyncThunk<Job[], GetSavedJobsArgs>(
@@ -32,10 +37,10 @@ export const getSavedJobs = createAsyncThunk<Job[], GetSavedJobsArgs>(
         company: {
           companyName: item.job.company.companyName,
           companyLogo: item.job.company.companyLogo || '',
+          city: item.job.company.city || '',
+          province: item.job.company.province || '',
+          country: item.job.company.country || '',
         },
-        city: item.job.city || '',
-        province: item.job.province || '',
-        country: item.job.country || '',
         salary: item.job.salary,
         skills: item.job.skills,
         jobType: item.job.jobType,
@@ -62,7 +67,7 @@ export const toggleSaveJob = createAsyncThunk<string, ToggleSaveJobArgs>(
   'jobSeekers/toggleSaveJob',
   async ({ jobId, jobSeekerId, accessToken }, { rejectWithValue }) => {
     try {
-      const response = await axios.post(
+      await axios.post(
         `${API_URL}/jobs/toggle-job-save`,
         { jobId, jobSeekerId },
         {
@@ -98,13 +103,38 @@ export const fetchJobById = createAsyncThunk<Job, string>(
   }
 );
 
+export const applyForJob = createAsyncThunk<void, ApplyForJobArgs>(
+  'jobSeekers/applyForJob',
+  async ({ jobId, jobSeekerId }, { rejectWithValue }) => {
+    try {
+      await axios.post(
+        `${API_URL}/job-applications/job-seeker/apply`,
+        { jobId, jobSeekerId },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+    } catch (error: any) {
+      if (axios.isAxiosError(error) && error.response) {
+        return rejectWithValue(error.response.data.message || 'Failed to apply for job.');
+      }
+      return rejectWithValue('Failed to apply for job.');
+    }
+  }
+);
+
 const initialState: JobSeekerState = {
   jobSeeker: {
     _id: '',
     savedJobs: [],
+    appliedJobs: [],
   },
   status: 'idle',
   error: null,
+  applyError: null,
 };
 
 const jobSeekerSlice = createSlice({
@@ -117,15 +147,16 @@ const jobSeekerSlice = createSlice({
         state.status = 'loading';
       })
       .addCase(getSavedJobs.fulfilled, (state, action: PayloadAction<Job[]>) => {
-        state.status = 'succeeded';
         if (state.jobSeeker) {
           state.jobSeeker.savedJobs = action.payload;
         } else {
           state.jobSeeker = {
             _id: '',
             savedJobs: action.payload,
+            appliedJobs: [],
           };
         }
+        state.status = 'succeeded';
         state.error = null;
       })
       .addCase(getSavedJobs.rejected, (state, action) => {
@@ -155,11 +186,27 @@ const jobSeekerSlice = createSlice({
         if (state.jobSeeker) {
           state.jobSeeker.savedJobs.push(action.payload);
         } else {
-          console.error('jobSeeker is null');
+          state.jobSeeker = {
+            _id: '',
+            savedJobs: [action.payload],
+            appliedJobs: [],
+          };
         }
       })
       .addCase(fetchJobById.rejected, (state, action) => {
         console.log('Error fetching job:', action.payload);
+      })
+      .addCase(applyForJob.pending, (state) => {
+        state.status = 'loading';
+        state.applyError = null;
+      })
+      .addCase(applyForJob.fulfilled, (state) => {
+        state.status = 'succeeded';
+      })
+      .addCase(applyForJob.rejected, (state, action) => {
+        state.status = 'failed';
+        state.applyError = action.payload as string;
+        console.log('Error applying for job:', state.applyError);
       });
   },
 });

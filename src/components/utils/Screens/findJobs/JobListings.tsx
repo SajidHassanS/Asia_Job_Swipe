@@ -1,49 +1,19 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "../../../../store"; // Import the correct types
+import { AppDispatch, RootState } from "../../../../store";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { BsBookmarkDash, BsBookmarkDashFill } from "react-icons/bs";
 import { IoCheckmarkDoneSharp } from "react-icons/io5";
-import {
-  Accordion,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import { Accordion, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Card } from "@/components/ui/card";
 import { MdGridView } from "react-icons/md";
 import Image from "next/image";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { toggleSaveJob, fetchJobById, getSavedJobs } from "../../../../store/slices/jobSeekerSlice";
-
-interface Job {
-  _id: string; // Ensure your job data includes a unique jobId
-  title: string;
-  company: {
-    companyLogo: string;
-    companyName: string;
-    city: string;
-    province: string;
-    country: string;
-  };
-  salary: {
-    from: number;
-    to: number;
-  };
-  skills: string[];
-  jobType: string;
-  city: string;
-  province: string;
-  country: string;
-}
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { toggleSaveJob, fetchJobById, getSavedJobs, applyForJob } from "../../../../store/slices/jobSeekerSlice";
+import { useToast } from "@/components/ui/use-toast";
+import { Job } from "../../../../store/slices/types";
 
 interface JobListingsProps {
   jobs: Job[];
@@ -52,8 +22,9 @@ interface JobListingsProps {
 
 const JobListings: React.FC<JobListingsProps> = ({ jobs, totalJobs }) => {
   const [isGridView, setIsGridView] = useState(false);
-  const dispatch: AppDispatch = useDispatch(); // Use the correct dispatch type
-  const { jobSeeker, status } = useSelector((state: RootState) => state.jobSeeker);
+  const dispatch: AppDispatch = useDispatch();
+  const { jobSeeker, status, applyError } = useSelector((state: RootState) => state.jobSeeker);
+  const { toast } = useToast();
 
   useEffect(() => {
     const jobSeekerId = localStorage.getItem("_id");
@@ -77,27 +48,67 @@ const JobListings: React.FC<JobListingsProps> = ({ jobs, totalJobs }) => {
     const jobSeekerId = getJobSeekerId();
     const accessToken = getAccessToken();
 
-    console.log('handleBookmarkClick:', { jobId, jobSeekerId, accessToken }); // Debug log
-
     if (jobSeekerId && accessToken) {
       try {
-        // Fetch the job details by ID
         const job = await dispatch(fetchJobById(jobId)).unwrap();
-        console.log('Fetched job details:', job); // Debug log
-
-        // Then toggle the save state
         await dispatch(toggleSaveJob({ jobId, jobSeekerId, accessToken })).unwrap();
-        console.log('Job saved successfully!'); // Debug log
+        toast({
+          title: "Job Saved",
+          description: "Job saved successfully!",
+        });
       } catch (error) {
-        console.error('Failed to save job:', error); // Debug log
+        console.error('Failed to save job:', error);
+        toast({
+          title: "Failed to Save Job",
+          description: "There was an error saving the job.",
+          variant: "destructive",
+        });
       }
     } else {
-      console.error('Missing jobSeekerId or accessToken'); // Debug log
+      console.error('Missing jobSeekerId or accessToken');
+      toast({
+        title: "Missing Information",
+        description: "Missing jobSeekerId or accessToken",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleApplyClick = async (jobId: string) => {
+    const jobSeekerId = getJobSeekerId();
+
+    if (jobSeekerId) {
+      try {
+        await dispatch(applyForJob({ jobId, jobSeekerId })).unwrap();
+        toast({
+          title: "Application Submitted",
+          description: "Your job application was submitted successfully!",
+        });
+      } catch (error) {
+        console.error('Failed to apply for job:', error);
+        const errorMessage = applyError || 'Unknown error occurred';
+        toast({
+          title: "Application Failed",
+          description: `Failed to apply for job: ${errorMessage}`,
+          variant: "destructive",
+        });
+      }
+    } else {
+      console.error('Missing jobSeekerId or accessToken');
+      toast({
+        title: "Missing Information",
+        description: "Missing jobSeekerId or accessToken",
+        variant: "destructive",
+      });
     }
   };
 
   const isJobSaved = (jobId: string) => {
-    return jobSeeker?.savedJobs.some((job) => job._id === jobId);
+    return jobSeeker?.savedJobs?.some((job) => job._id === jobId);
+  };
+
+  const hasAppliedForJob = (jobId: string) => {
+    return jobSeeker?.appliedJobs?.some((job) => job._id === jobId);
   };
 
   return (
@@ -199,41 +210,27 @@ const JobListings: React.FC<JobListingsProps> = ({ jobs, totalJobs }) => {
                     </div>
                   </div>
                   <div className="flex flex-col mt-2">
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button className="bg-signature text-background text-sm px-8 py-2 rounded-md">
-                          Apply
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="bg-background">
-                        <DialogHeader className="bg-signature rounded-lg px-16 py-5 flex text-center">
-                          <DialogTitle className="text-background text-3xl">
-                            Your Profile Is Incomplete
-                          </DialogTitle>
-                        </DialogHeader>
-                        <DialogDescription className="px-16">
-                          <h1 className="modaltext text-2xl">
-                            Complete your Profile to Apply for job!
-                          </h1>
-                          <p className="text-signininput4">
-                            Click on button to complete your profile.
-                          </p>
-                        </DialogDescription>
-                        <div className="px-16 pb-10">
-                          <Link
-                            className="bg-signature text-background text-sm w-full inline-block text-center rounded-md py-6"
-                            href="/myprofile"
-                          >
-                            Go to My Profile
-                          </Link>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
+                    {hasAppliedForJob(job._id) ? (
+                      <Button
+                        variant="ghost"
+                        className="text-green-500 text-sm px-4 py-2 rounded-md"
+                        disabled
+                      >
+                        Applied
+                      </Button>
+                    ) : (
+                      <Button
+                        className="bg-signature text-background text-sm px-8 py-2 rounded-md"
+                        onClick={() => handleApplyClick(job._id)}
+                      >
+                        Apply
+                      </Button>
+                    )}
                     <Button
                       variant="ghost"
-                      className="text-red-500 text-sm px-4 py-2 rounded-md"
+                      className="text-red-500 text-sm px-4 py-2 rounded-md mt-2"
                     >
-                      Declined
+                      Decline
                     </Button>
                   </div>
                 </div>

@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 
 const SkeletonJobCard: React.FC = () => {
   return (
-    <Card className="mb-5 p-4 animate-pulse">
+    <Card className="container mb-5 p-4 animate-pulse">
       <div className="">
         <div className="bg-background">
           <div className="flex justify-between mb-5 md:mb-2">

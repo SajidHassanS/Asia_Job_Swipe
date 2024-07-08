@@ -13,19 +13,21 @@ interface FormData {
   benefits: string[];
   salaryFrom: string;
   salaryTo: string;
-  urgency: string[];
-  careerLevel: string[];
-  jobType: string[];
-  candidateType: string[];
+  urgency: string;
+  careerLevel: string;
+  jobType: string;
+  candidateType: string;
   workPermitNeeded: boolean;
 }
+
+type FormDataKey = keyof FormData;
 
 interface FormLeftSideProps {
   formData: FormData;
   handleChange: (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => void;
-  handleMultiSelectChange: (e: React.ChangeEvent<HTMLInputElement>, field: string) => void;
+  handleMultiSelectChange: (e: React.ChangeEvent<HTMLSelectElement>, field: FormDataKey) => void;
 }
 
 const FormLeftSide: React.FC<FormLeftSideProps> = ({ formData, handleChange, handleMultiSelectChange }) => {
@@ -66,20 +68,21 @@ const FormLeftSide: React.FC<FormLeftSideProps> = ({ formData, handleChange, han
           id="skillsRequired"
           name="skillsRequired"
           value={formData.skillsRequired}
-          onChange={handleChange}
+          onChange={(e) => handleMultiSelectChange(e, "skillsRequired")}
           className="w-full border mb-2 rounded p-2"
+          multiple
         >
-          <option value="">Select</option>
           <option value="Communication">Communication</option>
           <option value="Analytics">Analytics</option>
           <option value="Facebook Ads">Facebook Ads</option>
         </select>
         <div className="flex gap-2 flex-wrap">
-          {formData.skillsRequired.map((skill) => (
-            <div key={skill} className="rounded-lg mt-2 bg-background text-signature p-1">
-              {skill}
-            </div>
-          ))}
+          {Array.isArray(formData.skillsRequired) &&
+            formData.skillsRequired.map((skill) => (
+              <div key={skill} className="rounded-lg mt-2 bg-background text-signature p-1">
+                {skill}
+              </div>
+            ))}
         </div>
       </div>
 

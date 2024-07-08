@@ -1,4 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState, AppDispatch } from "../../../../../../store";
+import { addExperience, Experience } from "../../../../../../store/slices/experienceSlice/experienceSlice";
 import { FaRegEdit } from "react-icons/fa";
 import { CiSquarePlus } from "react-icons/ci";
 import Image from "next/image";
@@ -18,46 +21,13 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { format } from "date-fns";
 
-interface ExperienceData {
-  company: string;
-  role: string;
-  type: string;
-  startDate: Date | undefined;
-  endDate: Date | undefined;
-  location: string;
-  description: string;
-  image: string;
-}
+const ExperienceComponent = () => {
+  const experiences = useSelector((state: RootState) => state.experience.experiences);
+  const dispatch = useDispatch<AppDispatch>();
 
-const Experience = () => {
-  const [experiences, setExperiences] = useState<ExperienceData[]>([
-    {
-      company: "Twitter",
-      role: "Product designer",
-      type: "Full-Time",
-      startDate: new Date(2019, 5, 1),
-      endDate: new Date(2020, 5, 1),
-      location: "Manchester, UK",
-      description:
-        "Created and executed social media plan for 10 brands utilizing multiple features and content types to increase brand outreach, engagement, and leads.",
-      image: "/images/twitter.png",
-    },
-    {
-      company: "Marketing",
-      role: "Product designer",
-      type: "Full-Time",
-      startDate: new Date(2019, 5, 1),
-      endDate: new Date(2020, 5, 1),
-      location: "Manchester, UK",
-      description:
-        "Created and executed social media plan for 10 brands utilizing multiple features and content types to increase brand outreach, engagement, and leads.",
-      image: "/images/marketing.png",
-    },
-  ]);
   const [isEditing, setIsEditing] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
-  const [selectedExperience, setSelectedExperience] =
-    useState<ExperienceData | null>(null);
+  const [selectedExperience, setSelectedExperience] = useState<Experience | null>(null);
   const [experienceText, setExperienceText] = useState("");
   const [company, setCompany] = useState("");
   const [role, setRole] = useState("");
@@ -65,18 +35,20 @@ const Experience = () => {
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [location, setLocation] = useState("");
-  const [imagePreview, setImagePreview] = useState<string | ArrayBuffer | null>(
-    null
-  );
+  const [imagePreview, setImagePreview] = useState<string | ArrayBuffer | null>(null);
 
-  const handleEditClick = (experience: ExperienceData) => {
+  useEffect(() => {
+    console.log("Experiences updated:", experiences);
+  }, [experiences]);
+
+  const handleEditClick = (experience: Experience) => {
     setSelectedExperience(experience);
     setExperienceText(experience.description);
     setCompany(experience.company);
     setRole(experience.role);
     setType(experience.type);
-    setStartDate(experience.startDate || null);
-    setEndDate(experience.endDate || null);
+    setStartDate(new Date(experience.startDate));
+    setEndDate(experience.endDate ? new Date(experience.endDate) : null);
     setLocation(experience.location);
     setImagePreview(experience.image);
     setIsEditing(true);
@@ -95,35 +67,31 @@ const Experience = () => {
     setIsAdding(true);
   };
 
-  const handleSave = () => {
-    if (selectedExperience) {
-      selectedExperience.description = experienceText;
-      selectedExperience.company = company;
-      selectedExperience.role = role;
-      selectedExperience.type = type;
-      selectedExperience.startDate = startDate || undefined;
-      selectedExperience.endDate = endDate || undefined;
-      selectedExperience.location = location;
-      if (typeof imagePreview === "string") {
-        selectedExperience.image = imagePreview;
-      }
-      setExperiences([...experiences]);
+  const handleSave = async () => {
+    const newExperience: Experience = {
+      company,
+      role,
+      type,
+      startDate: startDate ? startDate.toISOString().split('T')[0] : '',
+      endDate: endDate ? endDate.toISOString().split('T')[0] : undefined,
+      location,
+      description: experienceText,
+      image: typeof imagePreview === "string" ? imagePreview : "/images/default.png", // Placeholder image
+    };
+
+    console.log("Saving experience:", newExperience);
+
+    // Dispatch addExperience action
+    const jobSeekerId = localStorage.getItem('_id') || '';
+    const token = localStorage.getItem('accessToken') || '';
+    const resultAction = await dispatch(addExperience({ experience: newExperience, jobSeekerId, token }));
+
+    if (addExperience.fulfilled.match(resultAction)) {
+      console.log("Experience added successfully:", resultAction.payload);
     } else {
-      const newExperience: ExperienceData = {
-        company,
-        role,
-        type,
-        startDate: startDate || undefined,
-        endDate: endDate || undefined,
-        location,
-        description: experienceText,
-        image:
-          typeof imagePreview === "string"
-            ? imagePreview
-            : "/images/default.png", // Placeholder image
-      };
-      setExperiences([...experiences, newExperience]);
+      console.error("Failed to add experience:", resultAction);
     }
+
     setIsEditing(false);
     setIsAdding(false);
   };
@@ -166,11 +134,7 @@ const Experience = () => {
                 <div className="relative w-24 h-24 border-2 border-dashed rounded-full flex items-center justify-center">
                   {imagePreview ? (
                     <Image
-                      src={
-                        typeof imagePreview === "string"
-                          ? imagePreview
-                          : "/images/default.png"
-                      }
+                      src={typeof imagePreview === "string" ? imagePreview : "/images/default.png"}
                       alt="Experience Image"
                       width={100}
                       height={100}
@@ -271,7 +235,7 @@ const Experience = () => {
               <div>
                 <h1 className="text-lg font-semibold">{experience.role}</h1>
                 <div className="flex text-base text-signininput">
-                  <h1 className="text-modaltext font-medium">{experience.company}</h1> .<h1>{experience.type}</h1> .<h1>{format(experience.startDate!, "PPP")} - {format(experience.endDate!, "PPP")}</h1>
+                  <h1 className="text-modaltext font-medium">{experience.company}</h1> .<h1>{experience.type}</h1> .<h1>{format(new Date(experience.startDate), "PPP")} - {experience.endDate ? format(new Date(experience.endDate), "PPP") : 'Present'}</h1>
                 </div>
                 <div>
                   <h1 className="text-lg text-signininput">{experience.location}</h1>
@@ -357,4 +321,4 @@ const Experience = () => {
   );
 };
 
-export default Experience;
+export default ExperienceComponent;

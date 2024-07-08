@@ -5,7 +5,7 @@ const page = ({ params }: { params: { id: string } }) => {
   return (
     <div>
     <Tabs />
-    </div>
+    </div> 
   )
 }
 

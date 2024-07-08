@@ -7,12 +7,24 @@ interface JobSeeker {
   _id: string;
   firstName: string;
   lastName: string;
-  profession?: string;
+  gender: string;
+  skills: string[];
+  languages: string[];
+  openToOffers: boolean;
+  education: any[]; // Update with actual type
+  experience: any[]; // Update with actual type
+  projects: any[]; // Update with actual type
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+  dateOfBirth: string;
+  introduction: string;
+  profession?: string; // Add these optional properties
   city?: string;
   country?: string;
-  introduction?: string;
-  [key: string]: any;
+  profilePicture?: string;
 }
+
 
 interface ProfileState {
   jobSeeker: JobSeeker | null;
@@ -26,6 +38,7 @@ const initialState: ProfileState = {
   error: null,
 };
 
+// Thunk to fetch job seeker profile
 export const fetchProfile = createAsyncThunk<JobSeeker, { id: string; token: string }, { rejectValue: string }>(
   'profile/fetchProfile',
   async ({ id, token }, { rejectWithValue }) => {
@@ -46,21 +59,45 @@ export const fetchProfile = createAsyncThunk<JobSeeker, { id: string; token: str
   }
 );
 
+// Thunk to update job seeker profile details
 export const updateProfile = createAsyncThunk<JobSeeker, { id: string; updates: Partial<JobSeeker>; token: string }, { rejectValue: string }>(
   'profile/updateProfile',
   async ({ id, updates, token }, { rejectWithValue }) => {
     try {
       const response = await axios.patch(`${API_URL}/job-seeker/${id}`, updates, {
-       
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log(response, 'responsexxxx');
       return response.data.jobSeeker;
     } catch (error: any) {
       if (axios.isAxiosError(error) && error.response) {
         return rejectWithValue(error.response.data.message || 'An error occurred while updating the profile.');
+      } else {
+        return rejectWithValue('An unknown error occurred');
+      }
+    }
+  }
+);
+
+// Thunk to update job seeker profile picture
+export const updateProfilePicture = createAsyncThunk<JobSeeker, { id: string; file: File; token: string }, { rejectValue: string }>(
+  'profile/updateProfilePicture',
+  async ({ id, file, token }, { rejectWithValue }) => {
+    try {
+      const formData = new FormData();
+      formData.append('profilePicture', file);
+
+      const response = await axios.patch(`${API_URL}/files/job-seeker/profile-picture/${id}`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data.jobSeeker;
+    } catch (error: any) {
+      if (axios.isAxiosError(error) && error.response) {
+        return rejectWithValue(error.response.data.message || 'An error occurred while updating the profile picture.');
       } else {
         return rejectWithValue('An unknown error occurred');
       }
@@ -95,6 +132,18 @@ const profileSlice = createSlice({
         state.error = null;
       })
       .addCase(updateProfile.rejected, (state, action: PayloadAction<string | undefined>) => {
+        state.status = 'failed';
+        state.error = action.payload || 'An unknown error occurred';
+      })
+      .addCase(updateProfilePicture.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(updateProfilePicture.fulfilled, (state, action: PayloadAction<JobSeeker>) => {
+        state.status = 'succeeded';
+        state.jobSeeker = action.payload;
+        state.error = null;
+      })
+      .addCase(updateProfilePicture.rejected, (state, action: PayloadAction<string | undefined>) => {
         state.status = 'failed';
         state.error = action.payload || 'An unknown error occurred';
       });
