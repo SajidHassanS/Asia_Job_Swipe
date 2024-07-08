@@ -13,7 +13,6 @@ import { RiDeleteBin5Line } from "react-icons/ri";
 import Image from 'next/image';
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-
 import {
   Pagination,
   PaginationContent,
@@ -23,36 +22,29 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState, AppDispatch } from '../../../../../../store'; // Adjust path as necessary
+import { fetchAppliedJobs } from '../../../../../../store/slices/appliedJobSlice/AppliedJobSlice'; // Adjust path as necessary
 
-// Define the possible status values
-type Status = 'In Review' | 'Shortlisted' | 'Processing';
-
-interface TableCompProps {
-  filteredData: {
-    serial: string;
-    companyName: string;
-    icon: string;
-    Roles: string;
-    dateApplied: string;
-    status: Status;
-  }[];
-}
-
-const TableComp: React.FC<TableCompProps> = ({ filteredData = [] }) => {
+const TableComp: React.FC = () => {
+  const dispatch: AppDispatch = useDispatch();
+  const { jobs, status, error } = useSelector((state: RootState) => state.appliedJobs);
   const [selectedRow, setSelectedRow] = useState<number | null>(null);
   const [expandedRow, setExpandedRow] = useState<number | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [data, setData] = useState(filteredData);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
 
   useEffect(() => {
-    setData(filteredData);
-  }, [filteredData]);
+    const jobSeekerId = localStorage.getItem('_id');
+    if (jobSeekerId) {
+      dispatch(fetchAppliedJobs(jobSeekerId));
+    }
+  }, [dispatch]);
 
-  const getStatusClass = (status: Status) => {
+  const getStatusClass = (status: string) => {
     switch (status) {
-      case 'In Review':
+      case 'pending':
         return 'border-reviewYellow text-reviewYellow';
       case 'Shortlisted':
         return 'border-greenprogress text-greenprogress';
@@ -73,22 +65,22 @@ const TableComp: React.FC<TableCompProps> = ({ filteredData = [] }) => {
 
   const handleDelete = () => {
     if (itemToDelete) {
-      setData(prevData => prevData.filter(item => item.serial !== itemToDelete));
+      // Handle deletion logic here, e.g., dispatch a delete action
       setItemToDelete(null);
       setDeleteModalOpen(false);
     }
   };
 
-  const openDeleteModal = (serial: string) => {
-    setItemToDelete(serial);
+  const openDeleteModal = (jobId: string) => {
+    setItemToDelete(jobId);
     setDeleteModalOpen(true);
   };
 
   const itemsPerPage = 10;
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentItems = data.slice(startIndex, endIndex);
-  const totalPages = Math.ceil(data.length / itemsPerPage);
+  const currentItems = jobs.slice(startIndex, endIndex);
+  const totalPages = Math.ceil(jobs.length / itemsPerPage);
 
   return (
     <>
@@ -106,17 +98,17 @@ const TableComp: React.FC<TableCompProps> = ({ filteredData = [] }) => {
           </TableHeader>
           <TableBody className='text-modaltext text-base'>
             {currentItems.map((item, index) => (
-              <React.Fragment key={item.serial}>
+              <React.Fragment key={item.jobId}>
                 <TableRow
                   className={`hover:bg-signature-300 cursor-pointer ${getRowClass(index)}`}
                   onClick={() => setSelectedRow(index)}
                 >
-                  <TableCell className="font-medium">{item.serial}</TableCell>
+                  <TableCell className="font-medium">{startIndex + index + 1}</TableCell>
                   <TableCell className='flex flex-col md:flex-row gap-3'>
                     <Image src={item.icon} alt='icons' width={30} height={30} />
                     {item.companyName}
                   </TableCell>
-                  <TableCell className="md:table-cell hidden">{item.Roles}</TableCell>
+                  <TableCell className="md:table-cell hidden">{item.role}</TableCell>
                   <TableCell className="md:table-cell hidden">{item.dateApplied}</TableCell>
                   <TableCell className=" ">
                     <span className={`rounded-full border text-center px-3 py-1 ${getStatusClass(item.status)}`}>
@@ -131,7 +123,7 @@ const TableComp: React.FC<TableCompProps> = ({ filteredData = [] }) => {
                     )}
                   </TableCell>
                   <TableCell className="text-right hidden md:table-cell">
-                    <RiDeleteBin5Line onClick={() => openDeleteModal(item.serial)} size={25} className="cursor-pointer text-red-500" />
+                    <RiDeleteBin5Line onClick={() => openDeleteModal(item.jobId)} size={25} className="cursor-pointer text-red-500" />
                   </TableCell>
                 </TableRow>
                 {expandedRow === index && (
@@ -140,10 +132,10 @@ const TableComp: React.FC<TableCompProps> = ({ filteredData = [] }) => {
                       <div className="p-4">
                         <div className='flex justify-between items-center'>
                           <div>
-                            <div><strong>Roles:</strong> {item.Roles}</div>
+                            <div><strong>Roles:</strong> {item.role}</div>
                             <div><strong>Date Applied:</strong> {item.dateApplied}</div>
                           </div>
-                          <RiDeleteBin5Line onClick={() => openDeleteModal(item.serial)} size={25} className='text-background cursor-pointer text-red-500' />
+                          <RiDeleteBin5Line onClick={() => openDeleteModal(item.jobId)} size={25} className='text-background cursor-pointer text-red-500' />
                         </div>
                       </div>
                     </TableCell>

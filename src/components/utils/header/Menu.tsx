@@ -4,9 +4,9 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { FaBars, FaTimes } from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { logout, initializeAuth } from '../../../store/slices/authSlice';
+import { initializeAuth, logout } from '../../../store/slices/authSlice';
 import { useAppDispatch, useAppSelector } from '../../../store/hook';
+import UserProfile from './UserProfile'; // Import UserProfile component
 
 const Menu: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -79,23 +79,11 @@ const Menu: React.FC = () => {
           </div>
           <div className="hidden md:block">
             {accessToken ? (
-              <>
-                <Button variant="outline" className='bg-signature text-background' onClick={() => setIsDialogOpen(true)}>Sign Out</Button>
-                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                  <DialogContent className="sm:max-w-[425px] sm:max-h-[300px] bg-background p-5">
-                    <DialogHeader>
-                      <DialogTitle>Confirm Sign Out</DialogTitle>
-                      <DialogDescription>
-                        Are you sure you want to sign out?
-                      </DialogDescription>
-                    </DialogHeader>
-                    <DialogFooter>
-                      <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
-                      <Button variant="destructive" className='bg-signature text-background' onClick={handleLogout}>Sign Out</Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-              </>
+              <UserProfile
+                isDialogOpen={isDialogOpen}
+                setIsDialogOpen={setIsDialogOpen}
+                handleLogout={handleLogout}
+              />
             ) : (
               <Link href="/signin">
                 <Button className="bg-signature text-background text-sm px-4 py-2 rounded-md">Sign In</Button>

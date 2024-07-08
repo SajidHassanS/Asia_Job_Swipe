@@ -9,14 +9,21 @@ export const fetchJobs = createAsyncThunk('jobs/fetchJobs', async (page: number)
 });
 
 export const fetchSavedJobs = createAsyncThunk('jobs/fetchSavedJobs', async (jobSeekerId: string) => {
-  console.log(`Fetching saved jobs for jobSeekerId: ${jobSeekerId}`); // Debug log
   const response = await axios.get(`${API_URL}/jobs/saved-jobs/${jobSeekerId}`, {
     headers: {
       Authorization: `Bearer ${localStorage.getItem('accessToken')}`
     }
   });
-  console.log('Fetched saved jobs:', response.data); // Debug log
-  return response.data.savedJobs; // Ensure this matches the structure in your extraReducers
+  return response.data.savedJobs;
+});
+
+export const fetchJobById = createAsyncThunk('jobs/fetchJobById', async (jobId: string) => {
+  const response = await axios.get(`${API_URL}/job/${jobId}`, {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+    }
+  });
+  return response.data.job;
 });
 
 interface Company {
@@ -46,8 +53,10 @@ interface Job {
   availability: string;
   careerLevel: string;
   candidateType: string;
-  createdAt: string; // Ensure createdAt or updatedAt field is included
-  updatedAt: string; // Ensure createdAt or updatedAt field is included
+  createdAt: string;
+  updatedAt: string;
+  description: string; // Add this line
+  sector: string; // Add this line
 }
 
 interface SavedJob {
@@ -67,6 +76,7 @@ interface SavedJob {
 interface JobState {
   jobs: Job[];
   savedJobs: SavedJob[];
+  job: Job | null;
   totalJobs: number;
   totalPages: number;
   currentPage: number;
@@ -77,6 +87,7 @@ interface JobState {
 const initialState: JobState = {
   jobs: [],
   savedJobs: [],
+  job: null,
   totalJobs: 0,
   totalPages: 0,
   currentPage: 1,
@@ -102,26 +113,32 @@ const jobSlice = createSlice({
         state.jobs = action.payload.jobs.sort((a: Job, b: Job) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         state.totalJobs = action.payload.total;
         state.totalPages = action.payload.pagination.totalPages;
-        console.log('Jobs state updated:', state.jobs); // Debug log
       })
       .addCase(fetchJobs.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message || null;
-        console.error('Fetch jobs error:', state.error); // Debug log
       })
       .addCase(fetchSavedJobs.pending, (state) => {
         state.status = 'loading';
       })
       .addCase(fetchSavedJobs.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        console.log('Saved jobs payload:', action.payload); // Debug log
-        state.savedJobs = action.payload; // Ensure this matches your state structure
-        console.log('Saved jobs state updated:', state.savedJobs); // Debug log
+        state.savedJobs = action.payload;
       })
       .addCase(fetchSavedJobs.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message || null;
-        console.error('Fetch saved jobs error:', state.error); // Debug log
+      })
+      .addCase(fetchJobById.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchJobById.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.job = action.payload;
+      })
+      .addCase(fetchJobById.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message || null;
       });
   },
 });

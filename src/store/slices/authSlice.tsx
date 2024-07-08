@@ -55,6 +55,7 @@ export const registerJobSeeker = createAsyncThunk<User, { email: string; passwor
       localStorage.setItem('refreshToken', response.data.refreshToken);
       localStorage.setItem('role', 'jobseeker');
       localStorage.setItem('_id', response.data.user._id);
+      localStorage.setItem('userInfo', JSON.stringify(response.data.user));
       return response.data.user; // Adjust the return value to only include user data
     } catch (error: any) {
       if (axios.isAxiosError(error) && error.response) {
@@ -79,6 +80,7 @@ export const registerCompany = createAsyncThunk<User, { email: string; password:
       localStorage.setItem('refreshToken', response.data.refreshToken);
       localStorage.setItem('role', 'company');
       localStorage.setItem('_id', response.data.user._id);
+      localStorage.setItem('userInfo', JSON.stringify(response.data.user));
       return response.data.user; // Adjust the return value to only include user data
     } catch (error: any) {
       if (axios.isAxiosError(error) && error.response) {
@@ -142,6 +144,7 @@ export const logout = createAsyncThunk<void, void, { rejectValue: AuthError[] }>
       localStorage.removeItem('refreshToken');
       localStorage.removeItem('role');
       localStorage.removeItem('_id');
+      localStorage.removeItem('userInfo');
       return;
     } catch (error: any) {
       return rejectWithValue([{ path: 'unknown', message: error.message || 'An error occurred during logout.' }]);
@@ -164,8 +167,9 @@ export const signIn = createAsyncThunk<User, { email: string; password: string; 
       localStorage.setItem('refreshToken', response.data.refreshToken);
       localStorage.setItem('role', user.userInfo.role);
       localStorage.setItem('_id', user._id);
+      localStorage.setItem('userInfo', JSON.stringify({ ...user.userInfo, firstName: user.firstName, lastName: user.lastName }));
 
-      return { ...user.userInfo, _id: user._id };
+      return { ...user.userInfo, _id: user._id, firstName: user.firstName, lastName: user.lastName };
     } catch (error: any) {
       if (axios.isAxiosError(error) && error.response) {
         if (error.response.data.errors) {
@@ -187,6 +191,7 @@ export const googleSignIn = createAsyncThunk<User, { code: string; role: string 
       const response = await axios.post(`${API_URL}/auth/google`, { code, role });
       localStorage.setItem('accessToken', response.data.accessToken);
       localStorage.setItem('refreshToken', response.data.refreshToken);
+      localStorage.setItem('userInfo', JSON.stringify(response.data.user));
       return response.data.user; // Adjust the return value to only include user data
     } catch (error: any) {
       if (axios.isAxiosError(error) && error.response) {
@@ -209,10 +214,12 @@ export const initializeAuth = createAsyncThunk<void, void, { rejectValue: AuthEr
     const refreshToken = localStorage.getItem('refreshToken');
     const role = localStorage.getItem('role');
     const _id = localStorage.getItem('_id');
+    const userInfo = localStorage.getItem('userInfo');
 
-    if (accessToken && refreshToken && role && _id) {
+    if (accessToken && refreshToken && role && _id && userInfo) {
+      const user = JSON.parse(userInfo);
       dispatch(setTokens({ accessToken, refreshToken }));
-      dispatch(setUser({ _id, role } as User)); // Cast to User, add other necessary fields
+      dispatch(setUser({ ...user, _id }));
     }
   }
 );
@@ -267,6 +274,7 @@ const authSlice = createSlice({
       localStorage.removeItem('refreshToken');
       localStorage.removeItem('role');
       localStorage.removeItem('_id');
+      localStorage.removeItem('userInfo');
     },
     setEmailForSignUp: (state: AuthState, action: PayloadAction<string>) => {
       state.emailForSignUp = action.payload;
@@ -330,7 +338,7 @@ const authSlice = createSlice({
         state.user = action.payload;
         state.role = action.payload.role || null;
         state.errors = [];
-        state.jobSeekerId = action.payload.role === 'jobSeeker' ? action.payload._id : null;
+        state.jobSeekerId = action.payload.role === 'jobseeker' ? action.payload._id : null;
       })
       .addCase(signIn.rejected, (state: AuthState, action: PayloadAction<AuthError[] | undefined>) => {
         state.status = 'failed';

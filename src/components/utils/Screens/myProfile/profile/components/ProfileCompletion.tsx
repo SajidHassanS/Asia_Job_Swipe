@@ -23,7 +23,7 @@ const ProfileCompletion: React.FC = () => {
     city: '',
     country: '',
   });
-  const [profileImagePreview, setProfileImagePreview] = useState<string>('/images/profil.png');
+  const [profileImagePreview, setProfileImagePreview] = useState<string>('/images/profile.png');
   const [profileImage, setProfileImage] = useState<File | null>(null);
   const [progress, setProgress] = useState(0);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -46,10 +46,17 @@ const ProfileCompletion: React.FC = () => {
         city: jobSeeker.city || '',
         country: jobSeeker.country || '',
       });
-      setProfileImagePreview(jobSeeker.profilePicture || '/images/profil.png');
+      setProfileImagePreview(validateImageUrl(jobSeeker.profilePicture) || '/images/profile.png');
       calculateProgress();
     }
   }, [jobSeeker]);
+
+  const validateImageUrl = (url: string | undefined) => {
+    if (url && (url.startsWith('/') || url.startsWith('http'))) {
+      return url;
+    }
+    return '/images/profile.png';
+  };
 
   const calculateProgress = () => {
     let completedFields = 0;
@@ -113,7 +120,7 @@ const ProfileCompletion: React.FC = () => {
         city: jobSeeker.city || '',
         country: jobSeeker.country || '',
       });
-      setProfileImagePreview(jobSeeker.profilePicture || '/images/profil.png');
+      setProfileImagePreview(validateImageUrl(jobSeeker.profilePicture) || '/images/profile.png');
       setProfileImage(null);
       setIsEditing(false);
       calculateProgress();
@@ -137,7 +144,7 @@ const ProfileCompletion: React.FC = () => {
             onClick={handleImageClick}
           >
             <Image
-              src={profileImagePreview}
+              src={validateImageUrl(profileImagePreview)}
               alt="profile"
               width={150}
               height={150}

@@ -8,6 +8,7 @@ import jobSeekerReducer from './slices/jobSeekerSlice';
 import profileReducer from './slices/profileSlice';
 import experienceReducer from './slices/experienceSlice/experienceSlice';
 import postJobReducer from './slices/postJobSlice';
+import appliedJobReducer from './slices/appliedJobSlice/AppliedJobSlice'
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -18,6 +19,8 @@ const rootReducer = combineReducers({
   userSettings: userSettingsReducer,
   postJob: postJobReducer, // Ensure correct naming
   experience: experienceReducer,
+  appliedJobs: appliedJobReducer,
+
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

@@ -1,4 +1,6 @@
 "use client";
+import React from 'react';
+import { useSelector } from 'react-redux';
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -18,92 +20,74 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
-  DialogClose,
 } from "@/components/ui/dialog";
-import { useRouter } from "next/navigation";
-import { toast } from "@/components/ui/use-toast";
-const UserProfile = () => {
-  const admin = {
-    email: "ajs@admin.com",
-    role: "admin",
-  };
-  const router = useRouter();
-  const handleLogout = async () => {
-    // Call API route to handle logout
-    const response = await fetch("/api/logout", {
-      method: "POST",
-    });
-    if (response.ok) {
-      router.push("/login");
-    } else {
-      console.error("Failed to logout");
-      toast({
-        title: "Error",
-        description: "Failed to logout",
-        variant: "destructive",
-      });
-    }
-  };
+import { RootState } from '../../../store';  // Adjust the path as necessary
+import Link from 'next/link';
+
+interface UserProfileProps {
+  isDialogOpen: boolean;
+  setIsDialogOpen: (isOpen: boolean) => void;
+  handleLogout: () => void;
+}
+
+const UserProfile: React.FC<UserProfileProps> = ({ isDialogOpen, setIsDialogOpen, handleLogout }) => {
+  const jobSeeker = useSelector((state: RootState) => state.auth.user);
+
+  // Use a default avatar image if none is provided
+  const avatarSrc =  '/images/avatar.png';
+
   return (
-    <Dialog>
+    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <div className="flex items-center gap-2 cursor-pointer">
         <div className="">
           <Avatar className="h-[2rem] w-[2rem]">
-            <AvatarImage src="/images/avatar.png" alt="avatar" />
-            <AvatarFallback>A</AvatarFallback>
+            <AvatarImage src={avatarSrc} alt="avatar" />
+            <AvatarFallback>{jobSeeker?.firstName?.charAt(0)}</AvatarFallback>
           </Avatar>
         </div>
         <div className="">
-          <p className="font-semibold w-28 truncate overflow-hidden">
-            {admin.email}
+          <p className="font-semibold truncate overflow-hidden">
+            {jobSeeker?.firstName ?? 'Guest'}
           </p>
-          <p className="text-xs">{admin.role}</p>
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button
-   
-             
-              className="border-none outline-none"
-            >
+            <Button variant="ghost" className="border-none outline-none">
               <IoIosArrowDown />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-48 truncate">
-            <DropdownMenuLabel>{admin.email}</DropdownMenuLabel>
+            <DropdownMenuLabel>{jobSeeker?.email}</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DialogTrigger asChild>
-              <DropdownMenuItem className="gap-2 text-red-500 hover:text-red-400 transition-colors cursor-pointer">
-                <MdLogout className="w-[1.2rem] h-[1.2rem]" /> Logout
+            <Link href="/myprofile">
+              <DropdownMenuItem className="gap-2 hover:text-blue-500 transition-colors cursor-pointer">
+                Profile Settings
               </DropdownMenuItem>
-            </DialogTrigger>
+            </Link>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              className="gap-2 text-red-500 hover:text-red-400 transition-colors cursor-pointer"
+              onClick={() => setIsDialogOpen(true)}
+            >
+              <MdLogout className="w-[1.2rem] h-[1.2rem]" /> Logout
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] sm:max-h-[300px] bg-background p-5">
         <DialogHeader>
-          <DialogTitle>Logout</DialogTitle>
+          <DialogTitle>Confirm Sign Out</DialogTitle>
           <DialogDescription>
-            Are you sure you want to logout?
+            Are you sure you want to sign out?
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
-          </DialogClose>
-          <DialogClose asChild>
-            <Button
-              type="button"
-              variant={"destructive"}
-              onClick={handleLogout}
-            >
-              Logout
-            </Button>
-          </DialogClose>
+          <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
+          <Button variant="destructive" className='bg-signature text-background' onClick={handleLogout}>Sign Out</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 };
+
 export default UserProfile;

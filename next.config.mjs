@@ -2,7 +2,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ['example.com'], // Add the external domains here
+    domains: ['ajs-files.hostdonor.com'],
   },
 };
           
