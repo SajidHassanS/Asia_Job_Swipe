@@ -7,6 +7,7 @@ export interface Job {
     city: string;
     province: string;
     country: string;
+    sector: string;
   };
   salary: {
     from: number;

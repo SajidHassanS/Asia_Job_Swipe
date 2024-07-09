@@ -34,7 +34,7 @@ const Projects = () => {
       description: "Software Development xyz......",
       startDate: new Date(2005, 0, 1),
       endDate: new Date(2009, 0, 1),
-      link: "http://example.com",
+      link: "http://ajs-files.hostdonor.com",
       image: "/images/feast.png",
     },
   ]);

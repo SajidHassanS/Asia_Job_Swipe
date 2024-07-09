@@ -7,7 +7,6 @@ import HeroComponent from '../../../../components/repeatComponents/Hero';
 import PaginationComponent from './Pagination';
 import { RootState, AppDispatch } from '../../../../store';
 import { getSavedJobs } from '../../../../store/slices/jobSeekerSlice';
-import { Job } from '../../../../store/slices/types';
 
 const SavedJobs: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();

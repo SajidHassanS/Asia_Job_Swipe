@@ -8,32 +8,7 @@ import HeroComponent from "../../../../components/repeatComponents/Hero";
 import PaginationComponent from './Pagination';
 import { RootState, AppDispatch } from '../../../../store';
 import { fetchJobs, setCurrentPage } from '../../../../store/slices/jobSlice';
-
-interface Job {
-  _id: string;
-  title: string;
-  company: {
-    companyLogo: string;
-    companyName: string;
-    city: string;
-    province: string;
-    country: string;
-    sector: string;
-  };
-  salary: {
-    from: number;
-    to: number;
-  };
-  skills: string[];
-  jobType: string;
-  careerLevel: string;
-  candidateType: string;
-  city: string;
-  province: string;
-  country: string;
-  createdAt: string; // Ensure createdAt or updatedAt field is included
-  updatedAt: string; // Ensure createdAt or updatedAt field is included
-}
+import { Job } from '../../../../store/slices/types'; // Ensure this import matches the Redux slice
 
 const AllJobs: React.FC = () => {
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
@@ -111,7 +86,7 @@ const AllJobs: React.FC = () => {
             Array.from({ length: 10 }).map((_, index) => <SkeletonJobCard key={index} />)
           ) : (
             <>
-              <JobListings jobs={filteredJobs} totalJobs={filteredJobs.length} />
+              <JobListings jobs={filteredJobs} totalJobs={filteredJobs.length} origin="yourOriginValue" />
               <PaginationComponent
                 jobsPerPage={10}
                 totalJobs={totalJobs}

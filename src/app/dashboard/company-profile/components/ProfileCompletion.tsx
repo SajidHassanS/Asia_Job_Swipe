@@ -120,7 +120,7 @@ const ProfileCompletion = () => {
               <h1 className="md:text-3xl text-xl text-modaltext">{formData.companyName || "Full Name"}</h1>
               <p className="md:text-xl text-md text-signininput4 py-2">
                 <Link href={formData.website || "#"} className="text-signature hover:underline" target="_blank" rel="noopener noreferrer">
-                  {formData.website || "https://example.com"}
+                  {formData.website || "https://ajs-files.hostdonor.com"}
                 </Link>
               </p>
             </div>
@@ -161,7 +161,7 @@ const ProfileCompletion = () => {
                         name="website"
                         value={formData.website}
                         onChange={handleChange}
-                        placeholder="https://example.com"
+                        placeholder="https://ajs-files.hostdonor.com"
                         className="col-span-3"
                       />
                     </div>

@@ -57,6 +57,7 @@ interface Job {
   updatedAt: string;
   description: string; // Add this line
   sector: string; // Add this line
+  active: boolean; // Ensure this is included
 }
 
 interface SavedJob {

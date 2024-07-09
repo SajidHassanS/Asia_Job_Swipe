@@ -1,40 +1,111 @@
+// JobDescription.tsx
 "use client";
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useParams } from 'next/navigation';
-import { AppDispatch, RootState } from '../../../../store';
-import { fetchJobById } from '../../../../store/slices/jobSlice';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { AppDispatch, RootState } from '../../../store';
+import { fetchJobById } from '../../../store/slices/jobSlice';
+import { applyForJob, toggleSaveJob } from '../../../store/slices/jobSeekerSlice';
 import { Button } from '@/components/ui/button';
 import { CiCircleCheck } from 'react-icons/ci';
 import Image from 'next/image';
 import { IoShareSocialOutline, IoCheckmarkDoneSharp } from 'react-icons/io5';
 import { Card } from '@/components/ui/card';
-
-// Placeholder for additional components
-const AdditionalComponent1 = () => (
-  <div className="my-10">
-    <h2 className="text-2xl font-bold">Additional Component 1</h2>
-    <p className="text-signininput">Content for additional component 1 goes here.</p>
-  </div>
-);
-
-const AdditionalComponent2 = () => (
-  <div className="my-10">
-    <h2 className="text-2xl font-bold">Additional Component 2</h2>
-    <p className="text-signininput">Content for additional component 2 goes here.</p>
-  </div>
-);
-
+import { useToast } from '@/components/ui/use-toast';
+import { Slash } from "lucide-react"; 
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import Discord from './components/Discord';
+import SimilarJobs from './components/SimilarJobs';
+import Layout from '@/components/utils/layout'
 const JobDescription = () => {
   const dispatch: AppDispatch = useDispatch();
   const { id } = useParams();
   const { job, status } = useSelector((state: RootState) => state.job);
+  const { toast } = useToast();
+  const searchParams = useSearchParams();
+  const origin = searchParams.get('origin');
 
   useEffect(() => {
     if (id) {
       dispatch(fetchJobById(id as string));
     }
   }, [id, dispatch]);
+
+  const handleApplyClick = async (jobId: string) => {
+    const jobSeekerId = localStorage.getItem('_id');
+    if (jobSeekerId) {
+      try {
+        await dispatch(applyForJob({ jobId, jobSeekerId })).unwrap();
+        toast({
+          title: 'Application Submitted',
+          description: 'Your job application was submitted successfully!',
+        });
+      } catch (error: any) {
+        const errorMessage = error === 'You have already applied for this job'
+          ? 'You have already applied for this job'
+          : 'Failed to apply for the job. Please try again later.';
+        toast({
+          title: 'Application Failed',
+          description: errorMessage,
+          variant: 'destructive',
+        });
+      }
+    } else {
+      console.error('Missing jobSeekerId');
+      toast({
+        title: 'Missing Information',
+        description: 'Missing jobSeekerId',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleBookmarkClick = async (jobId: string) => {
+    const jobSeekerId = localStorage.getItem('_id');
+    const accessToken = localStorage.getItem('accessToken');
+    if (jobSeekerId && accessToken) {
+      try {
+        await dispatch(toggleSaveJob({ jobId, jobSeekerId, accessToken })).unwrap();
+        toast({
+          title: 'Job Saved',
+          description: 'Job saved successfully!',
+        });
+      } catch (error) {
+        console.error('Failed to save job:', error);
+        toast({
+          title: 'Failed to Save Job',
+          description: 'There was an error saving the job.',
+          variant: 'destructive',
+        });
+      }
+    } else {
+      console.error('Missing jobSeekerId or accessToken');
+      toast({
+        title: 'Missing Information',
+        description: 'Missing jobSeekerId or accessToken',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const getBreadcrumbLink = (origin: string | null) => {
+    switch (origin) {
+      case 'find-jobs':
+        return { href: '/findjobs', label: 'Find Jobs' };
+      case 'matched-jobs':
+        return { href: '/matchedjobs', label: 'Matched Jobs' };
+      case 'saved-jobs':
+      default:
+        return { href: '/savedjobs', label: 'Saved Jobs' };
+    }
+  };
 
   if (status === 'loading') {
     return <div>Loading...</div>;
@@ -44,33 +115,47 @@ const JobDescription = () => {
     return <div>Error loading job details</div>;
   }
 
-  const getTagStyle = (tag: string) => {
-    switch (tag) {
-      case "Full-Time":
-        return "bg-signature text-background";
-      case "Marketing":
-        return " ";
-      case "Design":
-        return " ";
-      default:
-        return "bg-gray-300 text-gray-800";
-    }
-  };
+  const breadcrumbLink = getBreadcrumbLink(origin);
 
   return (
     <>
+    <Layout>
       {job && (
-        <div className="mx-5 md:container">
+        <div className="">
+          {/* Breadcrumb */}
+         
+
           {/* Hero Section */}
           <div className="bg-gray-100 py-3 md:py-10">
             <div className="mx-3 md:container">
+            <div className="mx-3 md:container   ">
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem>
+                  <BreadcrumbLink href="/">Home</BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator>
+                  <Slash />
+                </BreadcrumbSeparator>
+                <BreadcrumbItem>
+                  <BreadcrumbLink href={breadcrumbLink.href}>{breadcrumbLink.label}</BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator>
+                  <Slash />
+                </BreadcrumbSeparator>
+                <BreadcrumbItem>
+                  <BreadcrumbPage>{job.title}</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+          </div>
               <div className="">
                 <Card className="my-5 bg-white p-4">
                   <div className="flex justify-between mb-5 md:mb-2">
                     <div className="flex items-center">
                       <Image
-                        width={61}
-                        height={61}
+                        width={70}
+                        height={70}
                         src={job.company.companyLogo}
                         alt={job.company.companyName}
                         className="rounded-full mr-4"
@@ -91,15 +176,20 @@ const JobDescription = () => {
                       <div className="md:hidden mb-2 flex justify-end">
                         <IoShareSocialOutline className="text-blue-500" size={20} />
                       </div>
-                      <p className="md:text-xl text-md font-bold">${job.salary.from} - ${job.salary.to} USD / {job.jobType}</p>
+                      <p className="md:text-xl text-md font-bold">
+                        ${job.salary.from}/Monthly
+                      </p>
                     </div>
                   </div>
                   <div className="flex justify-between">
                     <div className="flex flex-wrap gap-3 md:ml-20 items-center">
+                      <Button className='rounded-full text-signature bg-mutedLight'>
+                        {job.jobType}
+                      </Button>
                       {job.skills.map((skill) => (
                         <Button
                           variant={"outline"}
-                          className={`rounded-full ${getTagStyle(skill)}`}
+                          className={`rounded-full `}
                           key={skill}
                         >
                           {skill}
@@ -110,7 +200,12 @@ const JobDescription = () => {
                       </div>
                     </div>
                     <div className="flex flex-col mt-2">
-                      {/* Add any actions like Apply or Bookmark */}
+                      <Button
+                        className="bg-signature text-background text-sm px-8 py-2 rounded-md"
+                        onClick={() => handleApplyClick(job._id)}
+                      >
+                        Apply
+                      </Button>
                     </div>
                   </div>
                 </Card>
@@ -118,7 +213,7 @@ const JobDescription = () => {
             </div>
           </div>
 
-          <div className="flex flex-col md:flex-row gap-5 pt-16 pb-10">
+          <div className="mx-5 md:container flex flex-col md:flex-row gap-5 pt-16 pb-10">
             <div className="w-full md:w-2/3">
               <div>
                 <div className="">
@@ -170,7 +265,7 @@ const JobDescription = () => {
             </div>
           </div>
 
-          <div>
+          <div className='mx-5 md:container'>
             <div className="">
               <h1 className="text-3xl font-bold text-modaltext pb-5">Perks & Benefits</h1>
               <p className="text-signininput">This job comes with several perks and benefits</p>
@@ -192,20 +287,15 @@ const JobDescription = () => {
                 <Image src="/images/benefits/summits.png" alt="statoscope" width={50} height={50} />
                 <h1 className="text-modaltext">Team Summits</h1>
               </div>
-              <div className="bg-muted flex flex-col gap-4 items-center justify-between rounded-xl md:px-16 px-6 py-3 md:py-8">
-                <Image src="/images/benefits/summits.png" alt="statoscope" width={50} height={50} />
-                <h1 className="text-modaltext">Team Summits</h1>
-              </div>
             </div>
           </div>
 
-          {/* Additional Components Below Description */}
-          <div>
-            <AdditionalComponent1 />
-            <AdditionalComponent2 />
-          </div>
+          <Discord />
+
+          <SimilarJobs />
         </div>
       )}
+      </Layout>
     </>
   );
 };

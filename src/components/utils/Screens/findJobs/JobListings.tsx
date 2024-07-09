@@ -1,3 +1,4 @@
+// JobListings.tsx
 "use client";
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -18,9 +19,10 @@ import { Job } from "../../../../store/slices/types";
 interface JobListingsProps {
   jobs: Job[];
   totalJobs: number;
+  origin: string; // Add origin prop to distinguish the page source
 }
 
-const JobListings: React.FC<JobListingsProps> = ({ jobs, totalJobs }) => {
+const JobListings: React.FC<JobListingsProps> = ({ jobs, totalJobs, origin }) => {
   const [isGridView, setIsGridView] = useState(false);
   const dispatch: AppDispatch = useDispatch();
   const { jobSeeker, status, applyError } = useSelector((state: RootState) => state.jobSeeker);
@@ -142,101 +144,112 @@ const JobListings: React.FC<JobListingsProps> = ({ jobs, totalJobs }) => {
       </div>
       <div className={isGridView ? "grid grid-cols-1 md:grid-cols-2 gap-5" : ""}>
         {jobs.map((job) => (
-          <Card key={job._id} className="mb-5 p-4">
-            <div className="">
-              <div className="bg-background">
-                <div className="flex justify-between mb-5 md:mb-2">
-                  <div className="flex items-center">
-                    <Image
-                      width={61}
-                      height={61}
-                      src={job.company.companyLogo}
-                      alt={job.company.companyName}
-                      className="rounded-full mr-4"
-                    />
-                    <div>
-                      <h3 className="md:text-xl text-lg font-bold">{job.title}</h3>
-                      <div className="flex md:gap-3 items-center">
-                        <p className="text-sm text-gray-600">
-                          {job.company.companyName} • {job.city}, {job.province}, {job.country}
-                        </p>
-                        <div className="md:block hidden">
-                          <IoCheckmarkDoneSharp className="text-signature" />
+          <Link key={job._id} href={{ pathname: `/job-description/${job._id}`, query: { origin } }}>
+            <Card key={job._id} className="mb-5 p-4 cursor-pointer">
+              <div className="">
+                <div className="bg-background">
+                  <div className="flex justify-between mb-5 md:mb-2">
+                    <div className="flex items-center">
+                      <Image
+                        width={61}
+                        height={61}
+                        src={job.company.companyLogo}
+                        alt={job.company.companyName}
+                        className="rounded-full mr-4"
+                      />
+                      <div>
+                        <h3 className="md:text-xl text-lg font-bold">{job.title}</h3>
+                        <div className="flex md:gap-3 items-center">
+                          <p className="text-sm text-gray-600">
+                            {job.company.companyName} • {job.city}, {job.province}, {job.country}
+                          </p>
+                          <div className="md:block hidden">
+                            <IoCheckmarkDoneSharp className="text-signature" />
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="md:mt-3">
-                    <div
-                      className="md:hidden mb-2 flex justify-end cursor-pointer"
-                      onClick={() => handleBookmarkClick(job._id)}
-                    >
-                      {isJobSaved(job._id) ? (
-                        <BsBookmarkDashFill className="text-signature" size={20} />
-                      ) : (
-                        <BsBookmarkDash className="text-signature" size={20} />
-                      )}
+                    <div className="md:mt-3">
+                      <div
+                        className="md:hidden mb-2 flex justify-end cursor-pointer"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleBookmarkClick(job._id);
+                        }}
+                      >
+                        {isJobSaved(job._id) ? (
+                          <BsBookmarkDashFill className="text-signature" size={20} />
+                        ) : (
+                          <BsBookmarkDash className="text-signature" size={20} />
+                        )}
+                      </div>
+                      <p className="md:text-xl text-md font-bold">${job.salary.from}/Monthly</p>
                     </div>
-                    <p className="md:text-xl text-md font-bold">${job.salary.from}/Monthly</p>
                   </div>
-                </div>
-                <div className="flex justify-between">
-                  <div className="flex flex-wrap gap-3 md:ml-20 items-center mt-2">
-                    <Link
-                      className="bg-sky-300 text-signature text-sm md:px-4 md:py-2 rounded-[30px] inline-block"
-                      href="/signin"
-                    >
-                      {job.jobType}
-                    </Link>
-                    <div className="hidden md:block h-5 border border-lightgrey"></div>
-                    {job.skills.map((skill) => (
+                  <div className="flex justify-between">
+                    <div className="flex flex-wrap gap-3 md:ml-20 items-center mt-2">
                       <Link
-                        key={skill}
-                        className="border border-darkGrey text-darkGrey text-sm px-4 py-2 rounded-[30px] inline-block"
+                        className="bg-sky-300 text-signature text-sm md:px-4 md:py-2 rounded-[30px] inline-block"
                         href="/signin"
                       >
-                        {skill}
+                        {job.jobType}
                       </Link>
-                    ))}
-                    <div
-                      className="md:block hidden cursor-pointer"
-                      onClick={() => handleBookmarkClick(job._id)}
-                    >
-                      {isJobSaved(job._id) ? (
-                        <BsBookmarkDashFill className="text-signature" size={30} />
-                      ) : (
-                        <BsBookmarkDash className="text-signature" size={30} />
-                      )}
+                      <div className="hidden md:block h-5 border border-lightgrey"></div>
+                      {job.skills.map((skill) => (
+                        <Link
+                          key={skill}
+                          className="border border-darkGrey text-darkGrey text-sm px-4 py-2 rounded-[30px] inline-block"
+                          href="/signin"
+                        >
+                          {skill}
+                        </Link>
+                      ))}
+                      <div
+                        className="md:block hidden cursor-pointer"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleBookmarkClick(job._id);
+                        }}
+                      >
+                        {isJobSaved(job._id) ? (
+                          <BsBookmarkDashFill className="text-signature" size={30} />
+                        ) : (
+                          <BsBookmarkDash className="text-signature" size={30} />
+                        )}
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex flex-col mt-2">
-                    {hasAppliedForJob(job._id) ? (
+                    <div className="flex flex-col mt-2">
+                      {hasAppliedForJob(job._id) ? (
+                        <Button
+                          variant="ghost"
+                          className="text-green-500 text-sm px-4 py-2 rounded-md"
+                          disabled
+                        >
+                          Applied
+                        </Button>
+                      ) : (
+                        <Button
+                          className="bg-signature text-background text-sm px-8 py-2 rounded-md"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleApplyClick(job._id);
+                          }}
+                        >
+                          Apply
+                        </Button>
+                      )}
                       <Button
                         variant="ghost"
-                        className="text-green-500 text-sm px-4 py-2 rounded-md"
-                        disabled
+                        className="text-red-500 text-sm px-4 py-2 rounded-md mt-2"
                       >
-                        Applied
+                        Decline
                       </Button>
-                    ) : (
-                      <Button
-                        className="bg-signature text-background text-sm px-8 py-2 rounded-md"
-                        onClick={() => handleApplyClick(job._id)}
-                      >
-                        Apply
-                      </Button>
-                    )}
-                    <Button
-                      variant="ghost"
-                      className="text-red-500 text-sm px-4 py-2 rounded-md mt-2"
-                    >
-                      Decline
-                    </Button>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </Card>
+            </Card>
+          </Link>
         ))}
       </div>
     </div>

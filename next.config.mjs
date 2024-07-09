@@ -2,7 +2,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ['ajs-files.hostdonor.com'],
+    domains: ['localhost', 'ajs-files.hostdonor.com','example.com'], 
   },
 };
           
