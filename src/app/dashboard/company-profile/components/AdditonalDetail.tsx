@@ -76,7 +76,7 @@ const AdditionalDetail = () => {
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold">Edit Additional Details</DialogTitle>
             <DialogDescription className="text-md text-gray-500">
-              Make changes to your additional details here. Click save when you're done.
+              Make changes to your additional details here. Click save when you are done.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">

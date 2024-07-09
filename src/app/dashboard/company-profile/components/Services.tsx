@@ -74,7 +74,7 @@ const Services = () => {
               <DialogHeader>
                 <DialogTitle className="text-2xl font-bold">Add Service</DialogTitle>
                 <DialogDescription className="text-md text-gray-500">
-                  Add a new service here. Click save when you're done.
+                  Add a new service here. Click save when you are done.
                 </DialogDescription>
               </DialogHeader>
               <div className="grid gap-4 py-4">

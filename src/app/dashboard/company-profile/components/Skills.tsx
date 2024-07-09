@@ -74,7 +74,7 @@ const Skills = () => {
               <DialogHeader>
                 <DialogTitle className="text-2xl font-bold">Add Skill</DialogTitle>
                 <DialogDescription className="text-md text-gray-500">
-                  Add a new skill here. Click save when you're done.
+                  Add a new skill here. Click save when you are done.
                 </DialogDescription>
               </DialogHeader>
               <div className="grid gap-4 py-4">

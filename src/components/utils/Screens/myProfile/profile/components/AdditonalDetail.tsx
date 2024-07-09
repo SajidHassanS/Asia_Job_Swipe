@@ -37,7 +37,7 @@ const AdditionalDetails = () => {
             <DialogHeader>
               <DialogTitle className="text-3xl font-bold">Edit Additional Details</DialogTitle>
               <DialogDescription className="text-md text-gray-500">
-                Make changes to your additional details here. Click save when you&apos;re done.
+                Make changes to your additional details here. Click save when you are done.
               </DialogDescription>
             </DialogHeader>
             <div className="py-4">

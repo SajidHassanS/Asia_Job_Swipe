@@ -48,7 +48,7 @@ const AboutMe = () => {
             <DialogHeader>
               <DialogTitle className="text-2xl font-bold">Edit Description</DialogTitle>
               <DialogDescription className="text-md text-gray-500">
-                Make changes to your description here. Click save when you're done.
+                Make changes to your description here. Click save when you are done.
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
