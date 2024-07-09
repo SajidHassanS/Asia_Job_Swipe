@@ -6,18 +6,15 @@ import { MdGridView } from "react-icons/md";
 import Link from "next/link";
 import Image from "next/image";
 
-interface Job {
-  id: number;
-  company: string;
-  location: string;
-  job: string;
-  logo: string;
-  tags: string[];
-  categories?: string[];
+interface Company {
+  _id: string;
+  companyName: string;
+  companyImages: string[];
+  plan: string;
 }
 
 interface JobListingsProps {
-  jobs: Job[];
+  jobs: Company[];
   searchTerm: string;
   location: string;
 }
@@ -30,9 +27,8 @@ const JobListings: React.FC<JobListingsProps> = ({ jobs, searchTerm, location })
   };
 
   const filteredJobs = jobs.filter((job) => {
-    const matchesSearchTerm = job.company.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesLocation = job.location.toLowerCase().includes(location.toLowerCase());
-    return matchesSearchTerm && matchesLocation;
+    const matchesSearchTerm = job.companyName.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesSearchTerm;
   });
 
   return (
@@ -64,31 +60,26 @@ const JobListings: React.FC<JobListingsProps> = ({ jobs, searchTerm, location })
 
       <div className={isGridView ? "grid md:grid-cols-3 gap-8" : "grid md:grid-cols-1 gap-8"}>
         {filteredJobs.map((job) => (
-          <Card key={job.id} className="px-5 py-8">
+          <Card key={job._id} className="px-5 py-8">
             <div className="bg-background">
               <div className="flex justify-between mb-5 md:mb-2">
                 <div>
                   <Image
                     width={61}
                     height={61}
-                    src={job.logo || '/images/default.png'}
-                    alt={job.company}
+                    src={job.companyImages[0] || '/images/default.png'}
+                    alt={job.companyName}
                     className="mr-4"
                   />
                 </div>
                 <div className="md:mt-3">
-                  <p className="md:text-xl text-md bg-muted p-2 font-bold">{job.job}</p>
+                  <p className="md:text-xl   text-signature bg-muted p-2  ">{job.plan ? job.plan : "1 job"}</p>
                 </div>
               </div>
               <div>
                 <h3 className="md:text-xl mb-5 text-lg font-bold">
-                  {job.company}
+                  {job.companyName}
                 </h3>
-                <div className="flex md:gap-3 items-center">
-                  <p className="text-sm mb-5 text-gray-600">
-                    {job.location}
-                  </p>
-                </div>
               </div>
               <div className="flex justify-between">
                 <div className="flex flex-wrap gap-2 items-center mt-2">
