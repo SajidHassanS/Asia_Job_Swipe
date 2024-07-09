@@ -13,25 +13,17 @@ const SavedJobs: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const jobsPerPage = 10;
 
-  const accessToken = useSelector((state: RootState) => state.auth.accessToken) || (typeof window !== 'undefined' && localStorage.getItem('accessToken'));
-  const jobSeekerId = useSelector((state: RootState) => state.auth.jobSeekerId) || (typeof window !== 'undefined' && localStorage.getItem('_id'));
-  const jobSeeker = useSelector((state: RootState) => state.jobSeeker.jobSeeker);
+  const accessToken = useSelector((state: RootState) => state.auth.accessToken) || (typeof window !== 'undefined' && localStorage.getItem('accessToken')) || null;
+  const jobSeekerId = useSelector((state: RootState) => state.auth.jobSeekerId) || (typeof window !== 'undefined' && localStorage.getItem('_id')) || null;
   const savedJobs = useSelector((state: RootState) => state.jobSeeker.jobSeeker?.savedJobs) || [];
-
   const jobSeekerStatus = useSelector((state: RootState) => state.jobSeeker.status);
   const jobSeekerError = useSelector((state: RootState) => state.jobSeeker.error);
 
   useEffect(() => {
     if (jobSeekerId && accessToken) {
-      console.log('Dispatching getSavedJobs');
       dispatch(getSavedJobs({ jobSeekerId, accessToken }));
     }
   }, [dispatch, jobSeekerId, accessToken]);
-
-  useEffect(() => {
-    console.log('Job Seeker Updated:', JSON.stringify(jobSeeker, null, 2));
-    console.log('Saved Jobs:', JSON.stringify(savedJobs, null, 2));
-  }, [jobSeeker, savedJobs]);
 
   const indexOfLastJob = currentPage * jobsPerPage;
   const indexOfFirstJob = indexOfLastJob - jobsPerPage;
@@ -39,7 +31,7 @@ const SavedJobs: React.FC = () => {
 
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
-  if (jobSeekerStatus === 'loading') {
+  if (jobSeekerStatus === 'loading' && !savedJobs.length) {
     return (
       <>
         {Array.from({ length: jobsPerPage }).map((_, index) => (

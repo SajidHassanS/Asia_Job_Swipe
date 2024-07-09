@@ -163,9 +163,6 @@ const jobSeekerSlice = createSlice({
         state.status = 'failed';
         state.error = action.payload as string;
       })
-      .addCase(toggleSaveJob.pending, (state) => {
-        console.log('Toggling save job...');
-      })
       .addCase(toggleSaveJob.fulfilled, (state, action: PayloadAction<string>) => {
         if (state.jobSeeker) {
           const jobId = action.payload;
@@ -175,38 +172,16 @@ const jobSeekerSlice = createSlice({
           } else {
             state.jobSeeker.savedJobs.push({ _id: jobId } as Job);
           }
-        } else {
-          console.error('jobSeeker is null');
         }
-      })
-      .addCase(toggleSaveJob.rejected, (state, action) => {
-        console.log('Error toggling save job:', action.payload);
-      })
-      .addCase(fetchJobById.fulfilled, (state, action: PayloadAction<Job>) => {
-        if (state.jobSeeker) {
-          state.jobSeeker.savedJobs.push(action.payload);
-        } else {
-          state.jobSeeker = {
-            _id: '',
-            savedJobs: [action.payload],
-            appliedJobs: [],
-          };
-        }
-      })
-      .addCase(fetchJobById.rejected, (state, action) => {
-        console.log('Error fetching job:', action.payload);
       })
       .addCase(applyForJob.pending, (state) => {
-        state.status = 'loading';
         state.applyError = null;
       })
       .addCase(applyForJob.fulfilled, (state) => {
-        state.status = 'succeeded';
+        // No need to change the state here if it doesn't affect savedJobs
       })
       .addCase(applyForJob.rejected, (state, action) => {
-        state.status = 'failed';
         state.applyError = action.payload as string;
-        console.log('Error applying for job:', state.applyError);
       });
   },
 });

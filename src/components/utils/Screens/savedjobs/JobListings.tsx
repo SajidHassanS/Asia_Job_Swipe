@@ -10,7 +10,6 @@ import { Accordion, AccordionItem, AccordionTrigger } from "@/components/ui/acco
 import { Card } from "@/components/ui/card";
 import { MdGridView } from "react-icons/md";
 import Image from "next/image";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toggleSaveJob, applyForJob } from "../../../../store/slices/jobSeekerSlice";
 import { useToast } from "@/components/ui/use-toast";
 import { Job } from "../../../../store/slices/types";
@@ -23,7 +22,7 @@ interface JobListingsProps {
 const JobListings: React.FC<JobListingsProps> = ({ jobs, totalJobs }) => {
   const [isGridView, setIsGridView] = useState(false);
   const dispatch: AppDispatch = useDispatch();
-  const { jobSeeker, status, applyError } = useSelector((state: RootState) => state.jobSeeker);
+  const { jobSeeker, applyError } = useSelector((state: RootState) => state.jobSeeker);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -58,7 +57,7 @@ const JobListings: React.FC<JobListingsProps> = ({ jobs, totalJobs }) => {
         });
       } catch (error: any) {
         console.error('Failed to apply for job:', error);
-        if (error === "You have already applied for this job") {
+        if (error.message === "You have already applied for this job") {
           toast({
             title: "Already Applied",
             description: "You have already applied for this job.",
@@ -89,12 +88,6 @@ const JobListings: React.FC<JobListingsProps> = ({ jobs, totalJobs }) => {
   const hasAppliedForJob = (jobId: string) => {
     return jobSeeker?.appliedJobs?.some((job) => job._id === jobId);
   };
-
-  console.log('Jobs:', jobs); // Debugging: Check if jobs are passed correctly
-  console.log('Total Jobs:', totalJobs); // Debugging: Check if totalJobs is passed correctly
-  console.log('Job Seeker:', jobSeeker); // Debugging: Check job seeker state
-  console.log('Status:', status); // Debugging: Check status state
-  console.log('Apply Error:', applyError); // Debugging: Check apply error state
 
   return (
     <div className="md:w-full p-4">
