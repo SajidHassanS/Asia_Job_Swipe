@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { RootState, AppDispatch } from '../../../../../../store';
-import { fetchProfile, updateProfile, updateProfilePicture } from '../../../../../../store/slices/profileSlice';
+
 import Image from 'next/image';
 import { FaMapMarkerAlt } from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
@@ -10,7 +9,8 @@ import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-
+import { RootState, AppDispatch } from '../../../../../../store';
+import { fetchProfile, updateProfile, updateProfilePicture } from '../../../../../../store/slices/profileSlice';
 const ProfileCompletion: React.FC = () => {
   const dispatch: AppDispatch = useDispatch();
   const { jobSeeker, status, error } = useSelector((state: RootState) => state.profile);
