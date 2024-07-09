@@ -74,7 +74,7 @@ const Specialization = () => {
               <DialogHeader>
                 <DialogTitle className="text-2xl font-bold">Add Specialization</DialogTitle>
                 <DialogDescription className="text-md text-gray-500">
-                  Add a new specialization here. Click save when you're done.
+                  Add a new specialization here. Click save when you are done.
                 </DialogDescription>
               </DialogHeader>
               <div className="grid gap-4 py-4">
