@@ -10,7 +10,8 @@ import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, Dialog
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RootState, AppDispatch } from '../../../../../../store';
-import { fetchProfile, updateProfile, updateProfilePicture } from '../../../../../../store/slices/profileSlice';
+import { fetchProfile, updateProfile, updateProfilePicture } from '@/store/slices/profileSlice';
+
 const ProfileCompletion: React.FC = () => {
   const dispatch: AppDispatch = useDispatch();
   const { jobSeeker, status, error } = useSelector((state: RootState) => state.profile);
