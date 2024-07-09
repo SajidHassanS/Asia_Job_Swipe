@@ -11,12 +11,11 @@ import {
 import { BsChevronRight, BsChevronDown } from "react-icons/bs";
 import { RiDeleteBin5Line } from "react-icons/ri";
 import Image from 'next/image';
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import {
   Pagination,
   PaginationContent,
-  PaginationEllipsis,
   PaginationItem,
   PaginationLink,
   PaginationNext,
@@ -26,7 +25,23 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../../../../../../store'; // Adjust path as necessary
 import { fetchAppliedJobs } from '../../../../../../store/slices/appliedJobSlice/AppliedJobSlice'; // Adjust path as necessary
 
-const TableComp: React.FC = () => {
+type Status = 'In Review' | 'Shortlisted' | 'Processing';
+
+interface Job {
+  jobId: string;
+  serial: string;
+  companyName: string;
+  icon: string;
+  role: string;
+  dateApplied: string;
+  status: Status;
+}
+
+interface TableCompProps {
+  filteredData: Job[];
+}
+
+const TableComp: React.FC<TableCompProps> = ({ filteredData }) => {
   const dispatch: AppDispatch = useDispatch();
   const { jobs, status, error } = useSelector((state: RootState) => state.appliedJobs);
   const [selectedRow, setSelectedRow] = useState<number | null>(null);
@@ -44,7 +59,7 @@ const TableComp: React.FC = () => {
 
   const getStatusClass = (status: string) => {
     switch (status) {
-      case 'pending':
+      case 'In Review':
         return 'border-reviewYellow text-reviewYellow';
       case 'Shortlisted':
         return 'border-greenprogress text-greenprogress';
@@ -79,8 +94,8 @@ const TableComp: React.FC = () => {
   const itemsPerPage = 10;
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentItems = jobs.slice(startIndex, endIndex);
-  const totalPages = Math.ceil(jobs.length / itemsPerPage);
+  const currentItems = filteredData.slice(startIndex, endIndex);
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
   return (
     <>
