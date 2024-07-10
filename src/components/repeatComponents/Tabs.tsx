@@ -1,6 +1,5 @@
-// components/Tabs.js
-"use client"
-import { useState } from 'react';
+"use client";
+import { useState, useEffect } from 'react';
 
 // Define the type for the tabs prop
 type Tab = {
@@ -14,6 +13,28 @@ type TabsProps = {
 
 const Tabs = ({ tabs }: TabsProps) => {
   const [activeTab, setActiveTab] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  // Set active tab based on URL hash
+  useEffect(() => {
+    const hash = window.location.hash.replace('#', '');
+    const index = tabs.findIndex(
+      (tab) => tab.title.toLowerCase().replace(/\s+/g, '-') === hash
+    );
+    if (index !== -1) {
+      setActiveTab(index);
+    }
+    setLoading(false); // Set loading to false after determining the active tab
+  }, [tabs]);
+
+  const handleTabClick = (index: number, title: string) => {
+    setActiveTab(index);
+    window.location.hash = title.toLowerCase().replace(/\s+/g, '-');
+  };
+
+  if (loading) {
+    return <div>Loading...</div>; // Or any loading spinner you prefer
+  }
 
   return (
     <div className="overflow-hidden">
@@ -25,7 +46,7 @@ const Tabs = ({ tabs }: TabsProps) => {
               className={`relative md:text-lg text-md px-4 py-2 ${
                 activeTab === index ? 'text-modaltext' : 'text-signininput4'
               }`}
-              onClick={() => setActiveTab(index)}
+              onClick={() => handleTabClick(index, tab.title)}
             >
               {tab.title}
               {activeTab === index && (

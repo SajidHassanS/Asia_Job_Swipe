@@ -23,13 +23,13 @@ import {
 } from "@/components/ui/pagination";
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../../../../../../store'; // Adjust path as necessary
-import { fetchAppliedJobs } from '../../../../../../store/slices/appliedJobSlice/AppliedJobSlice'; // Adjust path as necessary
+import { fetchAppliedJobs, deleteJobApplication } from '../../../../../../store/slices/appliedJobSlice/AppliedJobSlice'; // Adjust path as necessary
+import SkeletonJobCard from './SkeletonJobCard'; // Adjust path as necessary
 
 type Status = 'In Review' | 'Shortlisted' | 'Processing';
 
 interface Job {
   jobId: string;
-  serial: string;
   companyName: string;
   icon: string;
   role: string;
@@ -37,11 +37,7 @@ interface Job {
   status: Status;
 }
 
-interface TableCompProps {
-  filteredData: Job[];
-}
-
-const TableComp: React.FC<TableCompProps> = ({ filteredData }) => {
+const TableComp: React.FC = () => {
   const dispatch: AppDispatch = useDispatch();
   const { jobs, status, error } = useSelector((state: RootState) => state.appliedJobs);
   const [selectedRow, setSelectedRow] = useState<number | null>(null);
@@ -80,7 +76,7 @@ const TableComp: React.FC<TableCompProps> = ({ filteredData }) => {
 
   const handleDelete = () => {
     if (itemToDelete) {
-      // Handle deletion logic here, e.g., dispatch a delete action
+      dispatch(deleteJobApplication(itemToDelete));
       setItemToDelete(null);
       setDeleteModalOpen(false);
     }
@@ -94,73 +90,81 @@ const TableComp: React.FC<TableCompProps> = ({ filteredData }) => {
   const itemsPerPage = 10;
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentItems = filteredData.slice(startIndex, endIndex);
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const currentItems = jobs.slice(startIndex, endIndex);
+  const totalPages = Math.ceil(jobs.length / itemsPerPage);
 
   return (
     <>
-      <div className='border rounded-[20px] my-10'>
-        <Table className=''>
-          <TableHeader className='hidden md:table-header-group'>
-            <TableRow className='text-signinemail text-base'>
-              <TableHead className="">#</TableHead>
-              <TableHead className="">Company Name</TableHead>
-              <TableHead className="">Roles</TableHead>
-              <TableHead className="">Date Applied</TableHead>
-              <TableHead className="">Status</TableHead>
-              <TableHead className="text-right"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody className='text-modaltext text-base'>
-            {currentItems.map((item, index) => (
-              <React.Fragment key={item.jobId}>
-                <TableRow
-                  className={`hover:bg-signature-300 cursor-pointer ${getRowClass(index)}`}
-                  onClick={() => setSelectedRow(index)}
-                >
-                  <TableCell className="font-medium">{startIndex + index + 1}</TableCell>
-                  <TableCell className='flex flex-col md:flex-row gap-3'>
-                    <Image src={item.icon} alt='icons' width={30} height={30} />
-                    {item.companyName}
-                  </TableCell>
-                  <TableCell className="md:table-cell hidden">{item.role}</TableCell>
-                  <TableCell className="md:table-cell hidden">{item.dateApplied}</TableCell>
-                  <TableCell className=" ">
-                    <span className={`rounded-full border text-center px-3 py-1 ${getStatusClass(item.status)}`}>
-                      {item.status}
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-right md:hidden">
-                    {expandedRow === index ? (
-                      <BsChevronDown onClick={() => setExpandedRow(null)} size={25} />
-                    ) : (
-                      <BsChevronRight onClick={() => setExpandedRow(index)} size={25} />
-                    )}
-                  </TableCell>
-                  <TableCell className="text-right hidden md:table-cell">
-                    <RiDeleteBin5Line onClick={() => openDeleteModal(item.jobId)} size={25} className="cursor-pointer text-red-500" />
-                  </TableCell>
-                </TableRow>
-                {expandedRow === index && (
-                  <TableRow className="md:hidden bg-signature  text-background">
-                    <TableCell colSpan={6} className="p-0">
-                      <div className="p-4">
-                        <div className='flex justify-between items-center'>
-                          <div>
-                            <div><strong>Roles:</strong> {item.role}</div>
-                            <div><strong>Date Applied:</strong> {item.dateApplied}</div>
-                          </div>
-                          <RiDeleteBin5Line onClick={() => openDeleteModal(item.jobId)} size={25} className='text-background cursor-pointer text-red-500' />
-                        </div>
-                      </div>
+      {status === 'loading' ? (
+        <div className='container'>
+          {Array.from({ length: itemsPerPage }).map((_, index) => (
+            <SkeletonJobCard key={index} />
+          ))}
+        </div>
+      ) : (
+        <div className='border rounded-[20px] my-10'>
+          <Table className=''>
+            <TableHeader className='hidden md:table-header-group'>
+              <TableRow className='text-signinemail text-base'>
+                <TableHead className="">#</TableHead>
+                <TableHead className="">Company Name</TableHead>
+                <TableHead className="">Roles</TableHead>
+                <TableHead className="">Date Applied</TableHead>
+                <TableHead className="">Status</TableHead>
+                <TableHead className="text-right"></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody className='text-modaltext text-base'>
+              {currentItems.map((item, index) => (
+                <React.Fragment key={item.jobId}>
+                  <TableRow
+                    className={`hover:bg-signature-300 cursor-pointer ${getRowClass(index)}`}
+                    onClick={() => setSelectedRow(index)}
+                  >
+                    <TableCell className="font-medium">{startIndex + index + 1}</TableCell>
+                    <TableCell className='flex flex-col md:flex-row gap-3'>
+                      <Image src={item.icon} alt='icons' width={30} height={30} />
+                      {item.companyName}
+                    </TableCell>
+                    <TableCell className="md:table-cell hidden">{item.role}</TableCell>
+                    <TableCell className="md:table-cell hidden">{item.dateApplied}</TableCell>
+                    <TableCell className=" ">
+                      <span className={`rounded-full border text-center px-3 py-1 ${getStatusClass(item.status)}`}>
+                        {item.status}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-right md:hidden">
+                      {expandedRow === index ? (
+                        <BsChevronDown onClick={() => setExpandedRow(null)} size={25} />
+                      ) : (
+                        <BsChevronRight onClick={() => setExpandedRow(index)} size={25} />
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right hidden md:table-cell">
+                      <RiDeleteBin5Line onClick={() => openDeleteModal(item.jobId)} size={25} className="cursor-pointer text-red-500" />
                     </TableCell>
                   </TableRow>
-                )}
-              </React.Fragment>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+                  {expandedRow === index && (
+                    <TableRow className="md:hidden bg-signature  text-background">
+                      <TableCell colSpan={6} className="p-0">
+                        <div className="p-4">
+                          <div className='flex justify-between items-center'>
+                            <div>
+                              <div><strong>Roles:</strong> {item.role}</div>
+                              <div><strong>Date Applied:</strong> {item.dateApplied}</div>
+                            </div>
+                            <RiDeleteBin5Line onClick={() => openDeleteModal(item.jobId)} size={25} className='text-background cursor-pointer text-red-500' />
+                          </div>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </React.Fragment>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
 
       <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
         <DialogContent className="sm:max-w-[400px] p-6">

@@ -1,544 +1,360 @@
-// import React, { useEffect, useRef, useState } from 'react';
-// import { useDispatch, useSelector } from 'react-redux';
-// import { RootState, AppDispatch } from '../../../../../../store';
-// import { fetchProfile, updateProfile, updateProfilePicture } from '../../../../../../store/slices/profileSlice';
-// import Image from 'next/image';
-// import { FaMapMarkerAlt } from 'react-icons/fa';
-// import { Button } from '@/components/ui/button';
-// import { Switch } from '@/components/ui/switch';
-// import { Progress } from '@/components/ui/progress';
-// import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
-// import { Input } from '@/components/ui/input';
-// import { Label } from '@/components/ui/label';
+import React, { useState } from "react";
+import { FaRegEdit } from "react-icons/fa";
+import { CiSquarePlus } from "react-icons/ci";
+import Image from "next/image";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { format } from "date-fns";
 
-// const ProfileCompletion: React.FC = () => {
-//   const dispatch: AppDispatch = useDispatch();
-//   const { jobSeeker, status, error } = useSelector((state: RootState) => state.profile);
-//   const [isEditing, setIsEditing] = useState(false);
-//   const [formData, setFormData] = useState({
-//     firstName: '',
-//     lastName: '',
-//     profession: '',
-//     company: '',
-//     city: '',
-//     country: '',
-//   });
-//   const [profileImagePreview, setProfileImagePreview] = useState<string>('/images/profil.png');
-//   const [profileImage, setProfileImage] = useState<File | null>(null);
-//   const [progress, setProgress] = useState(0);
-//   const fileInputRef = useRef<HTMLInputElement | null>(null);
+interface ExperienceData {
+  company: string;
+  role: string;
+  type: string;
+  startDate: Date | undefined;
+  endDate: Date | undefined;
+  location: string;
+  description: string;
+  image: string;
+}
 
-//   useEffect(() => {
-//     const storedId = localStorage.getItem('_id');
-//     const storedAccessToken = localStorage.getItem('accessToken');
-//     if (storedId && storedAccessToken) {
-//       dispatch(fetchProfile({ id: storedId, token: storedAccessToken }));
-//     }
-//   }, [dispatch]);
-
-//   useEffect(() => {
-//     if (jobSeeker) {
-//       setFormData({
-//         firstName: jobSeeker.firstName,
-//         lastName: jobSeeker.lastName,
-//         profession: jobSeeker.profession || '',
-//         company: '',
-//         city: jobSeeker.city || '',
-//         country: jobSeeker.country || '',
-//       });
-//       setProfileImagePreview(jobSeeker.profilePicture || '/images/profil.png');
-//       calculateProgress();
-//     }
-//   }, [jobSeeker]);
-
-//   const calculateProgress = () => {
-//     let completedFields = 0;
-//     const totalFields = Object.keys(formData).length;
-//     Object.values(formData).forEach((value) => {
-//       if (value) completedFields++;
-//     });
-//     const progressValue = Math.round((completedFields / totalFields) * 100);
-//     setProgress(progressValue);
-//   };
-
-//   const handleSave = () => {
-//     const storedId = localStorage.getItem('_id');
-//     const storedAccessToken = localStorage.getItem('accessToken');
-//     if (storedId && storedAccessToken) {
-//       dispatch(updateProfile({ id: storedId, updates: formData, token: storedAccessToken }));
-//       if (profileImage) {
-//         dispatch(updateProfilePicture({ id: storedId, file: profileImage, token: storedAccessToken }));
-//       }
-//       setIsEditing(false);
-//     }
-//   };
-
-//   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-//     const { name, value } = e.target;
-//     setFormData({
-//       ...formData,
-//       [name]: value,
-//     });
-//     calculateProgress();
-//   };
-
-//   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-//     if (e.target.files && e.target.files[0]) {
-//       const file = e.target.files[0];
-//       setProfileImage(file);
-//       setProfileImagePreview(URL.createObjectURL(file));
-      
-//       const storedId = localStorage.getItem('_id');
-//       const storedAccessToken = localStorage.getItem('accessToken');
-//       if (storedId && storedAccessToken) {
-//         await dispatch(updateProfilePicture({ id: storedId, file: file, token: storedAccessToken }));
-//         dispatch(fetchProfile({ id: storedId, token: storedAccessToken }));
-//       }
-//     }
-//   };
-
-//   const handleImageClick = () => {
-//     if (fileInputRef.current) {
-//       fileInputRef.current.click();
-//     }
-//   };
-
-//   const handleCancel = () => {
-//     if (jobSeeker) {
-//       setFormData({
-//         firstName: jobSeeker.firstName,
-//         lastName: jobSeeker.lastName,
-//         profession: jobSeeker.profession || '',
-//         company: '',
-//         city: jobSeeker.city || '',
-//         country: jobSeeker.country || '',
-//       });
-//       setProfileImagePreview(jobSeeker.profilePicture || '/images/profile.png');
-//       setProfileImage(null);
-//       setIsEditing(false);
-//       calculateProgress();
-//     }
-//   };
-
-//   if (status === 'loading') {
-//     return <div>Loading...</div>;
-//   }
-
-//   if (status === 'failed') {
-//     return <div>Error: {error}</div>;
-//   }
-
-//   return (
-//     <div className="border rounded-[20px] relative">
-//       <div className="flex gap-4 items-center rounded-tr-[20px] rounded-tl-[20px] p-5 bg-darkGrey relative">
-//         <div className="w-1/3 md:relative">
-//           <div 
-//             className="md:absolute border-8 rounded-full border-white md:left-[40px] md:top-[10px] w-24 h-24 md:w-36 md:h-36 overflow-hidden cursor-pointer"
-//             onClick={handleImageClick}
-//           >
-//             <Image
-//               src={profileImagePreview.startsWith('/') ? profileImagePreview : `/${profileImagePreview}`}
-//               alt="profile"
-//               width={150}
-//               height={150}
-//               className="rounded-full object-cover w-24 md:w-36"
-//             />
-//             <input
-//               type="file"
-//               accept="image/*"
-//               ref={fileInputRef}
-//               className="hidden"
-//               onChange={handleImageChange}
-//             />
-//           </div>
-//         </div>
-//         <div className="md:w-2/3 w-full md:py-10">
-//           <div className="flex text-white justify-between">
-//             <div>
-//               <h1>Profile Completion</h1>
-//             </div>
-//             <div>
-//               <h1>{progress}%</h1>
-//             </div>
-//           </div>
-//           <Progress value={progress} color="bg-greenprogress" className="md:w-[100%] w-[80%]" />
-//         </div>
-//       </div>
-
-//       <div className="md:flex md:p-5 gap-3 md:gap-10">
-//         <div className="flex md:flex-col mt-5 gap-3 md:mt-16 md:items-center px-4 py-4 bg-switchbg rounded-lg md:w-1/3">
-//           <div>
-//             <Switch id="airplane-mode" />
-//           </div>
-//           <div className="text-greenprogress">
-//             <h1>OPEN FOR OPPORTUNITIES</h1>
-//           </div>
-//         </div>
-//         <div className="md:w-2/3 p-4">
-//           <div className="flex justify-between items-center">
-//             <div>
-//               <h1 className="md:text-3xl text-xl text-modaltext">
-//                 {formData.firstName} {formData.lastName}
-//               </h1>
-//               <p className="md:text-xl text-md text-signininput4 py-7">
-//                 {formData.profession} at{' '}
-//                 <span className="text-md md:text-xl text-modaltext">{formData.company}</span>
-//               </p>
-//               <div className="flex items-center text-signininput4 gap-3">
-//                 <FaMapMarkerAlt />
-//                 <p className="md:text-xl text-md text-signininput4">
-//                   {formData.city}, {formData.country}
-//                 </p>
-//               </div>
-//             </div>
-//             <div>
-//               <Dialog open={isEditing} onOpenChange={setIsEditing}>
-//                 <DialogTrigger asChild>
-//                   <Button className="text-blue" variant="outline" onClick={() => setIsEditing(true)}>
-//                     Edit Profile
-//                   </Button>
-//                 </DialogTrigger>
-//                 <DialogContent className="w-full max-w-lg p-6 ">
-//                   <DialogHeader>
-//                     <DialogTitle className="text-2xl font-bold">Edit Profile</DialogTitle>
-//                     <DialogDescription className="text-md text-gray-500">
-//                       Make changes to your profile here. Click save when you&apos;re done.
-//                     </DialogDescription>
-//                   </DialogHeader>
-//                   <div className="grid gap-4 py-4">
-//                     <div className="grid grid-cols-4 items-center gap-4">
-//                       <Label htmlFor="firstName" className="text-right">
-//                         First Name
-//                       </Label>
-//                       <Input
-//                         id="firstName"
-//                         name="firstName"
-//                         value={formData.firstName}
-//                         onChange={handleChange}
-//                         className="col-span-3"
-//                       />
-//                     </div>
-//                     <div className="grid grid-cols-4 items-center gap-4">
-//                       <Label htmlFor="lastName" className="text-right">
-//                         Last Name
-//                       </Label>
-//                       <Input
-//                         id="lastName"
-//                         name="lastName"
-//                         value={formData.lastName}
-//                         onChange={handleChange}
-//                         className="col-span-3"
-//                       />
-//                     </div>
-//                     <div className="grid grid-cols-4 items-center gap-4">
-//                       <Label htmlFor="profession" className="text-right">
-//                         Profession
-//                       </Label>
-//                       <Input
-//                         id="profession"
-//                         name="profession"
-//                         value={formData.profession}
-//                         onChange={handleChange}
-//                         className="col-span-3"
-//                       />
-//                     </div>
-//                     <div className="grid grid-cols-4 items-center gap-4">
-//                       <Label htmlFor="company" className="text-right">
-//                         Company
-//                       </Label>
-//                       <Input
-//                         id="company"
-//                         name="company"
-//                         value={formData.company}
-//                         onChange={handleChange}
-//                         className="col-span-3"
-//                       />
-//                     </div>
-//                     <div className="grid grid-cols-4 items-center gap-4">
-//                       <Label htmlFor="city" className="text-right">
-//                         City
-//                       </Label>
-//                       <Input id="city" name="city" value={formData.city} onChange={handleChange} className="col-span-3" />
-//                     </div>
-//                     <div className="grid grid-cols-4 items-center gap-4">
-//                       <Label htmlFor="country" className="text-right">
-//                         Country
-//                       </Label>
-//                       <Input
-//                         id="country"
-//                         name="country"
-//                         value={formData.country}
-//                         onChange={handleChange}
-//                         className="col-span-3"
-//                       />
-//                     </div>
-//                   </div>
-//                   <DialogFooter className="flex justify-between">
-//                     <Button variant="outline" onClick={handleCancel}>
-//                       Cancel
-//                     </Button>
-//                     <Button type="submit" onClick={handleSave}>
-//                       Save changes
-//                     </Button>
-//                   </DialogFooter>
-//                 </DialogContent>
-//               </Dialog>
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default ProfileCompletion;
-
-
-import React, { useEffect, useRef, useState } from 'react';
-import Image from 'next/image';
-import { FaMapMarkerAlt } from 'react-icons/fa';
-import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
-import { Progress } from '@/components/ui/progress';
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-
-const ProfileCompletion: React.FC = () => {
+const Experience = () => {
+  const [experiences, setExperiences] = useState<ExperienceData[]>([
+    {
+      company: "Twitter",
+      role: "Product designer",
+      type: "Full-Time",
+      startDate: new Date(2019, 5, 1),
+      endDate: new Date(2020, 5, 1),
+      location: "Manchester, UK",
+      description:
+        "Created and executed social media plan for 10 brands utilizing multiple features and content types to increase brand outreach, engagement, and leads.",
+      image: "/images/twitter.png",
+    },
+    {
+      company: "Marketing",
+      role: "Product designer",
+      type: "Full-Time",
+      startDate: new Date(2019, 5, 1),
+      endDate: new Date(2020, 5, 1),
+      location: "Manchester, UK",
+      description:
+        "Created and executed social media plan for 10 brands utilizing multiple features and content types to increase brand outreach, engagement, and leads.",
+      image: "/images/marketing.png",
+    },
+  ]);
   const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    profession: '',
-    company: '',
-    city: '',
-    country: '',
-  });
-  const [profileImagePreview, setProfileImagePreview] = useState<string>('/images/profil.png');
-  const [profileImage, setProfileImage] = useState<File | null>(null);
-  const [progress, setProgress] = useState(0);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [isAdding, setIsAdding] = useState(false);
+  const [selectedExperience, setSelectedExperience] =
+    useState<ExperienceData | null>(null);
+  const [experienceText, setExperienceText] = useState("");
+  const [company, setCompany] = useState("");
+  const [role, setRole] = useState("");
+  const [type, setType] = useState("");
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
+  const [location, setLocation] = useState("");
+  const [imagePreview, setImagePreview] = useState<string | ArrayBuffer | null>(
+    null
+  );
 
-  const calculateProgress = () => {
-    let completedFields = 0;
-    const totalFields = Object.keys(formData).length;
-    Object.values(formData).forEach((value) => {
-      if (value) completedFields++;
-    });
-    const progressValue = Math.round((completedFields / totalFields) * 100);
-    setProgress(progressValue);
+  const handleEditClick = (experience: ExperienceData) => {
+    setSelectedExperience(experience);
+    setExperienceText(experience.description);
+    setCompany(experience.company);
+    setRole(experience.role);
+    setType(experience.type);
+    setStartDate(experience.startDate || null);
+    setEndDate(experience.endDate || null);
+    setLocation(experience.location);
+    setImagePreview(experience.image);
+    setIsEditing(true);
+  };
+
+  const handleAddClick = () => {
+    setSelectedExperience(null);
+    setExperienceText("");
+    setCompany("");
+    setRole("");
+    setType("");
+    setStartDate(null);
+    setEndDate(null);
+    setLocation("");
+    setImagePreview(null);
+    setIsAdding(true);
   };
 
   const handleSave = () => {
-    // Simulate save functionality
+    if (selectedExperience) {
+      selectedExperience.description = experienceText;
+      selectedExperience.company = company;
+      selectedExperience.role = role;
+      selectedExperience.type = type;
+      selectedExperience.startDate = startDate || undefined;
+      selectedExperience.endDate = endDate || undefined;
+      selectedExperience.location = location;
+      if (typeof imagePreview === "string") {
+        selectedExperience.image = imagePreview;
+      }
+      setExperiences([...experiences]);
+    } else {
+      const newExperience: ExperienceData = {
+        company,
+        role,
+        type,
+        startDate: startDate || undefined,
+        endDate: endDate || undefined,
+        location,
+        description: experienceText,
+        image:
+          typeof imagePreview === "string"
+            ? imagePreview
+            : "/images/default.png", // Placeholder image
+      };
+      setExperiences([...experiences, newExperience]);
+    }
     setIsEditing(false);
+    setIsAdding(false);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-    calculateProgress();
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setExperienceText(e.target.value);
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setProfileImage(file);
-      setProfileImagePreview(URL.createObjectURL(file));
+      const reader = new FileReader();
+      reader.onload = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(e.target.files[0]);
     }
-  };
-
-  const handleImageClick = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
-  };
-
-  const handleCancel = () => {
-    setFormData({
-      firstName: '',
-      lastName: '',
-      profession: '',
-      company: '',
-      city: '',
-      country: '',
-    });
-    setProfileImagePreview('/images/profil.png');
-    setProfileImage(null);
-    setIsEditing(false);
-    calculateProgress();
   };
 
   return (
-    <div className="border rounded-[20px] relative">
-      <div className="flex gap-4 items-center rounded-tr-[20px] rounded-tl-[20px] p-5 bg-darkGrey relative">
-        <div className="w-1/3 md:relative">
-          <div
-            className="md:absolute border-8 rounded-full border-white md:left-[40px] md:top-[10px] w-24 h-24 md:w-36 md:h-36 overflow-hidden cursor-pointer"
-            onClick={handleImageClick}
-          >
-            <Image
-              src={profileImagePreview.startsWith('/') ? profileImagePreview : `/${profileImagePreview}`}
-              alt="profile"
-              width={150}
-              height={150}
-              className="rounded-full object-cover w-24 md:w-36"
+    <div className="border rounded-[20px] py-6 px-5 bg-white shadow-md">
+      <div className="flex justify-between mb-5">
+        <h1 className="text-modaltext text-2xl font-semibold">Experiences</h1>
+        <Dialog open={isAdding} onOpenChange={setIsAdding}>
+          <DialogTrigger asChild>
+            <CiSquarePlus
+              className="text-signature border rounded-lg p-2 cursor-pointer"
+              size={40}
+              onClick={handleAddClick}
             />
-            <input
-              type="file"
-              accept="image/*"
-              ref={fileInputRef}
-              className="hidden"
-              onChange={handleImageChange}
-            />
-          </div>
-        </div>
-        <div className="md:w-2/3 w-full md:py-10">
-          <div className="flex text-white justify-between">
-            <div>
-              <h1>Profile Completion</h1>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[600px] p-6">
+            <DialogHeader>
+              <DialogTitle className="text-3xl font-bold">Add Experience</DialogTitle>
+              <DialogDescription className="text-md text-gray-500">
+                Add your new experience here. Click save when you are done.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid grid-cols-2 gap-4 py-4">
+              <div className="col-span-2 flex justify-center mb-4">
+                <div className="relative w-24 h-24 border-2 border-dashed rounded-full flex items-center justify-center">
+                  {imagePreview ? (
+                    <Image
+                      src={
+                        typeof imagePreview === "string"
+                          ? imagePreview
+                          : "/images/default.png"
+                      }
+                      alt="Experience Image"
+                      width={100}
+                      height={100}
+                      className="rounded-full"
+                    />
+                  ) : (
+                    <span className="text-gray-500">Add Image</span>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="absolute inset-0 opacity-0 cursor-pointer"
+                  />
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="company">Company</Label>
+                <Input
+                  id="company"
+                  value={company}
+                  onChange={(e) => setCompany(e.target.value)}
+                  placeholder="Company"
+                />
+              </div>
+              <div>
+                <Label htmlFor="role">Role</Label>
+                <Input
+                  id="role"
+                  value={role}
+                  onChange={(e) => setRole(e.target.value)}
+                  placeholder="Role"
+                />
+              </div>
+              <div>
+                <Label htmlFor="type">Type</Label>
+                <Input
+                  id="type"
+                  value={type}
+                  onChange={(e) => setType(e.target.value)}
+                  placeholder="Type"
+                />
+              </div>
+              <div>
+                <Label htmlFor="location">Location</Label>
+                <Input
+                  id="location"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  placeholder="Location"
+                />
+              </div>
+              <div>
+                <Label htmlFor="startDate">Start Date</Label>
+                <DatePicker
+                  selected={startDate}
+                  onChange={(date) => setStartDate(date)}
+                  className="w-full border rounded-lg p-2"
+                  placeholderText="Pick a date"
+                />
+              </div>
+              <div>
+                <Label htmlFor="endDate">End Date</Label>
+                <DatePicker
+                  selected={endDate}
+                  onChange={(date) => setEndDate(date)}
+                  className="w-full border rounded-lg p-2"
+                  placeholderText="Pick a date"
+                />
+              </div>
+              <div className="col-span-2">
+                <Label htmlFor="description">Description</Label>
+                <textarea
+                  id="description"
+                  className="w-full border rounded-lg p-4 text-lg"
+                  rows={4}
+                  value={experienceText}
+                  onChange={handleChange}
+                  placeholder="Description"
+                />
+              </div>
             </div>
-            <div>
-              <h1>{progress}%</h1>
-            </div>
-          </div>
-          <Progress value={progress} color="bg-greenprogress" className="md:w-[100%] w-[80%]" />
-        </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsAdding(false)}>Cancel</Button>
+              <Button type="submit" onClick={handleSave}>Save changes</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
 
-      <div className="md:flex md:p-5 gap-3 md:gap-10">
-        <div className="flex md:flex-col mt-5 gap-3 md:mt-16 md:items-center px-4 py-4 bg-switchbg rounded-lg md:w-1/3">
-          <div>
-            <Switch id="airplane-mode" />
-          </div>
-          <div className="text-greenprogress">
-            <h1>OPEN FOR OPPORTUNITIES</h1>
-          </div>
-        </div>
-        <div className="md:w-2/3 p-4">
-          <div className="flex justify-between items-center">
+      {experiences.map((experience, index) => (
+        <div key={index} className={`pb-5 mb-5 ${index !== experiences.length - 1 ? 'border-b' : ''}`}>
+          <div className="flex justify-between gap-5">
             <div>
-              <h1 className="md:text-3xl text-xl text-modaltext">
-                {formData.firstName} {formData.lastName}
-              </h1>
-              <p className="md:text-xl text-md text-signininput4 py-7">
-                {formData.profession} at{' '}
-                <span className="text-md md:text-xl text-modaltext">{formData.company}</span>
-              </p>
-              <div className="flex items-center text-signininput4 gap-3">
-                <FaMapMarkerAlt />
-                <p className="md:text-xl text-md text-signininput4">
-                  {formData.city}, {formData.country}
-                </p>
+              <Image src={experience.image} alt={experience.company} width={100} height={100} className="rounded-lg shadow-sm" />
+            </div>
+            <div>
+              <div>
+                <h1 className="text-lg font-semibold">{experience.role}</h1>
+                <div className="flex text-base text-signininput">
+                  <h1 className="text-modaltext font-medium">{experience.company}</h1> .<h1>{experience.type}</h1> .<h1>{format(experience.startDate!, "PPP")} - {format(experience.endDate!, "PPP")}</h1>
+                </div>
+                <div>
+                  <h1 className="text-lg text-signininput">{experience.location}</h1>
+                </div>
+                <div>
+                  <p className="text-modaltext">{experience.description}</p>
+                </div>
               </div>
             </div>
             <div>
-              <Dialog open={isEditing} onOpenChange={setIsEditing}>
+              <Dialog open={isEditing && selectedExperience === experience} onOpenChange={setIsEditing}>
                 <DialogTrigger asChild>
-                  <Button className="text-blue" variant="outline" onClick={() => setIsEditing(true)}>
-                    Edit Profile
-                  </Button>
+                  <FaRegEdit className="text-signature border rounded-lg p-2 cursor-pointer" size={40} onClick={() => handleEditClick(experience)} />
                 </DialogTrigger>
-                <DialogContent className="w-full max-w-lg p-6">
+                <DialogContent className="sm:max-w-[600px] p-6">
                   <DialogHeader>
-                    <DialogTitle className="text-2xl font-bold">Edit Profile</DialogTitle>
+                    <DialogTitle className="text-3xl font-bold">Edit Experience</DialogTitle>
                     <DialogDescription className="text-md text-gray-500">
-                      Make changes to your profile here. Click save when you&apos;re done.
+                      Make changes to your experience here. Click save when you are done.
                     </DialogDescription>
                   </DialogHeader>
-                  <div className="grid gap-4 py-4">
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="firstName" className="text-right">
-                        First Name
-                      </Label>
-                      <Input
-                        id="firstName"
-                        name="firstName"
-                        value={formData.firstName}
-                        onChange={handleChange}
-                        className="col-span-3"
+                  <div className="grid grid-cols-2 gap-4 py-4">
+                    <div className="col-span-2 flex justify-center mb-4">
+                      <div className="relative w-24 h-24 border-2 border-dashed rounded-full flex items-center justify-center">
+                        {imagePreview ? (
+                          <Image src={typeof imagePreview === "string" ? imagePreview : "/images/default.png"} alt="Experience Image" width={100} height={100} className="rounded-full" />
+                        ) : (
+                          <span className="text-gray-500">Add Image</span>
+                        )}
+                        <input type="file" accept="image/*" onChange={handleImageChange} className="absolute inset-0 opacity-0 cursor-pointer" />
+                      </div>
+                    </div>
+                    <div>
+                      <Label htmlFor="company">Company</Label>
+                      <Input id="company" value={company} onChange={(e) => setCompany(e.target.value)} placeholder="Company" />
+                    </div>
+                    <div>
+                      <Label htmlFor="role">Role</Label>
+                      <Input id="role" value={role} onChange={(e) => setRole(e.target.value)} placeholder="Role" />
+                    </div>
+                    <div>
+                      <Label htmlFor="type">Type</Label>
+                      <Input id="type" value={type} onChange={(e) => setType(e.target.value)} placeholder="Type" />
+                    </div>
+                    <div>
+                      <Label htmlFor="location">Location</Label>
+                      <Input id="location" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Location" />
+                    </div>
+                    <div>
+                      <Label htmlFor="startDate">Start Date</Label>
+                      <DatePicker
+                        selected={startDate}
+                        onChange={(date) => setStartDate(date)}
+                        className="w-full border rounded-lg p-2"
+                        placeholderText="Pick a date"
                       />
                     </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="lastName" className="text-right">
-                        Last Name
-                      </Label>
-                      <Input
-                        id="lastName"
-                        name="lastName"
-                        value={formData.lastName}
-                        onChange={handleChange}
-                        className="col-span-3"
+                    <div>
+                      <Label htmlFor="endDate">End Date</Label>
+                      <DatePicker
+                        selected={endDate}
+                        onChange={(date) => setEndDate(date)}
+                        className="w-full border rounded-lg p-2"
+                        placeholderText="Pick a date"
                       />
                     </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="profession" className="text-right">
-                        Profession
-                      </Label>
-                      <Input
-                        id="profession"
-                        name="profession"
-                        value={formData.profession}
-                        onChange={handleChange}
-                        className="col-span-3"
-                      />
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="company" className="text-right">
-                        Company
-                      </Label>
-                      <Input
-                        id="company"
-                        name="company"
-                        value={formData.company}
-                        onChange={handleChange}
-                        className="col-span-3"
-                      />
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="city" className="text-right">
-                        City
-                      </Label>
-                      <Input
-                        id="city"
-                        name="city"
-                        value={formData.city}
-                        onChange={handleChange}
-                        className="col-span-3"
-                      />
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="country" className="text-right">
-                        Country
-                      </Label>
-                      <Input
-                        id="country"
-                        name="country"
-                        value={formData.country}
-                        onChange={handleChange}
-                        className="col-span-3"
-                      />
+                    <div className="col-span-2">
+                      <Label htmlFor="description">Description</Label>
+                      <textarea id="description" className="w-full border rounded-lg p-4 text-lg" rows={4} value={experienceText} onChange={handleChange} placeholder="Description" />
                     </div>
                   </div>
-                  <DialogFooter className="flex justify-between">
-                    <Button variant="outline" onClick={handleCancel}>
-                      Cancel
-                    </Button>
-                    <Button type="submit" onClick={handleSave}>
-                      Save changes
-                    </Button>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setIsEditing(false)}>Cancel</Button>
+                    <Button type="submit" onClick={handleSave}>Save changes</Button>
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
             </div>
           </div>
         </div>
-      </div>
+      ))}
     </div>
   );
 };
 
-export default ProfileCompletion;
+export default Experience;
