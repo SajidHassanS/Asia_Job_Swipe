@@ -1,16 +1,25 @@
-import React, { useState } from 'react';
+// components/AboutMe.tsx
+import React,{useState} from 'react';
 import { FaRegEdit } from "react-icons/fa";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { ProfileFormData } from '../Profile';
 
-const AboutMe = () => {
-  const [aboutText, setAboutText] = useState(`I’m a product designer + filmmaker currently working remotely at Twitter from beautiful Manchester, United Kingdom. I’m passionate about designing digital products that have a positive impact on the world.
-  \n\nI’m a product designer + filmmaker currently working remotely at Twitter from beautiful Manchester, United Kingdom. I’m passionate about designing digital products that have a positive impact on the world.`);
+interface AboutMeProps {
+  formData: ProfileFormData;
+  setFormData: React.Dispatch<React.SetStateAction<ProfileFormData>>;
+  handleSave: (updates: Partial<ProfileFormData>) => void;
+}
+
+const AboutMe: React.FC<AboutMeProps> = ({ formData, setFormData, handleSave }) => {
   const [isEditing, setIsEditing] = useState(false);
+  const [aboutText, setAboutText] = useState(formData.introduction);
 
-  const handleSave = () => {
+  const handleSaveClick = () => {
+    handleSave({ introduction: aboutText });
     setIsEditing(false);
-    // Save the updated aboutText to the backend or state management here
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -19,6 +28,7 @@ const AboutMe = () => {
 
   const handleCancel = () => {
     setIsEditing(false);
+    setAboutText(formData.introduction);
   };
 
   return (
@@ -46,7 +56,7 @@ const AboutMe = () => {
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={handleCancel}>Cancel</Button>
-              <Button type="submit" onClick={handleSave}>Save changes</Button>
+              <Button type="submit" onClick={handleSaveClick}>Save changes</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -58,6 +68,6 @@ const AboutMe = () => {
       </div>
     </div>
   );
-}
+};
 
 export default AboutMe;

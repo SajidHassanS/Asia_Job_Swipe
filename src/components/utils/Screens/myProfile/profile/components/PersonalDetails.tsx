@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+// PersonalDetails.tsx
+import React, { useState, useEffect } from "react";
 import { FaRegEdit } from "react-icons/fa";
 import {
   Dialog,
@@ -12,27 +13,42 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ProfileFormData } from '../Profile';
 
-const PersonalDetails = () => {
+interface PersonalDetailsProps {
+  formData: ProfileFormData;
+  setFormData: React.Dispatch<React.SetStateAction<ProfileFormData>>;
+  handleSave: (updates: Partial<ProfileFormData>) => void;
+}
+
+const PersonalDetails: React.FC<PersonalDetailsProps> = ({ formData, setFormData, handleSave }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [details, setDetails] = useState({
-    dateOfBirth: "1990-01-01",
-    nationality: "American",
-    postalCode: "12345",
-    gender: "Male",
+  const [inputValues, setInputValues] = useState({
+    dateOfBirth: formData.dateOfBirth,
+    nationality: formData.nationality,
+    postalCode: formData.postalCode,
+    gender: formData.gender,
   });
 
-  const [inputValues, setInputValues] = useState(details);
+  useEffect(() => {
+    setInputValues({
+      dateOfBirth: formData.dateOfBirth,
+      nationality: formData.nationality,
+      postalCode: formData.postalCode,
+      gender: formData.gender,
+    });
+  }, [formData]);
 
-  const handleSave = () => {
-    setDetails(inputValues);
+  const handleSaveClick = () => {
+    handleSave(inputValues);
     setIsEditing(false);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
     setInputValues({
       ...inputValues,
-      [e.target.name]: e.target.value,
+      [name]: value,
     });
   };
 
@@ -54,19 +70,19 @@ const PersonalDetails = () => {
         <div className="grid gap-5">
           <div className="flex gap-5">
             <h1 className="text-lg text-signininput4">Date of Birth</h1>
-            <p className="text-lg text-signature">{details.dateOfBirth}</p>
+            <p className="text-lg text-signature">{formData.dateOfBirth}</p>
           </div>
           <div className="flex gap-5">
             <h1 className="text-lg text-signininput4">Nationality</h1>
-            <p className="text-lg text-signature">{details.nationality}</p>
+            <p className="text-lg text-signature">{formData.nationality}</p>
           </div>
           <div className="flex gap-5">
             <h1 className="text-lg text-signininput4">Postal Code</h1>
-            <p className="text-lg text-signature">{details.postalCode}</p>
+            <p className="text-lg text-signature">{formData.postalCode}</p>
           </div>
           <div className="flex gap-5">
             <h1 className="text-lg text-signininput4">Gender</h1>
-            <p className="text-lg text-signature">{details.gender}</p>
+            <p className="text-lg text-signature">{formData.gender}</p>
           </div>
         </div>
       </div>
@@ -137,7 +153,7 @@ const PersonalDetails = () => {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsEditing(false)}>Cancel</Button>
-            <Button type="submit" onClick={handleSave}>Save changes</Button>
+            <Button type="submit" onClick={handleSaveClick}>Save changes</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

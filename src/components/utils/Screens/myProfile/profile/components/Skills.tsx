@@ -1,3 +1,4 @@
+// components/Skills.js
 import React, { useState } from "react";
 import { FaRegEdit } from "react-icons/fa";
 import { CiSquarePlus } from "react-icons/ci";
@@ -14,15 +15,15 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ProfileFormData } from "../Profile";
 
-const Skills = () => {
-  const [skills, setSkills] = useState<string[]>([
-    "Communication",
-    "Analytics",
-    "Facebook Ads",
-    "Content Planning",
-    "Community Manager",
-  ]);
+interface SkillsProps {
+  formData: ProfileFormData;
+  setFormData: React.Dispatch<React.SetStateAction<ProfileFormData>>;
+  handleSave: (updates: Partial<ProfileFormData>) => void;
+}
+
+const Skills: React.FC<SkillsProps> = ({ formData, setFormData, handleSave }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedSkill, setSelectedSkill] = useState<string | null>(null);
   const [skillInput, setSkillInput] = useState("");
@@ -39,21 +40,24 @@ const Skills = () => {
     setIsDialogOpen(true);
   };
 
-  const handleSave = () => {
+  const handleSaveSkill = () => {
+    let updatedSkills;
     if (selectedSkill) {
-      const updatedSkills = skills.map((skill) =>
+      updatedSkills = formData.skills.map((skill) =>
         skill === selectedSkill ? skillInput : skill
       );
-      setSkills(updatedSkills);
     } else {
-      setSkills([...skills, skillInput]);
+      updatedSkills = [...formData.skills, skillInput];
     }
+    setFormData({ ...formData, skills: updatedSkills });
     setIsDialogOpen(false);
+    handleSave({ skills: updatedSkills });
   };
 
   const handleDelete = (skill: string) => {
-    const updatedSkills = skills.filter((s) => s !== skill);
-    setSkills(updatedSkills);
+    const updatedSkills = formData.skills.filter((s) => s !== skill);
+    setFormData({ ...formData, skills: updatedSkills });
+    handleSave({ skills: updatedSkills });
   };
 
   return (
@@ -68,7 +72,7 @@ const Skills = () => {
       </div>
 
       <div className="flex gap-3 flex-wrap">
-        {skills.map((skill, index) => (
+        {formData.skills.map((skill, index) => (
           <div key={index} className="flex items-center gap-2">
             <Button
               className="bg-bglite text-base text-signature"
@@ -112,7 +116,7 @@ const Skills = () => {
             <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
               Cancel
             </Button>
-            <Button type="submit" onClick={handleSave}>
+            <Button type="submit" onClick={handleSaveSkill}>
               Save changes
             </Button>
           </DialogFooter>

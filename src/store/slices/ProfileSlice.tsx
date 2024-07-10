@@ -3,28 +3,35 @@ import axios from 'axios';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://ajs-server.hostdonor.com/api/v1';
 
+
 interface JobSeeker {
   _id: string;
+  userInfo: {
+    email: string;
+  };
   firstName: string;
   lastName: string;
   gender: string;
+  dateOfBirth: string;
+  introduction: string;
+  profession: string;
+  phone?: string;
   skills: string[];
   languages: string[];
+  city: string;
+  province: string;
+  country: string;
+  nationality?: string;
+  postalCode?: string;
   openToOffers: boolean;
-  education: any[]; // Update with actual type
-  experience: any[]; // Update with actual type
-  projects: any[]; // Update with actual type
+  education: any[];
+  experience: any[];
+  projects: any[];
   createdAt: string;
   updatedAt: string;
   __v: number;
-  dateOfBirth: string;
-  introduction: string;
-  profession?: string; // Add these optional properties
-  city?: string;
-  country?: string;
   profilePicture?: string;
 }
-
 
 interface ProfileState {
   jobSeeker: JobSeeker | null;
@@ -36,6 +43,13 @@ const initialState: ProfileState = {
   jobSeeker: null,
   status: 'idle',
   error: null,
+};
+
+// Function to get token and id from local storage
+const getAuthData = () => {
+  const token = localStorage.getItem('accessToken');
+  const id = localStorage.getItem('_id');
+  return { token, id };
 };
 
 // Thunk to fetch job seeker profile
@@ -81,14 +95,92 @@ export const updateProfile = createAsyncThunk<JobSeeker, { id: string; updates: 
 );
 
 // Thunk to update job seeker profile picture
-export const updateProfilePicture = createAsyncThunk<JobSeeker, { id: string; file: File; token: string }, { rejectValue: string }>(
-  'profile/updateProfilePicture',
-  async ({ id, file, token }, { rejectWithValue }) => {
+export const updateProfilePicture = createAsyncThunk<
+  JobSeeker,
+  { id: string; file: File; token: string },
+  { rejectValue: string }
+>('profile/updateProfilePicture', async ({ id, file, token }, { rejectWithValue }) => {
+  try {
+    const formData = new FormData();
+    formData.append('profilePicture', file);
+
+    const response = await axios.patch(`${API_URL}/files/job-seeker/profile-picture/${id}`, formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data.jobSeeker;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      return rejectWithValue(error.response.data.message || 'An error occurred while updating the profile picture.');
+    } else {
+      return rejectWithValue('An unknown error occurred');
+    }
+  }
+});
+
+// Thunk to toggle open to offers
+export const toggleOpenToOffers = createAsyncThunk<JobSeeker, void, { rejectValue: string }>(
+  'profile/toggleOpenToOffers',
+  async (_, { rejectWithValue }) => {
+    const { token, id } = getAuthData();
+    if (!token || !id) return rejectWithValue('Missing authentication data');
+
+    try {
+      const response = await axios.patch(`${API_URL}/job-seeker/toggle-open-to-offers/${id}`, {}, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data.jobSeeker;
+    } catch (error: any) {
+      if (axios.isAxiosError(error) && error.response) {
+        return rejectWithValue(error.response.data.message || 'An error occurred while toggling open to offers.');
+      } else {
+        return rejectWithValue('An unknown error occurred');
+      }
+    }
+  }
+);
+
+// Thunk to search job seekers
+export const searchJobSeekers = createAsyncThunk<JobSeeker[], string, { rejectValue: string }>(
+  'profile/searchJobSeekers',
+  async (search, { rejectWithValue }) => {
+    const { token } = getAuthData();
+    if (!token) return rejectWithValue('Missing authentication data');
+
+    try {
+      const response = await axios.get(`${API_URL}/job-seekers/search`, {
+        params: { search },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data.jobSeekers;
+    } catch (error: any) {
+      if (axios.isAxiosError(error) && error.response) {
+        return rejectWithValue(error.response.data.message || 'An error occurred while searching job seekers.');
+      } else {
+        return rejectWithValue('An unknown error occurred');
+      }
+    }
+  }
+);
+
+// Thunk to add or update resume
+export const addOrUpdateResume = createAsyncThunk<JobSeeker, File, { rejectValue: string }>(
+  'profile/addOrUpdateResume',
+  async (file, { rejectWithValue }) => {
+    const { token, id } = getAuthData();
+    if (!token || !id) return rejectWithValue('Missing authentication data');
+
     try {
       const formData = new FormData();
-      formData.append('profilePicture', file);
+      formData.append('resume', file);
 
-      const response = await axios.patch(`${API_URL}/files/job-seeker/profile-picture/${id}`, formData, {
+      const response = await axios.patch(`${API_URL}/files/job-seeker/resume/${id}`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data',
@@ -97,7 +189,255 @@ export const updateProfilePicture = createAsyncThunk<JobSeeker, { id: string; fi
       return response.data.jobSeeker;
     } catch (error: any) {
       if (axios.isAxiosError(error) && error.response) {
-        return rejectWithValue(error.response.data.message || 'An error occurred while updating the profile picture.');
+        return rejectWithValue(error.response.data.message || 'An error occurred while updating the resume.');
+      } else {
+        return rejectWithValue('An unknown error occurred');
+      }
+    }
+  }
+);
+
+// Thunk to delete resume
+export const deleteResume = createAsyncThunk<void, string, { rejectValue: string }>(
+  'profile/deleteResume',
+  async (filename, { rejectWithValue }) => {
+    const { token } = getAuthData();
+    if (!token) return rejectWithValue('Missing authentication data');
+
+    try {
+      await axios.delete(`${API_URL}/files/job-seeker/resume/${filename}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    } catch (error: any) {
+      if (axios.isAxiosError(error) && error.response) {
+        return rejectWithValue(error.response.data.message || 'An error occurred while deleting the resume.');
+      } else {
+        return rejectWithValue('An unknown error occurred');
+      }
+    }
+  }
+);
+
+// Thunk to add education
+export const addEducation = createAsyncThunk<JobSeeker, { education: any }, { rejectValue: string }>(
+  'profile/addEducation',
+  async ({ education }, { rejectWithValue }) => {
+    const { token, id } = getAuthData();
+    if (!token || !id) return rejectWithValue('Missing authentication data');
+
+    try {
+      const response = await axios.post(`${API_URL}/job-seeker/education`, education, {
+        params: { jobSeekerId: id },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data.jobSeeker;
+    } catch (error: any) {
+      if (axios.isAxiosError(error) && error.response) {
+        return rejectWithValue(error.response.data.message || 'An error occurred while adding education.');
+      } else {
+        return rejectWithValue('An unknown error occurred');
+      }
+    }
+  }
+);
+
+// Thunk to update education
+export const updateEducation = createAsyncThunk<JobSeeker, { educationId: string; education: any }, { rejectValue: string }>(
+  'profile/updateEducation',
+  async ({ educationId, education }, { rejectWithValue }) => {
+    const { token, id } = getAuthData();
+    if (!token || !id) return rejectWithValue('Missing authentication data');
+
+    try {
+      const response = await axios.patch(`${API_URL}/job-seeker/education`, education, {
+        params: { jobSeekerId: id, educationId },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data.jobSeeker;
+    } catch (error: any) {
+      if (axios.isAxiosError(error) && error.response) {
+        return rejectWithValue(error.response.data.message || 'An error occurred while updating education.');
+      } else {
+        return rejectWithValue('An unknown error occurred');
+      }
+    }
+  }
+);
+
+// Thunk to delete education
+export const deleteEducation = createAsyncThunk<JobSeeker, { educationId: string }, { rejectValue: string }>(
+  'profile/deleteEducation',
+  async ({ educationId }, { rejectWithValue }) => {
+    const { token, id } = getAuthData();
+    if (!token || !id) return rejectWithValue('Missing authentication data');
+
+    try {
+      const response = await axios.delete(`${API_URL}/job-seeker/education`, {
+        params: { jobSeekerId: id, educationId },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data.jobSeeker;
+    } catch (error: any) {
+      if (axios.isAxiosError(error) && error.response) {
+        return rejectWithValue(error.response.data.message || 'An error occurred while deleting education.');
+      } else {
+        return rejectWithValue('An unknown error occurred');
+      }
+    }
+  }
+);
+
+// Thunk to add experience
+export const addExperience = createAsyncThunk<JobSeeker, { experience: any }, { rejectValue: string }>(
+  'profile/addExperience',
+  async ({ experience }, { rejectWithValue }) => {
+    const { token, id } = getAuthData();
+    if (!token || !id) return rejectWithValue('Missing authentication data');
+
+    try {
+      const response = await axios.post(`${API_URL}/job-seeker/experience`, experience, {
+        params: { jobSeekerId: id },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data.jobSeeker;
+    } catch (error: any) {
+      if (axios.isAxiosError(error) && error.response) {
+        return rejectWithValue(error.response.data.message || 'An error occurred while adding experience.');
+      } else {
+        return rejectWithValue('An unknown error occurred');
+      }
+    }
+  }
+);
+
+// Thunk to update experience
+export const updateExperience = createAsyncThunk<JobSeeker, { experienceId: string; experience: any }, { rejectValue: string }>(
+  'profile/updateExperience',
+  async ({ experienceId, experience }, { rejectWithValue }) => {
+    const { token, id } = getAuthData();
+    if (!token || !id) return rejectWithValue('Missing authentication data');
+
+    try {
+      const response = await axios.patch(`${API_URL}/job-seeker/experience`, experience, {
+        params: { jobSeekerId: id, experienceId },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data.jobSeeker;
+    } catch (error: any) {
+      if (axios.isAxiosError(error) && error.response) {
+        return rejectWithValue(error.response.data.message || 'An error occurred while updating experience.');
+      } else {
+        return rejectWithValue('An unknown error occurred');
+      }
+    }
+  }
+);
+
+// Thunk to delete experience
+export const deleteExperience = createAsyncThunk<JobSeeker, { experienceId: string }, { rejectValue: string }>(
+  'profile/deleteExperience',
+  async ({ experienceId }, { rejectWithValue }) => {
+    const { token, id } = getAuthData();
+    if (!token || !id) return rejectWithValue('Missing authentication data');
+
+    try {
+      const response = await axios.delete(`${API_URL}/job-seeker/experience`, {
+        params: { jobSeekerId: id, experienceId },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data.jobSeeker;
+    } catch (error: any) {
+      if (axios.isAxiosError(error) && error.response) {
+        return rejectWithValue(error.response.data.message || 'An error occurred while deleting experience.');
+      } else {
+        return rejectWithValue('An unknown error occurred');
+      }
+    }
+  }
+);
+
+// Thunk to add project
+export const addProject = createAsyncThunk<JobSeeker, { project: any }, { rejectValue: string }>(
+  'profile/addProject',
+  async ({ project }, { rejectWithValue }) => {
+    const { token, id } = getAuthData();
+    if (!token || !id) return rejectWithValue('Missing authentication data');
+
+    try {
+      const response = await axios.post(`${API_URL}/job-seeker/project`, project, {
+        params: { jobSeekerId: id },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data.jobSeeker;
+    } catch (error: any) {
+      if (axios.isAxiosError(error) && error.response) {
+        return rejectWithValue(error.response.data.message || 'An error occurred while adding project.');
+      } else {
+        return rejectWithValue('An unknown error occurred');
+      }
+    }
+  }
+);
+
+// Thunk to update project
+export const updateProject = createAsyncThunk<JobSeeker, { projectId: string; project: any }, { rejectValue: string }>(
+  'profile/updateProject',
+  async ({ projectId, project }, { rejectWithValue }) => {
+    const { token, id } = getAuthData();
+    if (!token || !id) return rejectWithValue('Missing authentication data');
+
+    try {
+      const response = await axios.patch(`${API_URL}/job-seeker/project`, project, {
+        params: { jobSeekerId: id, projectId },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data.jobSeeker;
+    } catch (error: any) {
+      if (axios.isAxiosError(error) && error.response) {
+        return rejectWithValue(error.response.data.message || 'An error occurred while updating project.');
+      } else {
+        return rejectWithValue('An unknown error occurred');
+      }
+    }
+  }
+);
+
+// Thunk to delete project
+export const deleteProject = createAsyncThunk<JobSeeker, { projectId: string }, { rejectValue: string }>(
+  'profile/deleteProject',
+  async ({ projectId }, { rejectWithValue }) => {
+    const { token, id } = getAuthData();
+    if (!token || !id) return rejectWithValue('Missing authentication data');
+
+    try {
+      const response = await axios.delete(`${API_URL}/job-seeker/project`, {
+        params: { jobSeekerId: id, projectId },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data.jobSeeker;
+    } catch (error: any) {
+      if (axios.isAxiosError(error) && error.response) {
+        return rejectWithValue(error.response.data.message || 'An error occurred while deleting project.');
       } else {
         return rejectWithValue('An unknown error occurred');
       }
@@ -144,6 +484,164 @@ const profileSlice = createSlice({
         state.error = null;
       })
       .addCase(updateProfilePicture.rejected, (state, action: PayloadAction<string | undefined>) => {
+        state.status = 'failed';
+        state.error = action.payload || 'An unknown error occurred';
+      })
+      .addCase(toggleOpenToOffers.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(toggleOpenToOffers.fulfilled, (state, action: PayloadAction<JobSeeker>) => {
+        state.status = 'succeeded';
+        state.jobSeeker = action.payload;
+        state.error = null;
+      })
+      .addCase(toggleOpenToOffers.rejected, (state, action: PayloadAction<string | undefined>) => {
+        state.status = 'failed';
+        state.error = action.payload || 'An unknown error occurred';
+      })
+      .addCase(searchJobSeekers.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(searchJobSeekers.fulfilled, (state, action: PayloadAction<JobSeeker[]>) => {
+        state.status = 'succeeded';
+        state.jobSeeker = action.payload[0]; // Assuming you want the first result as the current job seeker
+        state.error = null;
+      })
+      .addCase(searchJobSeekers.rejected, (state, action: PayloadAction<string | undefined>) => {
+        state.status = 'failed';
+        state.error = action.payload || 'An unknown error occurred';
+      })
+      .addCase(addOrUpdateResume.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(addOrUpdateResume.fulfilled, (state, action: PayloadAction<JobSeeker>) => {
+        state.status = 'succeeded';
+        state.jobSeeker = action.payload;
+        state.error = null;
+      })
+      .addCase(addOrUpdateResume.rejected, (state, action: PayloadAction<string | undefined>) => {
+        state.status = 'failed';
+        state.error = action.payload || 'An unknown error occurred';
+      })
+      .addCase(deleteResume.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(deleteResume.fulfilled, (state) => {
+        state.status = 'succeeded';
+        if (state.jobSeeker) {
+          state.jobSeeker.profilePicture = '';
+        }
+        state.error = null;
+      })
+      .addCase(deleteResume.rejected, (state, action: PayloadAction<string | undefined>) => {
+        state.status = 'failed';
+        state.error = action.payload || 'An unknown error occurred';
+      })
+      .addCase(addEducation.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(addEducation.fulfilled, (state, action: PayloadAction<JobSeeker>) => {
+        state.status = 'succeeded';
+        state.jobSeeker = action.payload;
+        state.error = null;
+      })
+      .addCase(addEducation.rejected, (state, action: PayloadAction<string | undefined>) => {
+        state.status = 'failed';
+        state.error = action.payload || 'An unknown error occurred';
+      })
+      .addCase(updateEducation.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(updateEducation.fulfilled, (state, action: PayloadAction<JobSeeker>) => {
+        state.status = 'succeeded';
+        state.jobSeeker = action.payload;
+        state.error = null;
+      })
+      .addCase(updateEducation.rejected, (state, action: PayloadAction<string | undefined>) => {
+        state.status = 'failed';
+        state.error = action.payload || 'An unknown error occurred';
+      })
+      .addCase(deleteEducation.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(deleteEducation.fulfilled, (state, action: PayloadAction<JobSeeker>) => {
+        state.status = 'succeeded';
+        state.jobSeeker = action.payload;
+        state.error = null;
+      })
+      .addCase(deleteEducation.rejected, (state, action: PayloadAction<string | undefined>) => {
+        state.status = 'failed';
+        state.error = action.payload || 'An unknown error occurred';
+      })
+      .addCase(addExperience.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(addExperience.fulfilled, (state, action: PayloadAction<JobSeeker>) => {
+        state.status = 'succeeded';
+        state.jobSeeker = action.payload;
+        state.error = null;
+      })
+      .addCase(addExperience.rejected, (state, action: PayloadAction<string | undefined>) => {
+        state.status = 'failed';
+        state.error = action.payload || 'An unknown error occurred';
+      })
+      .addCase(updateExperience.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(updateExperience.fulfilled, (state, action: PayloadAction<JobSeeker>) => {
+        state.status = 'succeeded';
+        state.jobSeeker = action.payload;
+        state.error = null;
+      })
+      .addCase(updateExperience.rejected, (state, action: PayloadAction<string | undefined>) => {
+        state.status = 'failed';
+        state.error = action.payload || 'An unknown error occurred';
+      })
+      .addCase(deleteExperience.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(deleteExperience.fulfilled, (state, action: PayloadAction<JobSeeker>) => {
+        state.status = 'succeeded';
+        state.jobSeeker = action.payload;
+        state.error = null;
+      })
+      .addCase(deleteExperience.rejected, (state, action: PayloadAction<string | undefined>) => {
+        state.status = 'failed';
+        state.error = action.payload || 'An unknown error occurred';
+      })
+      .addCase(addProject.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(addProject.fulfilled, (state, action: PayloadAction<JobSeeker>) => {
+        state.status = 'succeeded';
+        state.jobSeeker = action.payload;
+        state.error = null;
+      })
+      .addCase(addProject.rejected, (state, action: PayloadAction<string | undefined>) => {
+        state.status = 'failed';
+        state.error = action.payload || 'An unknown error occurred';
+      })
+      .addCase(updateProject.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(updateProject.fulfilled, (state, action: PayloadAction<JobSeeker>) => {
+        state.status = 'succeeded';
+        state.jobSeeker = action.payload;
+        state.error = null;
+      })
+      .addCase(updateProject.rejected, (state, action: PayloadAction<string | undefined>) => {
+        state.status = 'failed';
+        state.error = action.payload || 'An unknown error occurred';
+      })
+      .addCase(deleteProject.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(deleteProject.fulfilled, (state, action: PayloadAction<JobSeeker>) => {
+        state.status = 'succeeded';
+        state.jobSeeker = action.payload;
+        state.error = null;
+      })
+      .addCase(deleteProject.rejected, (state, action: PayloadAction<string | undefined>) => {
         state.status = 'failed';
         state.error = action.payload || 'An unknown error occurred';
       });
