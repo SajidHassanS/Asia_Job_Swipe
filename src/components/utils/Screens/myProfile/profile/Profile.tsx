@@ -5,9 +5,10 @@ import ProfileCompletion from "./components/ProfileCompletion";
 import AdditonalDetail from "./components/AdditonalDetail";
 import AboutMe from "./components/AboutMe";
 import Experience from "./components/Experience";
+import Educations from "./components/Educations";
 import Projects from "./components/Projects";
 import Skills from "./components/Skills";
-import SocialLinks from "./components/SocialLinks";
+import PersonalDetails from "./components/PersonalDetails";
 import Resume from "./components/Resume";
 const Profile = () => {
   const [progress, setProgress] = React.useState(13);
@@ -31,7 +32,9 @@ const Profile = () => {
               <Experience />
             </div>
 
-            
+            <div className="my-10">
+              <Educations />
+            </div>
             <div className="my-10">
               <Projects />
             </div>
@@ -43,7 +46,7 @@ const Profile = () => {
           <div className="md:w-1/3  w-full">
             <AdditonalDetail />
             <div className="my-10">
-              <SocialLinks/>
+              <PersonalDetails/>
             </div>
 
             <div className="my-10">
