@@ -10,7 +10,7 @@ import PersonalDetails from "./components/PersonalDetails";
 import Resume from "./components/Resume";
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../../../../../store';
-import { fetchProfile, updateProfile } from '@/store/slices/profileSlice';
+import { fetchProfile, updateProfile } from '../../../../../store/slices/profileSlice';
 
 export interface ProfileFormData {
   firstName: string;
