@@ -5,7 +5,7 @@ import authReducer from './slices/authSlice';
 import jobReducer from './slices/jobSlice';
 import userSettingsReducer from './slices/userSettingsSlice';
 import jobSeekerReducer from './slices/jobSeekerSlice';
-import profileReducer from './slices/profileSlice'
+import profileReducer from './slices/profileSlices'
 import experienceReducer from './slices/experienceSlice/experienceSlice';
 import postJobReducer from './slices/postJobSlice';
 import appliedJobReducer from './slices/appliedJobSlice/AppliedJobSlice'
