@@ -1,7 +1,8 @@
-// ProfileCompletion.tsx
 import React, { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { FaMapMarkerAlt } from 'react-icons/fa';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '@/store'; // Ensure the correct import path for your store
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
@@ -9,6 +10,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ProfileFormData } from '../Profile';
 import { Switch } from '@/components/ui/switch';
+import { updateProfilePicture, fetchProfile } from '@/store/slices/profileSlices'; // Adjust the import path if necessary
+//import { JobSeeker } from '@/store/slices/profileSlices'; // Adjust the import path
 
 interface ProfileCompletionProps {
   formData: ProfileFormData;
@@ -17,6 +20,8 @@ interface ProfileCompletionProps {
 }
 
 const ProfileCompletion: React.FC<ProfileCompletionProps> = ({ formData, setFormData, handleSave }) => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { jobSeeker } = useSelector((state: RootState) => state.profile);
   const [isEditing, setIsEditing] = useState(false);
   const [profileImagePreview, setProfileImagePreview] = useState<string>(formData.profilePicture || '/images/profile.png');
   const [profileImage, setProfileImage] = useState<File | null>(null);
@@ -25,6 +30,7 @@ const ProfileCompletion: React.FC<ProfileCompletionProps> = ({ formData, setForm
 
   useEffect(() => {
     calculateProgress();
+    setProfileImagePreview(formData.profilePicture || '/images/profile.png');
   }, [formData]);
 
   const calculateProgress = () => {
@@ -37,12 +43,39 @@ const ProfileCompletion: React.FC<ProfileCompletionProps> = ({ formData, setForm
     setProgress(progressValue);
   };
 
-  const handleSaveClick = () => {
-    handleSave(formData);
-    if (profileImage) {
-      // Handle profile image upload separately if needed
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setProfileImage(file);
+      setProfileImagePreview(URL.createObjectURL(file));
+      const storedId = localStorage.getItem('_id') || ''; // Retrieve the ID from local storage
+      const storedAccessToken = localStorage.getItem('accessToken') || ''; // Retrieve the token from local storage
+
+      if (storedId && storedAccessToken) {
+        dispatch(updateProfilePicture({ id: storedId, file, token: storedAccessToken }))
+          .unwrap() // Unwrap the action to handle fulfilled/rejected actions directly
+          // .then((updatedProfileData: JobSeeker) => {
+          //   console.log('Profile picture updated successfully', updatedProfileData);
+          //   setFormData((prevFormData) => ({
+          //     ...prevFormData,
+          //     profilePicture: updatedProfileData.profilePicture,
+          //   }));
+          //   // Fetch updated profile data to ensure it is reflected in the state
+          //   dispatch(fetchProfile({ id: storedId, token: storedAccessToken }));
+          // })
+          .catch((error: any) => { // Ensure error is typed as any to avoid unknown type issue
+            console.error('Failed to update profile picture:', error);
+          });
+      } else {
+        console.error('No ID or access token found in local storage');
+      }
     }
-    setIsEditing(false);
+  };
+
+  const handleImageClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -54,22 +87,10 @@ const ProfileCompletion: React.FC<ProfileCompletionProps> = ({ formData, setForm
     calculateProgress();
   };
 
-  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setProfileImage(file);
-      setProfileImagePreview(URL.createObjectURL(file));
-      setFormData({
-        ...formData,
-        profilePicture: URL.createObjectURL(file), // Update formData with the new profile picture URL
-      });
-    }
-  };
-
-  const handleImageClick = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
+  const handleSaveClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    handleSave(formData);
+    setIsEditing(false);
   };
 
   return (
@@ -192,7 +213,7 @@ const ProfileCompletion: React.FC<ProfileCompletionProps> = ({ formData, setForm
                       <Input
                         id="company"
                         name="company"
-                        // value={formData.company}
+                        //value={formData.company}
                         onChange={handleChange}
                         className="col-span-3"
                       />

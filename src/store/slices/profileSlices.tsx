@@ -44,6 +44,11 @@ const initialState: ProfileState = {
   status: 'idle',
   error: null,
 };
+interface UpdateProfilePictureArgs {
+  id: string;
+  file: File;
+  token: string;
+}
 
 // Function to get token and id from local storage
 const getAuthData = () => {
@@ -95,30 +100,30 @@ export const updateProfile = createAsyncThunk<JobSeeker, { id: string; updates: 
 );
 
 // Thunk to update job seeker profile picture
-export const updateProfilePicture = createAsyncThunk<
-  JobSeeker,
-  { id: string; file: File; token: string },
-  { rejectValue: string }
->('profile/updateProfilePicture', async ({ id, file, token }, { rejectWithValue }) => {
-  try {
-    const formData = new FormData();
-    formData.append('profilePicture', file);
+export const updateProfilePicture = createAsyncThunk<JobSeeker, UpdateProfilePictureArgs, { rejectValue: string }>(
+  'profile/updateProfilePicture',
+  async ({ id, file, token }, { rejectWithValue }) => {
+    try {
+      const formData = new FormData();
+      formData.append('profilePicture', file);
 
-    const response = await axios.patch(`${API_URL}/files/job-seeker/profile-picture/${id}`, formData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    return response.data.jobSeeker;
-  } catch (error: any) {
-    if (axios.isAxiosError(error) && error.response) {
-      return rejectWithValue(error.response.data.message || 'An error occurred while updating the profile picture.');
-    } else {
-      return rejectWithValue('An unknown error occurred');
+      const response = await axios.patch(`${API_URL}/files/job-seeker/profile-picture/${id}`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      return response.data.jobSeeker;
+    } catch (error: any) {
+      if (axios.isAxiosError(error) && error.response) {
+        return rejectWithValue(error.response.data.message || 'Failed to update profile picture.');
+      } else {
+        return rejectWithValue('An unknown error occurred.');
+      }
     }
   }
-});
+);
 
 // Thunk to toggle open to offers
 export const toggleOpenToOffers = createAsyncThunk<JobSeeker, void, { rejectValue: string }>(
@@ -480,7 +485,9 @@ const profileSlice = createSlice({
       })
       .addCase(updateProfilePicture.fulfilled, (state, action: PayloadAction<JobSeeker>) => {
         state.status = 'succeeded';
-        state.jobSeeker = action.payload;
+        if (state.jobSeeker) {
+          state.jobSeeker.profilePicture = action.payload.profilePicture;
+        }
         state.error = null;
       })
       .addCase(updateProfilePicture.rejected, (state, action: PayloadAction<string | undefined>) => {
@@ -649,3 +656,4 @@ const profileSlice = createSlice({
 });
 
 export default profileSlice.reducer;
+export type { JobSeeker };
