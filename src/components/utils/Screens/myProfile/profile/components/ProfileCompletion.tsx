@@ -50,27 +50,27 @@ const ProfileCompletion: React.FC<ProfileCompletionProps> = ({ formData, setForm
       setProfileImagePreview(URL.createObjectURL(file));
       const storedId = localStorage.getItem('_id') || ''; // Retrieve the ID from local storage
       const storedAccessToken = localStorage.getItem('accessToken') || ''; // Retrieve the token from local storage
-
+  
       if (storedId && storedAccessToken) {
-        dispatch(updateProfilePicture({ id: storedId, file, token: storedAccessToken }))
-          .unwrap() // Unwrap the action to handle fulfilled/rejected actions directly
-          // .then((updatedProfileData: JobSeeker) => {
-          //   console.log('Profile picture updated successfully', updatedProfileData);
-          //   setFormData((prevFormData) => ({
-          //     ...prevFormData,
-          //     profilePicture: updatedProfileData.profilePicture,
-          //   }));
-          //   // Fetch updated profile data to ensure it is reflected in the state
-          //   dispatch(fetchProfile({ id: storedId, token: storedAccessToken }));
-          // })
-          .catch((error: any) => { // Ensure error is typed as any to avoid unknown type issue
-            console.error('Failed to update profile picture:', error);
-          });
+        try {
+          const updatedProfileData = await dispatch(updateProfilePicture({ id: storedId, file, token: storedAccessToken })).unwrap();
+          console.log('Profile picture updated successfully', updatedProfileData);
+  
+          setFormData((prevFormData) => ({
+            ...prevFormData,
+            profilePicture: updatedProfileData.profilePicture || '', // Ensure profilePicture is always a string
+          }));
+  
+          dispatch(fetchProfile({ id: storedId, token: storedAccessToken }));
+        } catch (error: any) {
+          console.error('Failed to update profile picture:', error);
+        }
       } else {
         console.error('No ID or access token found in local storage');
       }
     }
   };
+  
 
   const handleImageClick = () => {
     if (fileInputRef.current) {
