@@ -1,145 +1,118 @@
-import React, { useState } from "react";
-import { FaRegEdit } from "react-icons/fa";
-import { CiSquarePlus } from "react-icons/ci";
-import Image from "next/image";
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-import { format } from "date-fns";
+"use client";
+import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { FaRegEdit } from 'react-icons/fa';
+import { CiSquarePlus } from 'react-icons/ci';
+import { AppDispatch, RootState } from '@/store';
+import { fetchExperiences, addExperience, updateExperience, deleteExperience } from '@/store/slices/experienceSlice/experienceSlice';
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import { format } from 'date-fns';
+import { RiDeleteBin5Line } from 'react-icons/ri';
 
 interface ExperienceData {
-  company: string;
-  role: string;
-  type: string;
-  startDate: Date | undefined;
-  endDate: Date | undefined;
-  location: string;
+  _id?: string;
+  companyName: string;
+  jobTitle: string;
+  from: Date | null;
+  to?: Date | null;
+  onGoing?: boolean;
   description: string;
-  image: string;
 }
 
 const Experience = () => {
-  const [experiences, setExperiences] = useState<ExperienceData[]>([
-    {
-      company: "Twitter",
-      role: "Product designer",
-      type: "Full-Time",
-      startDate: new Date(2019, 5, 1),
-      endDate: new Date(2020, 5, 1),
-      location: "Manchester, UK",
-      description:
-        "Created and executed social media plan for 10 brands utilizing multiple features and content types to increase brand outreach, engagement, and leads.",
-      image: "/images/twitter.png",
-    },
-    {
-      company: "Marketing",
-      role: "Product designer",
-      type: "Full-Time",
-      startDate: new Date(2019, 5, 1),
-      endDate: new Date(2020, 5, 1),
-      location: "Manchester, UK",
-      description:
-        "Created and executed social media plan for 10 brands utilizing multiple features and content types to increase brand outreach, engagement, and leads.",
-      image: "/images/marketing.png",
-    },
-  ]);
+  const dispatch = useDispatch<AppDispatch>();
+  const { experiences } = useSelector((state: RootState) => state.experience);
   const [isEditing, setIsEditing] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
-  const [selectedExperience, setSelectedExperience] =
-    useState<ExperienceData | null>(null);
-  const [experienceText, setExperienceText] = useState("");
-  const [company, setCompany] = useState("");
-  const [role, setRole] = useState("");
-  const [type, setType] = useState("");
-  const [startDate, setStartDate] = useState<Date | null>(null);
-  const [endDate, setEndDate] = useState<Date | null>(null);
-  const [location, setLocation] = useState("");
-  const [imagePreview, setImagePreview] = useState<string | ArrayBuffer | null>(
-    null
-  );
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [selectedExperience, setSelectedExperience] = useState<ExperienceData | null>(null);
+  const [companyName, setCompanyName] = useState('');
+  const [jobTitle, setJobTitle] = useState('');
+  const [from, setFrom] = useState<Date | null>(null);
+  const [to, setTo] = useState<Date | null>(null);
+  const [onGoing, setOnGoing] = useState(false);
+  const [description, setDescription] = useState('');
+
+  useEffect(() => {
+    dispatch(fetchExperiences());
+  }, [dispatch]);
 
   const handleEditClick = (experience: ExperienceData) => {
     setSelectedExperience(experience);
-    setExperienceText(experience.description);
-    setCompany(experience.company);
-    setRole(experience.role);
-    setType(experience.type);
-    setStartDate(experience.startDate || null);
-    setEndDate(experience.endDate || null);
-    setLocation(experience.location);
-    setImagePreview(experience.image);
+    setCompanyName(experience.companyName);
+    setJobTitle(experience.jobTitle);
+    setFrom(experience.from);
+    setTo(experience.to || null);
+    setOnGoing(experience.onGoing || false);
+    setDescription(experience.description);
     setIsEditing(true);
   };
 
   const handleAddClick = () => {
     setSelectedExperience(null);
-    setExperienceText("");
-    setCompany("");
-    setRole("");
-    setType("");
-    setStartDate(null);
-    setEndDate(null);
-    setLocation("");
-    setImagePreview(null);
+    setCompanyName('');
+    setJobTitle('');
+    setFrom(null);
+    setTo(null);
+    setOnGoing(false);
+    setDescription('');
     setIsAdding(true);
   };
 
-  const handleSave = () => {
-    if (selectedExperience) {
-      selectedExperience.description = experienceText;
-      selectedExperience.company = company;
-      selectedExperience.role = role;
-      selectedExperience.type = type;
-      selectedExperience.startDate = startDate || undefined;
-      selectedExperience.endDate = endDate || undefined;
-      selectedExperience.location = location;
-      if (typeof imagePreview === "string") {
-        selectedExperience.image = imagePreview;
-      }
-      setExperiences([...experiences]);
-    } else {
-      const newExperience: ExperienceData = {
-        company,
-        role,
-        type,
-        startDate: startDate || undefined,
-        endDate: endDate || undefined,
-        location,
-        description: experienceText,
-        image:
-          typeof imagePreview === "string"
-            ? imagePreview
-            : "/images/default.png", // Placeholder image
-      };
-      setExperiences([...experiences, newExperience]);
+  const handleSave = async () => {
+    if (description.trim() === '') {
+      alert('Description cannot be empty');
+      return;
     }
-    setIsEditing(false);
-    setIsAdding(false);
+
+    const experienceData: ExperienceData = {
+      companyName,
+      jobTitle,
+      from: from,
+      to: to || undefined,
+      onGoing,
+      description,
+    };
+
+    try {
+      if (selectedExperience) {
+        await dispatch(updateExperience({ experienceId: selectedExperience._id!, experience: experienceData })).unwrap();
+      } else {
+        await dispatch(addExperience(experienceData)).unwrap();
+      }
+      await dispatch(fetchExperiences());
+      setIsEditing(false);
+      setIsAdding(false);
+    } catch (error) {
+      console.error('Failed to save experience:', error);
+    }
+  };
+
+  const handleDeleteClick = (experience: ExperienceData) => {
+    setSelectedExperience(experience);
+    setIsDeleting(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    try {
+      if (selectedExperience) {
+        await dispatch(deleteExperience({ experienceId: selectedExperience._id! })).unwrap();
+        setIsDeleting(false);
+        setSelectedExperience(null);
+        await dispatch(fetchExperiences());
+      }
+    } catch (error) {
+      console.error('Failed to delete experience:', error);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setExperienceText(e.target.value);
-  };
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setImagePreview(reader.result);
-      };
-      reader.readAsDataURL(e.target.files[0]);
-    }
+    setDescription(e.target.value);
   };
 
   return (
@@ -148,11 +121,7 @@ const Experience = () => {
         <h1 className="text-modaltext text-2xl font-semibold">Experiences</h1>
         <Dialog open={isAdding} onOpenChange={setIsAdding}>
           <DialogTrigger asChild>
-            <CiSquarePlus
-              className="text-signature border rounded-lg p-2 cursor-pointer"
-              size={40}
-              onClick={handleAddClick}
-            />
+            <CiSquarePlus className="text-signature border rounded-lg p-2 cursor-pointer" size={40} onClick={handleAddClick} />
           </DialogTrigger>
           <DialogContent className="sm:max-w-[600px] p-6">
             <DialogHeader>
@@ -162,95 +131,46 @@ const Experience = () => {
               </DialogDescription>
             </DialogHeader>
             <div className="grid grid-cols-2 gap-4 py-4">
-              <div className="col-span-2 flex justify-center mb-4">
-                <div className="relative w-24 h-24 border-2 border-dashed rounded-full flex items-center justify-center">
-                  {imagePreview ? (
-                    <Image
-                      src={
-                        typeof imagePreview === "string"
-                          ? imagePreview
-                          : "/images/default.png"
-                      }
-                      alt="Experience Image"
-                      width={100}
-                      height={100}
-                      className="rounded-full"
-                    />
-                  ) : (
-                    <span className="text-gray-500">Add Image</span>
-                  )}
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="absolute inset-0 opacity-0 cursor-pointer"
-                  />
-                </div>
+              <div>
+                <Label htmlFor="companyName">Company Name</Label>
+                <Input id="companyName" value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="Company Name" />
               </div>
               <div>
-                <Label htmlFor="company">Company</Label>
-                <Input
-                  id="company"
-                  value={company}
-                  onChange={(e) => setCompany(e.target.value)}
-                  placeholder="Company"
-                />
+                <Label htmlFor="jobTitle">Job Title</Label>
+                <Input id="jobTitle" value={jobTitle} onChange={(e) => setJobTitle(e.target.value)} placeholder="Job Title" />
               </div>
               <div>
-                <Label htmlFor="role">Role</Label>
-                <Input
-                  id="role"
-                  value={role}
-                  onChange={(e) => setRole(e.target.value)}
-                  placeholder="Role"
-                />
-              </div>
-              <div>
-                <Label htmlFor="type">Type</Label>
-                <Input
-                  id="type"
-                  value={type}
-                  onChange={(e) => setType(e.target.value)}
-                  placeholder="Type"
-                />
-              </div>
-              <div>
-                <Label htmlFor="location">Location</Label>
-                <Input
-                  id="location"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  placeholder="Location"
-                />
-              </div>
-              <div>
-                <Label htmlFor="startDate">Start Date</Label>
+                <Label htmlFor="from">From</Label>
                 <DatePicker
-                  selected={startDate}
-                  onChange={(date) => setStartDate(date)}
+                  selected={from}
+                  onChange={(date) => setFrom(date as Date)}
                   className="w-full border rounded-lg p-2"
                   placeholderText="Pick a date"
                 />
               </div>
               <div>
-                <Label htmlFor="endDate">End Date</Label>
+                <Label htmlFor="to">To</Label>
                 <DatePicker
-                  selected={endDate}
-                  onChange={(date) => setEndDate(date)}
+                  selected={to}
+                  onChange={(date) => setTo(date as Date)}
                   className="w-full border rounded-lg p-2"
                   placeholderText="Pick a date"
+                  disabled={onGoing}
+                />
+              </div>
+              <div className="col-span-2">
+                <Label htmlFor="onGoing">Ongoing</Label>
+                <input
+                  id="onGoing"
+                  type="checkbox"
+                  checked={onGoing}
+                  onChange={(e) => setOnGoing(e.target.checked)}
+                  className="ml-2"
                 />
               </div>
               <div className="col-span-2">
                 <Label htmlFor="description">Description</Label>
-                <textarea
-                  id="description"
-                  className="w-full border rounded-lg p-4 text-lg"
-                  rows={4}
-                  value={experienceText}
-                  onChange={handleChange}
-                  placeholder="Description"
-                />
+                <textarea id="description" className="w-full border rounded-lg p-4 text-lg" rows={4} value={description} onChange={handleChange} placeholder="Description" />
               </div>
             </div>
             <DialogFooter>
@@ -265,24 +185,17 @@ const Experience = () => {
         <div key={index} className={`pb-5 mb-5 ${index !== experiences.length - 1 ? 'border-b' : ''}`}>
           <div className="flex justify-between gap-5">
             <div>
-              <Image src={experience.image} alt={experience.company} width={100} height={100} className="rounded-lg shadow-sm" />
-            </div>
-            <div>
+              <h1 className="text-lg font-semibold">{experience?.jobTitle || 'Untitled'}</h1>
+              <div className="flex text-base text-signininput">
+                <h1 className="text-modaltext font-medium">{experience?.companyName || 'Unknown Company'}</h1>
+                .<h1>{experience?.from ? format(new Date(experience.from), "PPP") : ''} - {experience?.onGoing ? 'Present' : (experience?.to ? format(new Date(experience.to), "PPP") : '')}</h1>
+              </div>
               <div>
-                <h1 className="text-lg font-semibold">{experience.role}</h1>
-                <div className="flex text-base text-signininput">
-                  <h1 className="text-modaltext font-medium">{experience.company}</h1> .<h1>{experience.type}</h1> .<h1>{format(experience.startDate!, "PPP")} - {format(experience.endDate!, "PPP")}</h1>
-                </div>
-                <div>
-                  <h1 className="text-lg text-signininput">{experience.location}</h1>
-                </div>
-                <div>
-                  <p className="text-modaltext">{experience.description}</p>
-                </div>
+                <p className="text-modaltext">{experience?.description || 'No description available'}</p>
               </div>
             </div>
             <div>
-              <Dialog open={isEditing && selectedExperience === experience} onOpenChange={setIsEditing}>
+              <Dialog open={isEditing && selectedExperience?._id === experience._id} onOpenChange={setIsEditing}>
                 <DialogTrigger asChild>
                   <FaRegEdit className="text-signature border rounded-lg p-2 cursor-pointer" size={40} onClick={() => handleEditClick(experience)} />
                 </DialogTrigger>
@@ -294,53 +207,46 @@ const Experience = () => {
                     </DialogDescription>
                   </DialogHeader>
                   <div className="grid grid-cols-2 gap-4 py-4">
-                    <div className="col-span-2 flex justify-center mb-4">
-                      <div className="relative w-24 h-24 border-2 border-dashed rounded-full flex items-center justify-center">
-                        {imagePreview ? (
-                          <Image src={typeof imagePreview === "string" ? imagePreview : "/images/default.png"} alt="Experience Image" width={100} height={100} className="rounded-full" />
-                        ) : (
-                          <span className="text-gray-500">Add Image</span>
-                        )}
-                        <input type="file" accept="image/*" onChange={handleImageChange} className="absolute inset-0 opacity-0 cursor-pointer" />
-                      </div>
+                    <div>
+                      <Label htmlFor="companyName">Company Name</Label>
+                      <Input id="companyName" value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="Company Name" />
                     </div>
                     <div>
-                      <Label htmlFor="company">Company</Label>
-                      <Input id="company" value={company} onChange={(e) => setCompany(e.target.value)} placeholder="Company" />
+                      <Label htmlFor="jobTitle">Job Title</Label>
+                      <Input id="jobTitle" value={jobTitle} onChange={(e) => setJobTitle(e.target.value)} placeholder="Job Title" />
                     </div>
                     <div>
-                      <Label htmlFor="role">Role</Label>
-                      <Input id="role" value={role} onChange={(e) => setRole(e.target.value)} placeholder="Role" />
-                    </div>
-                    <div>
-                      <Label htmlFor="type">Type</Label>
-                      <Input id="type" value={type} onChange={(e) => setType(e.target.value)} placeholder="Type" />
-                    </div>
-                    <div>
-                      <Label htmlFor="location">Location</Label>
-                      <Input id="location" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Location" />
-                    </div>
-                    <div>
-                      <Label htmlFor="startDate">Start Date</Label>
+                      <Label htmlFor="from">From</Label>
                       <DatePicker
-                        selected={startDate}
-                        onChange={(date) => setStartDate(date)}
+                        selected={from}
+                        onChange={(date) => setFrom(date as Date)}
                         className="w-full border rounded-lg p-2"
                         placeholderText="Pick a date"
                       />
                     </div>
                     <div>
-                      <Label htmlFor="endDate">End Date</Label>
+                      <Label htmlFor="to">To</Label>
                       <DatePicker
-                        selected={endDate}
-                        onChange={(date) => setEndDate(date)}
+                        selected={to}
+                        onChange={(date) => setTo(date as Date)}
                         className="w-full border rounded-lg p-2"
                         placeholderText="Pick a date"
+                        disabled={onGoing}
+                      />
+                    </div>
+                    <div className="col-span-2">
+                      <Label htmlFor="onGoing">Ongoing</Label>
+                      <input
+                        id="onGoing"
+                        type="checkbox"
+                        checked={onGoing}
+                        onChange={(e) => setOnGoing(e.target.checked)}
+                        className="ml-2"
                       />
                     </div>
                     <div className="col-span-2">
                       <Label htmlFor="description">Description</Label>
-                      <textarea id="description" className="w-full border rounded-lg p-4 text-lg" rows={4} value={experienceText} onChange={handleChange} placeholder="Description" />
+                      <textarea id="description" className="w-full border rounded-lg p-4 text-lg" rows={4} value={description} onChange={handleChange} placeholder="Description" />
                     </div>
                   </div>
                   <DialogFooter>
@@ -349,10 +255,27 @@ const Experience = () => {
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
+              <RiDeleteBin5Line className="text-red-500 cursor-pointer" size={30} onClick={() => handleDeleteClick(experience)} />
             </div>
           </div>
         </div>
       ))}
+
+      {/* Confirmation Dialog for Delete */}
+      <Dialog open={isDeleting} onOpenChange={setIsDeleting}>
+        <DialogContent className="sm:max-w-[400px] p-6">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold">Confirm Delete</DialogTitle>
+            <DialogDescription className="text-md text-gray-500">
+              Are you sure you want to delete this experience? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDeleting(false)}>Cancel</Button>
+            <Button type="submit" onClick={handleDeleteConfirm}>Delete</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

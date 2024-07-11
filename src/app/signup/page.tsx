@@ -52,16 +52,18 @@ const SignUpForm: React.FC = () => {
   const validateForm = (): boolean => {
     const errors: { [key: string]: string } = {};
 
-    if (!firstName) {
-      errors.firstName = "First name cannot be empty";
-    } else if (firstName.length < 3 || /[^a-zA-Z]/.test(firstName)) {
-      errors.firstName = "First name must contain only letters and be at least 3 characters long";
-    }
+    if (role === 'jobSeeker') {
+      if (!firstName) {
+        errors.firstName = "First name cannot be empty";
+      } else if (firstName.length < 3 || /[^a-zA-Z]/.test(firstName)) {
+        errors.firstName = "First name must contain only letters and be at least 3 characters long";
+      }
 
-    if (!lastName) {
-      errors.lastName = "Last name cannot be empty";
-    } else if (lastName.length < 3 || /[^a-zA-Z]/.test(lastName)) {
-      errors.lastName = "Last name must contain only letters and be at least 3 characters long";
+      if (!lastName) {
+        errors.lastName = "Last name cannot be empty";
+      } else if (lastName.length < 3 || /[^a-zA-Z]/.test(lastName)) {
+        errors.lastName = "Last name must contain only letters and be at least 3 characters long";
+      }
     }
 
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
