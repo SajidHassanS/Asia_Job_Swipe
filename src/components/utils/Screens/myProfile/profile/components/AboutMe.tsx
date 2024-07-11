@@ -1,10 +1,7 @@
-// components/AboutMe.tsx
-import React,{useState} from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaRegEdit } from "react-icons/fa";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { ProfileFormData } from '../Profile';
 
 interface AboutMeProps {
@@ -16,6 +13,10 @@ interface AboutMeProps {
 const AboutMe: React.FC<AboutMeProps> = ({ formData, setFormData, handleSave }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [aboutText, setAboutText] = useState(formData.introduction);
+
+  useEffect(() => {
+    setAboutText(formData.introduction);
+  }, [formData.introduction]);
 
   const handleSaveClick = () => {
     handleSave({ introduction: aboutText });

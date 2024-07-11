@@ -1,120 +1,108 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { CiSquarePlus } from "react-icons/ci";
 import { RiDeleteBin5Line } from "react-icons/ri";
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { AppDispatch, RootState } from '@/store';
+import { addOrUpdateResume, deleteResume } from '@/store/slices/profileSlices';
 
 const Resume = () => {
-  const [isAdding, setIsAdding] = useState(false);
-  const [resumeFile, setResumeFile] = useState<File | null>(null);
+  const dispatch = useDispatch<AppDispatch>();
+  const { jobSeeker } = useSelector((state: RootState) => state.profile);
   const [resumeFileName, setResumeFileName] = useState<string | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [resumeUrl, setResumeUrl] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const handleAddClick = () => {
-    setResumeFile(null);
-    setIsAdding(true);
-  };
+  useEffect(() => {
+    if (jobSeeker && jobSeeker.resume) {
+      setResumeUrl(jobSeeker.resume);
+      const fileName = jobSeeker.resume.split('/').pop();
+      setResumeFileName(fileName || null);
+    }
+  }, [jobSeeker]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setResumeFile(e.target.files[0]);
-      setResumeFileName(e.target.files[0].name);
+      const file = e.target.files[0];
+      setResumeFileName(file.name);
+
+      const storedId = localStorage.getItem('_id') || '';
+      const storedAccessToken = localStorage.getItem('accessToken') || '';
+
+      if (storedId && storedAccessToken) {
+        try {
+          const result = await dispatch(addOrUpdateResume({ id: storedId, file, token: storedAccessToken })).unwrap();
+          console.log('Resume updated successfully', result.resumeUrl);
+          setResumeUrl(result.resumeUrl);
+        } catch (error: any) {
+          console.error('Failed to update resume:', error);
+        }
+      } else {
+        console.error('No ID or access token found in local storage');
+      }
     }
   };
 
-  const handleSave = () => {
-    setIsAdding(false);
+  const handleFileClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
   };
 
-  const handleDelete = () => {
-    setResumeFile(null);
-    setResumeFileName(null);
-    setIsDeleting(false);
+  const handleDelete = async () => {
+    const storedAccessToken = localStorage.getItem('accessToken') || '';
+
+    if (resumeUrl && storedAccessToken) {
+      const filename = resumeUrl.split('/').pop();
+
+      if (filename) {
+        try {
+          await dispatch(deleteResume({ filename, token: storedAccessToken })).unwrap();
+          console.log('Resume deleted successfully');
+          setResumeFileName(null);
+          setResumeUrl(null);
+        } catch (error: any) {
+          console.error('Failed to delete resume:', error);
+        }
+      }
+    }
   };
 
   return (
     <div className="border rounded-[20px] py-6 px-5 bg-white shadow-md">
       <div className="flex justify-between">
         <h1 className="text-modaltext text-2xl font-semibold">Resume/CV</h1>
-        <Dialog open={isAdding} onOpenChange={setIsAdding}>
-          <DialogTrigger asChild>
-            <CiSquarePlus
-              className="text-signature border rounded-lg p-2 cursor-pointer"
-              size={40}
-              onClick={handleAddClick}
-            />
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[600px] p-6">
-            <DialogHeader>
-              <DialogTitle className="text-3xl font-bold">Add Resume/CV</DialogTitle>
-              <DialogDescription className="text-md text-gray-500">
-                Upload your resume or CV file here. Click save when you&apos;re done.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="py-4">
-              <div className="grid gap-4">
-                <div>
-                  <Label htmlFor="resume">Resume/CV</Label>
-                  <Input
-                    id="resume"
-                    type="file"
-                    accept=".pdf,.doc,.docx"
-                    onChange={handleFileChange}
-                    className="w-full mt-2"
-                  />
-                </div>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsAdding(false)}>Cancel</Button>
-              <Button type="submit" onClick={handleSave}>Save changes</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <CiSquarePlus
+          className="text-signature border rounded-lg p-2 cursor-pointer"
+          size={40}
+          onClick={handleFileClick}
+        />
+        <input
+          type="file"
+          accept=".pdf,.doc,.docx"
+          ref={fileInputRef}
+          className="hidden"
+          onChange={handleFileChange}
+        />
       </div>
 
       {resumeFileName && (
         <div className="py-8">
           <div className="flex items-center gap-5">
             <div>
-              <p className="text-lg text-modaltext">{resumeFileName}</p>
+              <a href={resumeUrl || '#'} target="_blank" rel="noopener noreferrer" className="text-lg text-modaltext">
+                {resumeFileName}
+              </a>
             </div>
-            <Dialog open={isDeleting} onOpenChange={setIsDeleting}>
-              <DialogTrigger asChild>
-                <RiDeleteBin5Line
-                  className="text-red-500 cursor-pointer"
-                  size={30}
-                  onClick={() => setIsDeleting(true)}
-                />
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[400px] p-6">
-                <DialogHeader>
-                  <DialogTitle className="text-3xl font-bold">Delete Resume/CV</DialogTitle>
-                  <DialogDescription className="text-md text-gray-500">
-                    Are you sure you want to delete this resume or CV? This action cannot be undone.
-                  </DialogDescription>
-                </DialogHeader>
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => setIsDeleting(false)}>Cancel</Button>
-                  <Button variant="destructive" onClick={handleDelete}>Delete</Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+            <RiDeleteBin5Line
+              className="text-red-500 cursor-pointer"
+              size={30}
+              onClick={handleDelete}
+            />
           </div>
         </div>
       )}
     </div>
   );
-}
+};
 
 export default Resume;
