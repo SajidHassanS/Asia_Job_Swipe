@@ -28,7 +28,7 @@ export interface ProfileFormData {
   postalCode: string;
   email: string;
   phone: string;
-  profilePicture: string; // Add this line
+  profilePicture: string;
 }
 
 const Profile = () => {
@@ -50,7 +50,7 @@ const Profile = () => {
     postalCode: '',
     email: '',
     phone: '',
-    profilePicture: '', // Add this line
+    profilePicture: '',
   });
 
   useEffect(() => {
@@ -79,7 +79,7 @@ const Profile = () => {
         postalCode: jobSeeker.postalCode || '',
         email: jobSeeker.userInfo?.email || '',
         phone: jobSeeker.phone || '',
-        profilePicture: jobSeeker.profilePicture || '', // Add this line
+        profilePicture: jobSeeker.profilePicture || '',
       });
     }
   }, [jobSeeker]);

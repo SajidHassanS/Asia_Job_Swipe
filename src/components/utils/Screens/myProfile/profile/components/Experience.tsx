@@ -26,7 +26,8 @@ interface ExperienceData {
 
 const Experience = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { experiences } = useSelector((state: RootState) => state.experience);
+  const { experiences, status, error } = useSelector((state: RootState) => state.experience);
+  const [localExperiences, setLocalExperiences] = useState<ExperienceData[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -37,20 +38,27 @@ const Experience = () => {
   const [to, setTo] = useState<Date | null>(null);
   const [onGoing, setOnGoing] = useState(false);
   const [description, setDescription] = useState('');
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   useEffect(() => {
     dispatch(fetchExperiences());
   }, [dispatch]);
 
+  useEffect(() => {
+    console.log("Fetched experiences from Redux:", experiences);
+    setLocalExperiences(experiences);
+  }, [experiences]);
+
   const handleEditClick = (experience: ExperienceData) => {
     setSelectedExperience(experience);
     setCompanyName(experience.companyName);
     setJobTitle(experience.jobTitle);
-    setFrom(experience.from);
-    setTo(experience.to || null);
+    setFrom(experience.from ? new Date(experience.from) : null);
+    setTo(experience.to ? new Date(experience.to) : null);
     setOnGoing(experience.onGoing || false);
     setDescription(experience.description);
     setIsEditing(true);
+    setValidationError(null);
   };
 
   const handleAddClick = () => {
@@ -62,18 +70,19 @@ const Experience = () => {
     setOnGoing(false);
     setDescription('');
     setIsAdding(true);
+    setValidationError(null);
   };
 
   const handleSave = async () => {
-    if (description.trim() === '') {
-      alert('Description cannot be empty');
+    if (description.trim().length < 10) {
+      setValidationError('Description must be at least 10 characters long');
       return;
     }
 
     const experienceData: ExperienceData = {
       companyName,
       jobTitle,
-      from: from,
+      from,
       to: to || undefined,
       onGoing,
       description,
@@ -81,13 +90,18 @@ const Experience = () => {
 
     try {
       if (selectedExperience) {
+        console.log("Updating experience:", experienceData);
         await dispatch(updateExperience({ experienceId: selectedExperience._id!, experience: experienceData })).unwrap();
       } else {
+        console.log("Adding new experience:", experienceData);
         await dispatch(addExperience(experienceData)).unwrap();
       }
-      await dispatch(fetchExperiences());
+
       setIsEditing(false);
       setIsAdding(false);
+      setValidationError(null);
+      // Fetch the updated experiences from the API to refresh the state
+      dispatch(fetchExperiences());
     } catch (error) {
       console.error('Failed to save experience:', error);
     }
@@ -101,10 +115,12 @@ const Experience = () => {
   const handleDeleteConfirm = async () => {
     try {
       if (selectedExperience) {
+        console.log("Deleting experience:", selectedExperience._id);
         await dispatch(deleteExperience({ experienceId: selectedExperience._id! })).unwrap();
         setIsDeleting(false);
         setSelectedExperience(null);
-        await dispatch(fetchExperiences());
+        // Fetch the updated experiences from the API to refresh the state
+        dispatch(fetchExperiences());
       }
     } catch (error) {
       console.error('Failed to delete experience:', error);
@@ -113,76 +129,20 @@ const Experience = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setDescription(e.target.value);
+    if (e.target.value.trim().length >= 10) {
+      setValidationError(null);
+    }
   };
 
   return (
     <div className="border rounded-[20px] py-6 px-5 bg-white shadow-md">
       <div className="flex justify-between mb-5">
         <h1 className="text-modaltext text-2xl font-semibold">Experiences</h1>
-        <Dialog open={isAdding} onOpenChange={setIsAdding}>
-          <DialogTrigger asChild>
-            <CiSquarePlus className="text-signature border rounded-lg p-2 cursor-pointer" size={40} onClick={handleAddClick} />
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[600px] p-6">
-            <DialogHeader>
-              <DialogTitle className="text-3xl font-bold">Add Experience</DialogTitle>
-              <DialogDescription className="text-md text-gray-500">
-                Add your new experience here. Click save when you are done.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid grid-cols-2 gap-4 py-4">
-              <div>
-                <Label htmlFor="companyName">Company Name</Label>
-                <Input id="companyName" value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="Company Name" />
-              </div>
-              <div>
-                <Label htmlFor="jobTitle">Job Title</Label>
-                <Input id="jobTitle" value={jobTitle} onChange={(e) => setJobTitle(e.target.value)} placeholder="Job Title" />
-              </div>
-              <div>
-                <Label htmlFor="from">From</Label>
-                <DatePicker
-                  selected={from}
-                  onChange={(date) => setFrom(date as Date)}
-                  className="w-full border rounded-lg p-2"
-                  placeholderText="Pick a date"
-                />
-              </div>
-              <div>
-                <Label htmlFor="to">To</Label>
-                <DatePicker
-                  selected={to}
-                  onChange={(date) => setTo(date as Date)}
-                  className="w-full border rounded-lg p-2"
-                  placeholderText="Pick a date"
-                  disabled={onGoing}
-                />
-              </div>
-              <div className="col-span-2">
-                <Label htmlFor="onGoing">Ongoing</Label>
-                <input
-                  id="onGoing"
-                  type="checkbox"
-                  checked={onGoing}
-                  onChange={(e) => setOnGoing(e.target.checked)}
-                  className="ml-2"
-                />
-              </div>
-              <div className="col-span-2">
-                <Label htmlFor="description">Description</Label>
-                <textarea id="description" className="w-full border rounded-lg p-4 text-lg" rows={4} value={description} onChange={handleChange} placeholder="Description" />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsAdding(false)}>Cancel</Button>
-              <Button type="submit" onClick={handleSave}>Save changes</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <CiSquarePlus className="text-signature border rounded-lg p-2 cursor-pointer" size={40} onClick={handleAddClick} />
       </div>
 
-      {experiences.map((experience, index) => (
-        <div key={index} className={`pb-5 mb-5 ${index !== experiences.length - 1 ? 'border-b' : ''}`}>
+      {localExperiences.length > 0 ? localExperiences.map((experience, index) => (
+        <div key={experience?._id ?? index} className={`pb-5 mb-5 ${index !== localExperiences.length - 1 ? 'border-b' : ''}`}>
           <div className="flex justify-between gap-5">
             <div>
               <h1 className="text-lg font-semibold">{experience?.jobTitle || 'Untitled'}</h1>
@@ -195,73 +155,80 @@ const Experience = () => {
               </div>
             </div>
             <div>
-              <Dialog open={isEditing && selectedExperience?._id === experience._id} onOpenChange={setIsEditing}>
-                <DialogTrigger asChild>
-                  <FaRegEdit className="text-signature border rounded-lg p-2 cursor-pointer" size={40} onClick={() => handleEditClick(experience)} />
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[600px] p-6">
-                  <DialogHeader>
-                    <DialogTitle className="text-3xl font-bold">Edit Experience</DialogTitle>
-                    <DialogDescription className="text-md text-gray-500">
-                      Make changes to your experience here. Click save when you are done.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="grid grid-cols-2 gap-4 py-4">
-                    <div>
-                      <Label htmlFor="companyName">Company Name</Label>
-                      <Input id="companyName" value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="Company Name" />
-                    </div>
-                    <div>
-                      <Label htmlFor="jobTitle">Job Title</Label>
-                      <Input id="jobTitle" value={jobTitle} onChange={(e) => setJobTitle(e.target.value)} placeholder="Job Title" />
-                    </div>
-                    <div>
-                      <Label htmlFor="from">From</Label>
-                      <DatePicker
-                        selected={from}
-                        onChange={(date) => setFrom(date as Date)}
-                        className="w-full border rounded-lg p-2"
-                        placeholderText="Pick a date"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="to">To</Label>
-                      <DatePicker
-                        selected={to}
-                        onChange={(date) => setTo(date as Date)}
-                        className="w-full border rounded-lg p-2"
-                        placeholderText="Pick a date"
-                        disabled={onGoing}
-                      />
-                    </div>
-                    <div className="col-span-2">
-                      <Label htmlFor="onGoing">Ongoing</Label>
-                      <input
-                        id="onGoing"
-                        type="checkbox"
-                        checked={onGoing}
-                        onChange={(e) => setOnGoing(e.target.checked)}
-                        className="ml-2"
-                      />
-                    </div>
-                    <div className="col-span-2">
-                      <Label htmlFor="description">Description</Label>
-                      <textarea id="description" className="w-full border rounded-lg p-4 text-lg" rows={4} value={description} onChange={handleChange} placeholder="Description" />
-                    </div>
-                  </div>
-                  <DialogFooter>
-                    <Button variant="outline" onClick={() => setIsEditing(false)}>Cancel</Button>
-                    <Button type="submit" onClick={handleSave}>Save changes</Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
+              <FaRegEdit className="text-signature border rounded-lg p-2 cursor-pointer" size={40} onClick={() => handleEditClick(experience)} />
               <RiDeleteBin5Line className="text-red-500 cursor-pointer" size={30} onClick={() => handleDeleteClick(experience)} />
             </div>
           </div>
         </div>
-      ))}
+      )) : (
+        <div>No experiences found.</div>
+      )}
 
-      {/* Confirmation Dialog for Delete */}
+      <Dialog open={isAdding || isEditing} onOpenChange={(open) => {
+        setIsAdding(open && !isEditing);
+        setIsEditing(open && !isAdding);
+      }}>
+        <DialogContent className="sm:max-w-[600px] p-6">
+          <DialogHeader>
+            <DialogTitle className="text-3xl font-bold">{isAdding ? 'Add Experience' : 'Edit Experience'}</DialogTitle>
+            <DialogDescription className="text-md text-gray-500">
+              {isAdding ? 'Add your new experience here. Click save when you are done.' : 'Make changes to your experience here. Click save when you are done.'}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid grid-cols-2 gap-4 py-4">
+            <div>
+              <Label htmlFor="companyName">Company Name</Label>
+              <Input id="companyName" value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="Company Name" />
+            </div>
+            <div>
+              <Label htmlFor="jobTitle">Job Title</Label>
+              <Input id="jobTitle" value={jobTitle} onChange={(e) => setJobTitle(e.target.value)} placeholder="Job Title" />
+            </div>
+            <div>
+              <Label htmlFor="from">From</Label>
+              <DatePicker
+                selected={from}
+                onChange={(date) => setFrom(date as Date)}
+                className="w-full border rounded-lg p-2"
+                placeholderText="Pick a date"
+              />
+            </div>
+            <div>
+              <Label htmlFor="to">To</Label>
+              <DatePicker
+                selected={to}
+                onChange={(date) => setTo(date as Date)}
+                className="w-full border rounded-lg p-2"
+                placeholderText="Pick a date"
+                disabled={onGoing}
+              />
+            </div>
+            <div className="col-span-2">
+              <Label htmlFor="onGoing">Ongoing</Label>
+              <input
+                id="onGoing"
+                type="checkbox"
+                checked={onGoing}
+                onChange={(e) => setOnGoing(e.target.checked)}
+                className="ml-2"
+              />
+            </div>
+            <div className="col-span-2">
+              <Label htmlFor="description">Description</Label>
+              <textarea id="description" className="w-full border rounded-lg p-4 text-lg" rows={4} value={description} onChange={handleChange} placeholder="Description" />
+              {validationError && <p className="text-red-500">{validationError}</p>}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => {
+              setIsAdding(false);
+              setIsEditing(false);
+            }}>Cancel</Button>
+            <Button type="submit" onClick={handleSave}>Save changes</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={isDeleting} onOpenChange={setIsDeleting}>
         <DialogContent className="sm:max-w-[400px] p-6">
           <DialogHeader>
