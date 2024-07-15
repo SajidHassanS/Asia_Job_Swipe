@@ -5,7 +5,7 @@ import { FaRegEdit } from 'react-icons/fa';
 import { CiSquarePlus } from 'react-icons/ci';
 import { AppDispatch, RootState } from '@/store';
 import { fetchExperiences, addExperience, updateExperience, deleteExperience } from '@/store/slices/experienceSlice/experienceSlice';
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -26,7 +26,7 @@ interface ExperienceData {
 
 const Experience = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { experiences, status, error } = useSelector((state: RootState) => state.experience);
+  const { experiences } = useSelector((state: RootState) => state.experience);
   const [localExperiences, setLocalExperiences] = useState<ExperienceData[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
@@ -45,7 +45,6 @@ const Experience = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    console.log("Fetched experiences from Redux:", experiences);
     setLocalExperiences(experiences);
   }, [experiences]);
 
@@ -92,16 +91,17 @@ const Experience = () => {
       if (selectedExperience) {
         console.log("Updating experience:", experienceData);
         await dispatch(updateExperience({ experienceId: selectedExperience._id!, experience: experienceData })).unwrap();
+        await dispatch(fetchExperiences()).unwrap(); // Fetch the latest experiences
+        setIsEditing(false); // Close the dialog
+        setSelectedExperience(null); // Reset selected experience
       } else {
         console.log("Adding new experience:", experienceData);
         await dispatch(addExperience(experienceData)).unwrap();
+        await dispatch(fetchExperiences()).unwrap(); // Fetch the latest experiences
+        setIsAdding(false); // Close the dialog
       }
 
-      setIsEditing(false);
-      setIsAdding(false);
       setValidationError(null);
-      // Fetch the updated experiences from the API to refresh the state
-      dispatch(fetchExperiences());
     } catch (error) {
       console.error('Failed to save experience:', error);
     }
@@ -117,10 +117,9 @@ const Experience = () => {
       if (selectedExperience) {
         console.log("Deleting experience:", selectedExperience._id);
         await dispatch(deleteExperience({ experienceId: selectedExperience._id! })).unwrap();
+        setLocalExperiences((prev) => prev.filter((exp) => exp._id !== selectedExperience._id));
         setIsDeleting(false);
         setSelectedExperience(null);
-        // Fetch the updated experiences from the API to refresh the state
-        dispatch(fetchExperiences());
       }
     } catch (error) {
       console.error('Failed to delete experience:', error);
@@ -165,8 +164,11 @@ const Experience = () => {
       )}
 
       <Dialog open={isAdding || isEditing} onOpenChange={(open) => {
-        setIsAdding(open && !isEditing);
-        setIsEditing(open && !isAdding);
+        console.log("Dialog state changed:", open);
+        if (!open) {
+          setIsAdding(false);
+          setIsEditing(false);
+        }
       }}>
         <DialogContent className="sm:max-w-[600px] p-6">
           <DialogHeader>
@@ -191,6 +193,11 @@ const Experience = () => {
                 onChange={(date) => setFrom(date as Date)}
                 className="w-full border rounded-lg p-2"
                 placeholderText="Pick a date"
+                showYearDropdown
+                scrollableYearDropdown
+                yearDropdownItemNumber={101} // Show a range of 101 years (1950 to 2050)
+                minDate={new Date(1950, 0, 1)}
+                maxDate={new Date(2050, 11, 31)}
               />
             </div>
             <div>
@@ -200,6 +207,11 @@ const Experience = () => {
                 onChange={(date) => setTo(date as Date)}
                 className="w-full border rounded-lg p-2"
                 placeholderText="Pick a date"
+                showYearDropdown
+                scrollableYearDropdown
+                yearDropdownItemNumber={101} // Show a range of 101 years (1950 to 2050)
+                minDate={new Date(1950, 0, 1)}
+                maxDate={new Date(2050, 11, 31)}
                 disabled={onGoing}
               />
             </div>

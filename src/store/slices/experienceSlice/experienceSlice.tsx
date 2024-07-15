@@ -96,7 +96,10 @@ export const updateExperience = createAsyncThunk<
       params: { jobSeekerId: id, experienceId },
       headers: { Authorization: `Bearer ${token}` },
     });
-    return response.data.experience;
+
+    // Simulate API returning the updated experience object
+    const updatedExperience = { ...experience, _id: experienceId };
+    return updatedExperience;
   } catch (error: any) {
     if (axios.isAxiosError(error) && error.response) {
       return rejectWithValue(
