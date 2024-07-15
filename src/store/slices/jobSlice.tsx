@@ -3,9 +3,30 @@ import axios from 'axios';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://ajs-server.hostdonor.com/api/v1';
 
-export const fetchJobs = createAsyncThunk('jobs/fetchJobs', async (page: number) => {
-  const response = await axios.get(`${API_URL}/jobs?page=${page}`);
-  return response.data;
+
+const getAuthData = () => {
+  const token = localStorage.getItem('accessToken');
+  return token;
+};
+
+export const fetchJobs = createAsyncThunk('jobs/fetchJobs', async (page: number, { rejectWithValue }) => {
+  const token = getAuthData();
+  if (!token) return rejectWithValue('Access token is missing');
+
+  try {
+    const response = await axios.get(`${API_URL}/jobs?page=${page}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      return rejectWithValue(
+        error.response.data.message || 'An error occurred while fetching jobs.'
+      );
+    } else {
+      return rejectWithValue('An unknown error occurred');
+    }
+  }
 });
 
 export const fetchSavedJobs = createAsyncThunk('jobs/fetchSavedJobs', async (jobSeekerId: string) => {
