@@ -31,13 +31,37 @@ const initialState: JobSeekerState = {
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://ajs-server.hostdonor.com/api/v1';
 
+
+
+const getAuthToken = () => {
+  const token = localStorage.getItem('accessToken');
+  console.log('Access Token:', token); // Logging the token to verify it's being retrieved
+  return token;
+};
+
+
 export const getJobSeekerById = createAsyncThunk<JobSeeker, string, { rejectValue: string }>(
   'jobSeeker/getJobSeekerById',
   async (jobSeekerId, { rejectWithValue }) => {
+    const token = getAuthToken();
+    if (!token) {
+      return rejectWithValue('Access token is missing');
+    }
+
     try {
-      const response = await axios.get(`${API_URL}/job-seeker/${jobSeekerId}`);
+      const response = await axios.get(`${API_URL}/job-seeker/${jobSeekerId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log('Response:', response.data); // Logging the response for debugging
       return response.data.jobSeeker;
-    } catch (error) {
+    } catch (error: any) {
+      if (axios.isAxiosError(error) && error.response) {
+        console.error('API Error:', error.response.data); // Logging the error response
+        return rejectWithValue(error.response.data.message || 'Failed to fetch job seeker.');
+      }
+      console.error('Unknown Error:', error); // Logging unknown errors
       return rejectWithValue('Failed to fetch job seeker.');
     }
   }

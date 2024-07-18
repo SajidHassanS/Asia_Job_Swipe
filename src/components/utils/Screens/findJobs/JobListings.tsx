@@ -1,4 +1,3 @@
-// JobListings.tsx
 "use client";
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -143,7 +142,7 @@ const JobListings: React.FC<JobListingsProps> = ({ jobs, totalJobs, origin }) =>
         <p>Showing {totalJobs} results</p>
       </div>
       <div className={isGridView ? "grid grid-cols-1 md:grid-cols-2 gap-5" : ""}>
-        {jobs.map((job) => (
+        {jobs.map((job: Job) => (
           <Link key={job._id} href={{ pathname: `/job-description/${job._id}`, query: { origin } }}>
             <Card key={job._id} className="mb-5 p-4 cursor-pointer">
               <div className="">

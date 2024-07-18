@@ -10,6 +10,7 @@ import experienceReducer from './slices/experienceSlice/experienceSlice';
 import postJobReducer from './slices/postJobSlice';
 import appliedJobReducer from './slices/appliedJobSlice/AppliedJobSlice'
 import projectReducer from './slices/projects/projectSlice'
+import educationReducer from './slices/educationslice/educationSlice'
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -21,7 +22,8 @@ const rootReducer = combineReducers({
   postJob: postJobReducer, // Ensure correct naming
   experience: experienceReducer,
   appliedJobs: appliedJobReducer,
-  project: projectReducer
+  project: projectReducer,
+  education: educationReducer
 
 });
 

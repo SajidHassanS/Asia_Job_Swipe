@@ -29,22 +29,44 @@ export const fetchJobs = createAsyncThunk('jobs/fetchJobs', async (page: number,
   }
 });
 
-export const fetchSavedJobs = createAsyncThunk('jobs/fetchSavedJobs', async (jobSeekerId: string) => {
-  const response = await axios.get(`${API_URL}/jobs/saved-jobs/${jobSeekerId}`, {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+export const fetchSavedJobs = createAsyncThunk('jobs/fetchSavedJobs', async (jobSeekerId: string, { rejectWithValue }) => {
+  const token = getAuthData();
+  if (!token) return rejectWithValue('Access token is missing');
+
+  try {
+    const response = await axios.get(`${API_URL}/jobs/saved-jobs/${jobSeekerId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data.savedJobs;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      return rejectWithValue(
+        error.response.data.message || 'An error occurred while fetching saved jobs.'
+      );
+    } else {
+      return rejectWithValue('An unknown error occurred');
     }
-  });
-  return response.data.savedJobs;
+  }
 });
 
-export const fetchJobById = createAsyncThunk('jobs/fetchJobById', async (jobId: string) => {
-  const response = await axios.get(`${API_URL}/job/${jobId}`, {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+export const fetchJobById = createAsyncThunk('jobs/fetchJobById', async (jobId: string, { rejectWithValue }) => {
+  const token = getAuthData();
+  if (!token) return rejectWithValue('Access token is missing');
+
+  try {
+    const response = await axios.get(`${API_URL}/job/${jobId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data.job;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      return rejectWithValue(
+        error.response.data.message || 'An error occurred while fetching the job.'
+      );
+    } else {
+      return rejectWithValue('An unknown error occurred');
     }
-  });
-  return response.data.job;
+  }
 });
 
 interface Company {

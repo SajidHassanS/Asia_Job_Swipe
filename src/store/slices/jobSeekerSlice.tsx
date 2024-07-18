@@ -8,6 +8,7 @@ interface GetSavedJobsArgs {
   accessToken: string;
 }
 
+
 interface ToggleSaveJobArgs {
   jobId: string;
   jobSeekerId: string;
@@ -20,14 +21,22 @@ interface ApplyForJobArgs {
 }
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://ajs-server.hostdonor.com/api/v1';
-
+const getAuthToken = () => {
+  const token = localStorage.getItem('accessToken');
+  return token;
+};
 export const getSavedJobs = createAsyncThunk<Job[], GetSavedJobsArgs>(
   'jobSeekers/getSavedJobs',
-  async ({ jobSeekerId, accessToken }, { rejectWithValue }) => {
+  async ({ jobSeekerId }, { rejectWithValue }) => {
+    const token = getAuthToken();
+    if (!token) {
+      return rejectWithValue('Access token is missing');
+    }
+
     try {
       const response = await axios.get(`${API_URL}/jobs/saved-jobs/${jobSeekerId}`, {
         headers: {
-          Authorization: `Bearer ${accessToken}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -56,23 +65,32 @@ export const getSavedJobs = createAsyncThunk<Job[], GetSavedJobsArgs>(
       return savedJobs;
     } catch (error: any) {
       if (axios.isAxiosError(error) && error.response) {
+        console.error('API Error:', error.response.data); // Logging the error response
         return rejectWithValue(error.response.data.message || 'Failed to fetch saved jobs.');
       }
+      console.error('Unknown Error:', error); // Logging unknown errors
       return rejectWithValue('Failed to fetch saved jobs.');
     }
   }
 );
 
+
+
 export const toggleSaveJob = createAsyncThunk<string, ToggleSaveJobArgs>(
   'jobSeekers/toggleSaveJob',
-  async ({ jobId, jobSeekerId, accessToken }, { rejectWithValue }) => {
+  async ({ jobId, jobSeekerId }, { rejectWithValue }) => {
+    const token = getAuthToken();
+    if (!token) {
+      return rejectWithValue('Access token is missing');
+    }
+
     try {
       await axios.post(
         `${API_URL}/jobs/toggle-job-save`,
         { jobId, jobSeekerId },
         {
           headers: {
-            Authorization: `Bearer ${accessToken}`,
+            Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
         }
@@ -91,13 +109,25 @@ export const toggleSaveJob = createAsyncThunk<string, ToggleSaveJobArgs>(
 export const fetchJobById = createAsyncThunk<Job, string>(
   'jobSeekers/fetchJobById',
   async (jobId, { rejectWithValue }) => {
+    const token = getAuthToken();
+    if (!token) {
+      return rejectWithValue('Access token is missing');
+    }
+
     try {
-      const response = await axios.get(`${API_URL}/job/${jobId}`);
+      const response = await axios.get(`${API_URL}/job/${jobId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log('Response:', response.data); // Logging the response for debugging
       return response.data;
     } catch (error: any) {
       if (axios.isAxiosError(error) && error.response) {
+        console.error('API Error:', error.response.data); // Logging the error response
         return rejectWithValue(error.response.data.message || 'Failed to fetch job.');
       }
+      console.error('Unknown Error:', error); // Logging unknown errors
       return rejectWithValue('Failed to fetch job.');
     }
   }
