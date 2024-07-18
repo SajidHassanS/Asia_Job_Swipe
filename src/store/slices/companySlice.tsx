@@ -1,14 +1,51 @@
 // store/slices/companySlice.ts
-
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
+
+interface Contact {
+  phone: string;
+  isVerified: boolean;
+}
+
+interface UserInfo {
+  contact: Contact;
+  email: string;
+  role: string;
+}
 
 interface Company {
   _id: string;
   companyName: string;
-  companyImages: string[];
-  plan: string;
+  companyLogo: string;
+  website: string;
+  foundedYear: string;
+  numberOfEmployees: string;
+  sector: string;
+  specialty?: string;
+  city: string;
+  province: string;
+  country: string;
+  address: string;
+  description: string;
+  services?: string[];
+  skills?: string[];
+  companyImages?: string[];
+  socialLinks?: {
+    linkedin?: string;
+    facebook?: string;
+    instagram?: string;
+  };
+  userInfo?: {
+    contact: {
+      phone: string;
+      isVerified: boolean;
+    };
+    email: string;
+    role: string;
+  };
+  languages?: string[];
 }
+
 
 interface Pagination {
   totalPages: number;
@@ -21,6 +58,7 @@ interface Pagination {
 
 interface CompanyState {
   companies: Company[];
+  selectedCompany: Company | null;
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null;
   pagination: Pagination;
@@ -28,6 +66,7 @@ interface CompanyState {
 
 const initialState: CompanyState = {
   companies: [],
+  selectedCompany: null,
   status: 'idle',
   error: null,
   pagination: {
@@ -59,6 +98,25 @@ export const fetchCompanies = createAsyncThunk<
   }
 });
 
+export const fetchCompanyById = createAsyncThunk<
+  Company,
+  string,
+  { rejectValue: string }
+>('company/fetchCompanyById', async (id, { rejectWithValue }) => {
+  try {
+    const response = await axios.get(`${API_URL}/company/${id}`);
+    console.log("API Response:", response.data);
+    return response.data.company;
+  } catch (error: any) {
+    console.log("API Error:", error);
+    if (axios.isAxiosError(error) && error.response) {
+      return rejectWithValue(error.response.data.message || 'An error occurred while fetching the company.');
+    } else {
+      return rejectWithValue('An unknown error occurred');
+    }
+  }
+});
+
 const companySlice = createSlice({
   name: 'company',
   initialState,
@@ -74,6 +132,17 @@ const companySlice = createSlice({
         state.pagination = action.payload.pagination;
       })
       .addCase(fetchCompanies.rejected, (state, action: PayloadAction<string | undefined>) => {
+        state.status = 'failed';
+        state.error = action.payload || 'An unknown error occurred';
+      })
+      .addCase(fetchCompanyById.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchCompanyById.fulfilled, (state, action: PayloadAction<Company>) => {
+        state.status = 'succeeded';
+        state.selectedCompany = action.payload;
+      })
+      .addCase(fetchCompanyById.rejected, (state, action: PayloadAction<string | undefined>) => {
         state.status = 'failed';
         state.error = action.payload || 'An unknown error occurred';
       });

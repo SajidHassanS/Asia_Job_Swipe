@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { MdGridView } from "react-icons/md";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from 'next/navigation';
 
 interface Company {
   _id: string;
@@ -21,6 +22,7 @@ interface JobListingsProps {
 
 const JobListings: React.FC<JobListingsProps> = ({ jobs, searchTerm, location }) => {
   const [isGridView, setIsGridView] = useState(true);
+  const router = useRouter();
 
   const toggleViewMode = () => {
     setIsGridView(!isGridView);
@@ -30,6 +32,10 @@ const JobListings: React.FC<JobListingsProps> = ({ jobs, searchTerm, location })
     const matchesSearchTerm = job.companyName.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesSearchTerm;
   });
+
+  const handleCardClick = (id: string) => {
+    router.push(`/company-profile/${id}`);
+  };
 
   return (
     <div className="md:w-full p-4">
@@ -60,7 +66,7 @@ const JobListings: React.FC<JobListingsProps> = ({ jobs, searchTerm, location })
 
       <div className={isGridView ? "grid md:grid-cols-3 gap-8" : "grid md:grid-cols-1 gap-8"}>
         {filteredJobs.map((job) => (
-          <Card key={job._id} className="px-5 py-8">
+          <Card key={job._id} className="px-5 py-8" onClick={() => handleCardClick(job._id)}>
             <div className="bg-background">
               <div className="flex justify-between mb-5 md:mb-2">
                 <div>
@@ -73,13 +79,11 @@ const JobListings: React.FC<JobListingsProps> = ({ jobs, searchTerm, location })
                   />
                 </div>
                 <div className="md:mt-3">
-                  <p className="md:text-xl   text-signature bg-muted p-2  ">{job.plan ? job.plan : "1 job"}</p>
+                  <p className="md:text-xl text-signature bg-muted p-2">{job.plan ? job.plan : "1 job"}</p>
                 </div>
               </div>
               <div>
-                <h3 className="md:text-xl mb-5 text-lg font-bold">
-                  {job.companyName}
-                </h3>
+                <h3 className="md:text-xl mb-5 text-lg font-bold">{job.companyName}</h3>
               </div>
               <div className="flex justify-between">
                 <div className="flex flex-wrap gap-2 items-center mt-2">
