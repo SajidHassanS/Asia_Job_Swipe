@@ -1,10 +1,15 @@
-// store/slices/companySlice.ts
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 
 interface Contact {
   phone: string;
   isVerified: boolean;
+}
+
+interface SocialLinks {
+  linkedin?: string;
+  facebook?: string;
+  instagram?: string;
 }
 
 interface UserInfo {
@@ -30,22 +35,16 @@ interface Company {
   services?: string[];
   skills?: string[];
   companyImages?: string[];
-  socialLinks?: {
-    linkedin?: string;
-    facebook?: string;
-    instagram?: string;
-  };
-  userInfo?: {
-    contact: {
-      phone: string;
-      isVerified: boolean;
-    };
-    email: string;
-    role: string;
-  };
+  socialLinks?: SocialLinks;
+  userInfo?: UserInfo;
   languages?: string[];
 }
 
+interface Job {
+  _id: string;
+  title: string;
+  description: string;
+}
 
 interface Pagination {
   totalPages: number;
@@ -59,6 +58,7 @@ interface Pagination {
 interface CompanyState {
   companies: Company[];
   selectedCompany: Company | null;
+  jobs: Job[];
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null;
   pagination: Pagination;
@@ -67,6 +67,7 @@ interface CompanyState {
 const initialState: CompanyState = {
   companies: [],
   selectedCompany: null,
+  jobs: [],
   status: 'idle',
   error: null,
   pagination: {
@@ -105,12 +106,27 @@ export const fetchCompanyById = createAsyncThunk<
 >('company/fetchCompanyById', async (id, { rejectWithValue }) => {
   try {
     const response = await axios.get(`${API_URL}/company/${id}`);
-    console.log("API Response:", response.data);
     return response.data.company;
   } catch (error: any) {
-    console.log("API Error:", error);
     if (axios.isAxiosError(error) && error.response) {
       return rejectWithValue(error.response.data.message || 'An error occurred while fetching the company.');
+    } else {
+      return rejectWithValue('An unknown error occurred');
+    }
+  }
+});
+
+export const fetchJobsByCompany = createAsyncThunk<
+  Job[],
+  string,
+  { rejectValue: string }
+>('jobs/fetchJobsByCompany', async (companyId, { rejectWithValue }) => {
+  try {
+    const response = await axios.get(`${API_URL}/jobs/company/${companyId}`);
+    return response.data;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      return rejectWithValue(error.response.data.message || 'An error occurred while fetching jobs.');
     } else {
       return rejectWithValue('An unknown error occurred');
     }
@@ -143,6 +159,17 @@ const companySlice = createSlice({
         state.selectedCompany = action.payload;
       })
       .addCase(fetchCompanyById.rejected, (state, action: PayloadAction<string | undefined>) => {
+        state.status = 'failed';
+        state.error = action.payload || 'An unknown error occurred';
+      })
+      .addCase(fetchJobsByCompany.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchJobsByCompany.fulfilled, (state, action: PayloadAction<Job[]>) => {
+        state.status = 'succeeded';
+        state.jobs = action.payload;
+      })
+      .addCase(fetchJobsByCompany.rejected, (state, action: PayloadAction<string | undefined>) => {
         state.status = 'failed';
         state.error = action.payload || 'An unknown error occurred';
       });

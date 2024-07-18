@@ -2,7 +2,7 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "next/navigation";
-import { fetchCompanyById } from "@/store/slices/companySlice";
+import { fetchCompanyById, fetchJobsByCompany } from "@/store/slices/companySlice";
 import { RootState, AppDispatch } from "@/store";
 
 import ProfileCompletion from "./components/ProfileCompletion";
@@ -14,6 +14,7 @@ import SocialLinks from "./components/SocialLinks";
 import Title from "@/components/Title";
 import Services from "./components/Services";
 import Specialization from "./components/Specialization";
+import CompanyJobs from "./components/CompanyJobs";
 
 const CompanyProfile = () => {
   const dispatch: AppDispatch = useDispatch();
@@ -24,16 +25,18 @@ const CompanyProfile = () => {
     console.log("ID from URL:", id);
     if (id) {
       dispatch(fetchCompanyById(id));
+      dispatch(fetchJobsByCompany(id));
     }
   }, [id, dispatch]);
 
-  const { selectedCompany, status, error } = useSelector((state: RootState) => state.company);
+  const { selectedCompany, jobs, status, error } = useSelector((state: RootState) => state.company);
 
   useEffect(() => {
     console.log("Status:", status);
     console.log("Selected Company:", selectedCompany);
+    console.log("Jobs:", jobs);
     console.log("Error:", error);
-  }, [status, selectedCompany, error]);
+  }, [status, selectedCompany, jobs, error]);
 
   if (!id) {
     return <div>No ID provided in URL.</div>;
@@ -72,7 +75,7 @@ const CompanyProfile = () => {
                   <AboutMe description={selectedCompany.description} />
                 </div>
               )}
-              {Array.isArray(selectedCompany.services) && selectedCompany.services.length > 0 && (
+              {selectedCompany.services && selectedCompany.services.length > 0 && (
                 <div className="my-10">
                   <Services services={selectedCompany.services} />
                 </div>
@@ -82,29 +85,37 @@ const CompanyProfile = () => {
                   <Specialization specialty={specialtyArray} />
                 </div>
               )}
-              {Array.isArray(selectedCompany.skills) && selectedCompany.skills.length > 0 && (
+              {selectedCompany.skills && selectedCompany.skills.length > 0 && (
                 <div className="my-10">
                   <Skills skills={selectedCompany.skills} />
                 </div>
               )}
-              {Array.isArray(selectedCompany.companyImages) && selectedCompany.companyImages.length > 0 && (
+              {selectedCompany.companyImages && selectedCompany.companyImages.length > 0 && (
                 <div className="my-10">
                   <Projects companyImages={selectedCompany.companyImages} />
                 </div>
               )}
+           
+              {jobs && jobs.length > 0 ? (
+                <div className="my-10">
+                  <CompanyJobs jobs={jobs} />
+                </div>
+              ) : (
+                <div>No jobs found for this company.</div>
+              )}
             </div>
             <div className="md:w-1/3 w-full">
-              {(selectedCompany.userInfo || (Array.isArray(selectedCompany.languages) && selectedCompany.languages.length > 0)) && (
-                <AdditionalDetail 
-                  userInfo={selectedCompany.userInfo} 
-                  languages={selectedCompany.languages || []} 
+              {selectedCompany.userInfo && (
+                <AdditionalDetail
+                  userInfo={selectedCompany.userInfo}
+                  languages={selectedCompany.languages || []}
                   city={selectedCompany.city}
                   province={selectedCompany.province}
                   country={selectedCompany.country}
                   address={selectedCompany.address}
                 />
               )}
-              {selectedCompany.socialLinks && Object.keys(selectedCompany.socialLinks).length > 0 && (
+              {selectedCompany.socialLinks && (
                 <div className="my-10">
                   <SocialLinks socialLinks={selectedCompany.socialLinks} />
                 </div>
