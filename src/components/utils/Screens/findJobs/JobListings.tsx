@@ -18,11 +18,12 @@ import { Job } from "../../../../store/slices/types";
 interface JobListingsProps {
   jobs: Job[];
   totalJobs: number;
-  origin: string; // Add origin prop to distinguish the page source
+  origin: string;
 }
 
 const JobListings: React.FC<JobListingsProps> = ({ jobs, totalJobs, origin }) => {
   const [isGridView, setIsGridView] = useState(false);
+  const [appliedJobs, setAppliedJobs] = useState<string[]>([]);
   const dispatch: AppDispatch = useDispatch();
   const { jobSeeker, status, applyError } = useSelector((state: RootState) => state.jobSeeker);
   const { toast } = useToast();
@@ -81,6 +82,7 @@ const JobListings: React.FC<JobListingsProps> = ({ jobs, totalJobs, origin }) =>
     if (jobSeekerId) {
       try {
         await dispatch(applyForJob({ jobId, jobSeekerId })).unwrap();
+        setAppliedJobs((prev) => [...prev, jobId]);
         toast({
           title: "Application Submitted",
           description: "Your job application was submitted successfully!",
@@ -88,11 +90,19 @@ const JobListings: React.FC<JobListingsProps> = ({ jobs, totalJobs, origin }) =>
       } catch (error) {
         console.error('Failed to apply for job:', error);
         const errorMessage = applyError || 'Unknown error occurred';
-        toast({
-          title: "Application Failed",
-          description: `Failed to apply for job: ${errorMessage}`,
-          variant: "destructive",
-        });
+        if (errorMessage.includes("already applied")) {
+          setAppliedJobs((prev) => [...prev, jobId]);
+          toast({
+            title: "Already Applied",
+            description: "You have already applied for this job.",
+          });
+        } else {
+          toast({
+            title: "Application Failed",
+            description: `Failed to apply for job: ${errorMessage}`,
+            variant: "destructive",
+          });
+        }
       }
     } else {
       console.error('Missing jobSeekerId or accessToken');
@@ -109,7 +119,7 @@ const JobListings: React.FC<JobListingsProps> = ({ jobs, totalJobs, origin }) =>
   };
 
   const hasAppliedForJob = (jobId: string) => {
-    return jobSeeker?.appliedJobs?.some((job) => job._id === jobId);
+    return jobSeeker?.appliedJobs?.some((job) => job._id === jobId) || appliedJobs.includes(jobId);
   };
 
   return (
@@ -211,38 +221,36 @@ const JobListings: React.FC<JobListingsProps> = ({ jobs, totalJobs, origin }) =>
                         }}
                       >
                         {isJobSaved(job._id) ? (
-                          <BsBookmarkDashFill className="text-signature" size={30} />
+                          <BsBookmarkDashFill className="text-signature" size={20} />
                         ) : (
-                          <BsBookmarkDash className="text-signature" size={30} />
+                          <BsBookmarkDash className="text-signature" size={20} />
                         )}
                       </div>
                     </div>
-                    <div className="flex flex-col mt-2">
-                      {hasAppliedForJob(job._id) ? (
-                        <Button
-                          variant="ghost"
-                          className="text-green-500 text-sm px-4 py-2 rounded-md"
-                          disabled
-                        >
-                          Applied
-                        </Button>
-                      ) : (
-                        <Button
-                          className="bg-signature text-background text-sm px-8 py-2 rounded-md"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            handleApplyClick(job._id);
-                          }}
-                        >
-                          Apply
-                        </Button>
-                      )}
-                      <Button
-                        variant="ghost"
-                        className="text-red-500 text-sm px-4 py-2 rounded-md mt-2"
-                      >
-                        Decline
-                      </Button>
+                    <div className="flex items-center justify-center">
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handleApplyClick(job._id);
+                            }}
+                            disabled={hasAppliedForJob(job._id)}
+                            className={`text-white md:px-10 md:py-5 py-3 px-4 ${hasAppliedForJob(job._id) ? "bg-sky-200" : "bg-signature"
+                              }`}
+                          >
+                            {hasAppliedForJob(job._id) ? "Applied" : "Apply Now"}
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>{job.title}</DialogTitle>
+                            <DialogDescription>
+                              Your application has been sent.
+                            </DialogDescription>
+                          </DialogHeader>
+                        </DialogContent>
+                      </Dialog>
                     </div>
                   </div>
                 </div>
