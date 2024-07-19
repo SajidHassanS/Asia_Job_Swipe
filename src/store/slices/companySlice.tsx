@@ -60,8 +60,10 @@ interface CompanyState {
   selectedCompany: Company | null;
   jobs: Job[];
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
+  registrationStatus: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null;
   pagination: Pagination;
+  user: any; // Adjust as per your backend response structure
 }
 
 const initialState: CompanyState = {
@@ -69,6 +71,7 @@ const initialState: CompanyState = {
   selectedCompany: null,
   jobs: [],
   status: 'idle',
+  registrationStatus: 'idle',
   error: null,
   pagination: {
     totalPages: 1,
@@ -78,9 +81,14 @@ const initialState: CompanyState = {
     nextPage: null,
     previousPage: null,
   },
+  user: null,
 };
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://ajs-server.hostdonor.com/api/v1';
+
+const getAccessToken = (): string | null => {
+  return localStorage.getItem('accessToken');
+};
 
 export const fetchCompanies = createAsyncThunk<
   { companies: Company[]; pagination: Pagination },
@@ -133,6 +141,33 @@ export const fetchJobsByCompany = createAsyncThunk<
   }
 });
 
+export const registerCompanyRole = createAsyncThunk<
+  any,
+  { firstName: string; lastName: string; email: string; password: string; role: string },
+  { rejectValue: string }
+>('company/registerCompanyRole', async (userData, { rejectWithValue }) => {
+  const accessToken = getAccessToken();
+
+  if (!accessToken) {
+    return rejectWithValue('Access token is missing');
+  }
+
+  try {
+    const response = await axios.post(`${API_URL}/auth/register/company-role`, userData, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      return rejectWithValue(error.response.data.message || 'An error occurred during registration.');
+    } else {
+      return rejectWithValue('An unknown error occurred');
+    }
+  }
+});
+
 const companySlice = createSlice({
   name: 'company',
   initialState,
@@ -171,6 +206,17 @@ const companySlice = createSlice({
       })
       .addCase(fetchJobsByCompany.rejected, (state, action: PayloadAction<string | undefined>) => {
         state.status = 'failed';
+        state.error = action.payload || 'An unknown error occurred';
+      })
+      .addCase(registerCompanyRole.pending, (state) => {
+        state.registrationStatus = 'loading';
+      })
+      .addCase(registerCompanyRole.fulfilled, (state, action: PayloadAction<any>) => {
+        state.registrationStatus = 'succeeded';
+        state.user = action.payload;
+      })
+      .addCase(registerCompanyRole.rejected, (state, action: PayloadAction<string | undefined>) => {
+        state.registrationStatus = 'failed';
         state.error = action.payload || 'An unknown error occurred';
       });
   },

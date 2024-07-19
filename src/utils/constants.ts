@@ -61,6 +61,11 @@ export const menu: Menu[] = [
     icon: FaUsers,
   },
   {
+    name: "Company Role",
+    path: "/company-role",
+    icon: FaUsers,
+  },
+  {
     name: "Company Profile",
     path: "/company-profile",
     icon: TbBuildingSkyscraper,
