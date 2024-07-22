@@ -33,17 +33,13 @@ const SignUpForm: React.FC = () => {
   const [role, setRole] = useState<string>('jobSeeker'); // Correct casing for role
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
+  const [showCompletionModal, setShowCompletionModal] = useState(false);
 
   useEffect(() => {
     if (auth?.user) {
-      const role = localStorage.getItem("role");
-      if (role === "company") {
-        router.push("/dashboard");
-      } else {
-        router.push("/");
-      }
+      setShowCompletionModal(true);
     }
-  }, [auth?.user, router]);
+  }, [auth?.user]);
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -115,7 +111,6 @@ const SignUpForm: React.FC = () => {
       if (response) {
         localStorage.setItem("role", role); // Store the role in localStorage
         localStorage.setItem("_id", response._id); // Store user ID in localStorage
-        router.push(role === 'company' ? '/dashboard' : '/');
       }
     } catch (error: any) {
       if (Array.isArray(error)) {
@@ -123,6 +118,14 @@ const SignUpForm: React.FC = () => {
       } else {
         setErrorMessage(error.message || 'An error occurred during registration.');
       }
+    }
+  };
+
+  const handleProfileCompletionChoice = (choice: 'complete' | 'skip') => {
+    if (role === 'company') {
+      router.push(choice === 'complete' ? '/steps' : '/dashboard');
+    } else {
+      router.push(choice === 'complete' ? '/job-seeker-profile-completion' : '/');
     }
   };
 
@@ -326,7 +329,7 @@ const SignUpForm: React.FC = () => {
                       placeholder="Confirm Password"
                     />
                     <div
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center  cursor-pointer"
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
                       onClick={togglePasswordVisibility}
                     >
                       {showPassword ? <FaEye /> : <FaEyeSlash />}
@@ -373,6 +376,23 @@ const SignUpForm: React.FC = () => {
           </Tabs>
         </div>
       </div>
+
+      {showCompletionModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-8 rounded-lg shadow-lg">
+            <h2 className="text-2xl mb-4">Complete Your Profile</h2>
+            <p className="mb-4">Would you like to complete your profile now or skip for later?</p>
+            <div className="flex justify-between">
+              <Button variant="outline" onClick={() => handleProfileCompletionChoice('complete')}>
+                Complete Now
+              </Button>
+              <Button variant="outline" onClick={() => handleProfileCompletionChoice('skip')}>
+                Skip for Now
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

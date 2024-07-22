@@ -1,36 +1,40 @@
-"use client"
-import React from 'react';
+"use client";
+import React from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { IoIosArrowDown } from "react-icons/io";
-import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-
-type Checked = DropdownMenuCheckboxItemProps["checked"];
 
 interface StepProps {
-  formData: any;
-  setFormData: (data: any) => void;
+  formData: FormData;
+  setFormData: React.Dispatch<React.SetStateAction<FormData>>;
   nextStep: () => void;
+  errors: { [key: string]: string };
 }
 
-const Step1: React.FC<StepProps> = ({ formData, setFormData, nextStep }) => {
-  const [showStatusBar, setShowStatusBar] = React.useState<Checked>(true);
-  const [showActivityBar, setShowActivityBar] = React.useState<Checked>(false);
-  const [showPanel, setShowPanel] = React.useState<Checked>(false);
+type FormData = {
+  companyName: string;
+  companySize: string;
+  foundedYear: string;
+  companyDescription: string;
+  sector: string;
+  services: string;
+  languages: string;
+  websiteUrl: string;
+  contactNumber: string;
+  email: string;
+  country: string;
+  province: string;
+  city: string;
+  address: string;
+  mediaUrl: string;
+  companyLogo: File | null;
+  companyImages: File[];
+};
 
+const Step1: React.FC<StepProps> = ({ formData, setFormData, nextStep, errors }) => {
   return (
     <div className="max-w-3xl border rounded-lg mx-auto p-4">
       <h2 className="text-3xl text-custom-dark-blue text-center font-bold my-10">Company Details</h2>
-      
       <div className="grid w-full items-center gap-1.5 mb-10">
         <Label className="text-custom-dark-blue" htmlFor="companyName">Company Name</Label>
         <Input
@@ -41,8 +45,9 @@ const Step1: React.FC<StepProps> = ({ formData, setFormData, nextStep }) => {
           onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
           className="w-full text-custom-gray-blue"
         />
+        {errors.companyName && <p className="text-red-500">{errors.companyName}</p>}
       </div>
-      
+
       <div className="grid w-full items-center gap-1.5 mb-10">
         <Label className="text-custom-dark-blue" htmlFor="companySize">Company Size</Label>
         <Input
@@ -53,8 +58,9 @@ const Step1: React.FC<StepProps> = ({ formData, setFormData, nextStep }) => {
           onChange={(e) => setFormData({ ...formData, companySize: e.target.value })}
           className="w-full"
         />
+        {errors.companySize && <p className="text-red-500">{errors.companySize}</p>}
       </div>
-      
+
       <div className="grid w-full items-center gap-1.5 mb-10">
         <Label className="text-custom-dark-blue" htmlFor="foundedYear">Founded Year</Label>
         <Input
@@ -65,8 +71,9 @@ const Step1: React.FC<StepProps> = ({ formData, setFormData, nextStep }) => {
           onChange={(e) => setFormData({ ...formData, foundedYear: e.target.value })}
           className="w-full"
         />
+        {errors.foundedYear && <p className="text-red-500">{errors.foundedYear}</p>}
       </div>
-      
+
       <div className="grid w-full items-center gap-1.5 mb-10">
         <Label className="text-custom-dark-blue" htmlFor="companyDescription">Company Description</Label>
         <Input
@@ -77,91 +84,51 @@ const Step1: React.FC<StepProps> = ({ formData, setFormData, nextStep }) => {
           onChange={(e) => setFormData({ ...formData, companyDescription: e.target.value })}
           className="w-full"
         />
+        {errors.companyDescription && <p className="text-red-500">{errors.companyDescription}</p>}
       </div>
 
-      <div className="grid w-full gap-1.5 mb-10">
-        <Label className="text-custom-dark-blue" htmlFor="industry">Industry</Label>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <div className="flex justify-between items-center pr-3 border w-full cursor-pointer">
-              <Input
-                type="text"
-                id="industry"
-                placeholder="Select"
-                value={formData.industry || ''}
-                readOnly
-                className="w-full border-none focus:ring-0"
-              />
-              <IoIosArrowDown />
-            </div>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56">
-            <DropdownMenuLabel>Industry Options</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuCheckboxItem
-              checked={formData.industry === 'Technology'}
-              onCheckedChange={() => setFormData({ ...formData, industry: 'Technology' })}
-            >
-              Technology
-            </DropdownMenuCheckboxItem>
-            <DropdownMenuCheckboxItem
-              checked={formData.industry === 'Finance'}
-              onCheckedChange={() => setFormData({ ...formData, industry: 'Finance' })}
-            >
-              Finance
-            </DropdownMenuCheckboxItem>
-            <DropdownMenuCheckboxItem
-              checked={formData.industry === 'Healthcare'}
-              onCheckedChange={() => setFormData({ ...formData, industry: 'Healthcare' })}
-            >
-              Healthcare
-            </DropdownMenuCheckboxItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+      <div className="grid w-full items-center gap-1.5 mb-10">
+        <Label className="text-custom-dark-blue" htmlFor="sector">Sector</Label>
+        <Input
+          type="text"
+          id="sector"
+          placeholder="Sector"
+          value={formData.sector}
+          onChange={(e) => setFormData({ ...formData, sector: e.target.value })}
+          className="w-full"
+        />
+        {errors.sector && <p className="text-red-500">{errors.sector}</p>}
       </div>
 
-      <div className="grid w-full gap-1.5 mb-10">
-        <Label className="text-custom-dark-blue" htmlFor="specialization">Specialization</Label>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <div className="flex justify-between items-center pr-3 border w-full cursor-pointer">
-              <Input
-                type="text"
-                id="specialization"
-                placeholder="Select"
-                value={formData.specialization || ''}
-                readOnly
-                className="w-full border-none focus:ring-0"
-              />
-              <IoIosArrowDown />
-            </div>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56">
-            <DropdownMenuLabel>Specialization Options</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuCheckboxItem
-              checked={formData.specialization === 'Software Development'}
-              onCheckedChange={() => setFormData({ ...formData, specialization: 'Software Development' })}
-            >
-              Software Development
-            </DropdownMenuCheckboxItem>
-            <DropdownMenuCheckboxItem
-              checked={formData.specialization === 'Data Science'}
-              onCheckedChange={() => setFormData({ ...formData, specialization: 'Data Science' })}
-            >
-              Data Science
-            </DropdownMenuCheckboxItem>
-            <DropdownMenuCheckboxItem
-              checked={formData.specialization === 'Cybersecurity'}
-              onCheckedChange={() => setFormData({ ...formData, specialization: 'Cybersecurity' })}
-            >
-              Cybersecurity
-            </DropdownMenuCheckboxItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+      <div className="grid w-full items-center gap-1.5 mb-10">
+        <Label className="text-custom-dark-blue" htmlFor="services">Services</Label>
+        <Input
+          type="text"
+          id="services"
+          placeholder="Services (comma-separated)"
+          value={formData.services}
+          onChange={(e) => setFormData({ ...formData, services: e.target.value })}
+          className="w-full"
+        />
+        {errors.services && <p className="text-red-500">{errors.services}</p>}
       </div>
-      
-      <Button className="w-full" onClick={nextStep}>Continue</Button>
+
+      <div className="grid w-full items-center gap-1.5 mb-10">
+        <Label className="text-custom-dark-blue" htmlFor="languages">Languages</Label>
+        <Input
+          type="text"
+          id="languages"
+          placeholder="Languages (comma-separated)"
+          value={formData.languages}
+          onChange={(e) => setFormData({ ...formData, languages: e.target.value })}
+          className="w-full"
+        />
+        {errors.languages && <p className="text-red-500">{errors.languages}</p>}
+      </div>
+
+      <div className="flex justify-end">
+        <Button onClick={nextStep} className="bg-signature w-full">Continue</Button>
+      </div>
     </div>
   );
 };

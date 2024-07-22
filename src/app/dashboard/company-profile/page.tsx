@@ -45,12 +45,12 @@ const Profile = () => {
                 <Services />
               </div>
 
-              <div className="my-10">
+              {/* <div className="my-10">
                 <Specialization />
-              </div>
-              <div className="my-10">
+              </div> */}
+              {/* <div className="my-10">
                 <Skills />
-              </div>
+              </div> */}
 
               <div className="my-10">
                 <Projects />
@@ -58,9 +58,9 @@ const Profile = () => {
             </div>
             <div className="md:w-1/3  w-full">
               <AdditonalDetail />
-              <div className="my-10">
+              {/* <div className="my-10">
                 <SocialLinks />
-              </div>
+              </div> */}
 
               
             </div>

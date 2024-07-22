@@ -13,6 +13,7 @@ import projectReducer from './slices/projects/projectSlice'
 import educationReducer from './slices/educationslice/educationSlice'
 import companyRoleReducer from './slices/companyRoleSlice/CompanyRoleSlice'
 import roleAuthReducer from './slices/companyRoleSlice/RoleAuthSlice'
+import companyProfileReducer from './slices/companyProfileSlice/companyProfileSlice'
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -27,7 +28,8 @@ const rootReducer = combineReducers({
   project: projectReducer,
   education: educationReducer,
   companyRole: companyRoleReducer,
-  companyRoleAuth: roleAuthReducer
+  companyRoleAuth: roleAuthReducer,
+  companyProfile: companyProfileReducer,
 
 });
 

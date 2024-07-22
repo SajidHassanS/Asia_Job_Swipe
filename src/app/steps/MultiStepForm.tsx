@@ -1,12 +1,19 @@
 "use client";
 import React, { useState } from "react";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/store";
+import { useRouter } from "next/navigation";
 import Step1 from "./Step1";
 import Step2 from "./Step2";
 import Step3 from "./Step3";
 import Image from "next/image";
 import { IoIosCheckmarkCircle } from "react-icons/io";
 import { FaCheck } from "react-icons/fa6";
+import { updateCompanyProfile, updateCompanyLogo, updateCompanyImages } from "@/store/slices/companyProfileSlice/companyProfileSlice";
+
 const MultiStepForm = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const router = useRouter();
   const [step, setStep] = useState(1);
   const [completedSteps, setCompletedSteps] = useState([false, false, false]);
   const [formData, setFormData] = useState({
@@ -22,9 +29,17 @@ const MultiStepForm = () => {
     city: "",
     address: "",
     mediaUrl: "",
-    companyLogo: null,
-    companyImages: null,
+    sector: "",
+    services: "",
+    languages: "",
+    companyLogo: null as File | null,
+    companyImages: [] as File[],
   });
+
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+  const token = localStorage.getItem("accessToken");
+  const companyId = localStorage.getItem("_id");
 
   const nextStep = () => {
     if (validateStep()) {
@@ -39,35 +54,120 @@ const MultiStepForm = () => {
     setStep(step - 1);
   };
 
-  const submitForm = () => {
-    // Handle form submission
-    console.log(formData);
+  const submitForm = async () => {
+    if (!token || !companyId) return;
+
+    try {
+      // Update company profile details
+      await dispatch(updateCompanyProfile({
+        id: companyId,
+        updates: {
+          companyName: formData.companyName,
+          numberOfEmployees: parseInt(formData.companySize, 10),
+          foundedYear: parseInt(formData.foundedYear, 10),
+          sector: formData.sector,
+          services: formData.services.split(',').map(service => service.trim()),
+          description: formData.companyDescription,
+          website: formData.websiteUrl,
+          email: formData.email,
+          country: formData.country,
+          province: formData.province,
+          city: formData.city,
+          address: formData.address,
+          languages: formData.languages.split(',').map(language => language.trim()),
+        },
+        token: token
+      })).unwrap();
+
+      // Update company logo
+      if (formData.companyLogo) {
+        await dispatch(updateCompanyLogo({
+          companyId: companyId,
+          file: formData.companyLogo,
+          token: token
+        })).unwrap();
+      }
+
+      // Update company images
+      if (formData.companyImages.length > 0) {
+        await dispatch(updateCompanyImages({
+          companyId: companyId,
+          files: formData.companyImages,
+          token: token
+        })).unwrap();
+      }
+
+      router.push("/dashboard");
+    } catch (error: any) {
+      if (error.errors) {
+        const errorObject: { [key: string]: string } = {};
+        error.errors.forEach((err: any) => {
+          errorObject[err.path] = err.message;
+        });
+        setErrors(errorObject);
+      } else {
+        console.error(error);
+      }
+    }
   };
 
   const validateStep = () => {
+    const newErrors: { [key: string]: string } = {};
+    
     switch (step) {
       case 1:
-        return (
-          formData.companyName &&
-          formData.companySize &&
-          formData.foundedYear &&
-          formData.companyDescription
-        );
+        if (!formData.companyName) newErrors.companyName = "Company name cannot be empty";
+        if (!formData.companySize) {
+          newErrors.companySize = "Company size cannot be empty";
+        } else if (isNaN(parseInt(formData.companySize, 10))) {
+          newErrors.companySize = "Company size must be a number";
+        }
+        if (!formData.foundedYear) {
+          newErrors.foundedYear = "Founded year cannot be empty";
+        } else if (isNaN(parseInt(formData.foundedYear, 10))) {
+          newErrors.foundedYear = "Founded year must be a number";
+        }
+        if (!formData.companyDescription) newErrors.companyDescription = "Company description cannot be empty";
+        if (!formData.sector) newErrors.sector = "Sector cannot be empty";
+        if (!formData.services) newErrors.services = "Services cannot be empty";
+        if (!formData.languages) newErrors.languages = "Languages cannot be empty";
+        break;
       case 2:
-        return (
-          formData.websiteUrl &&
-          formData.contactNumber &&
-          formData.email &&
-          formData.country &&
-          formData.province &&
-          formData.city &&
-          formData.address
-        );
+        if (!formData.websiteUrl) {
+          newErrors.websiteUrl = "Website URL cannot be empty";
+        } else {
+          const urlPattern = new RegExp(
+            '^(https?:\\/\\/)?' + // protocol
+            '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
+            '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
+            '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
+            '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
+            '(\\#[-a-z\\d_]*)?$', 'i' // fragment locator
+          );
+          if (!urlPattern.test(formData.websiteUrl)) {
+            newErrors.websiteUrl = "Website should be a valid URL";
+          }
+        }
+        if (!formData.contactNumber) {
+          newErrors.contactNumber = "Contact number cannot be empty";
+        } else if (isNaN(parseInt(formData.contactNumber, 10))) {
+          newErrors.contactNumber = "Contact number must be a number";
+        }
+        if (!formData.email) newErrors.email = "Email cannot be empty";
+        if (!formData.country) newErrors.country = "Country cannot be empty";
+        if (!formData.province) newErrors.province = "Province cannot be empty";
+        if (!formData.city) newErrors.city = "City cannot be empty";
+        if (!formData.address) newErrors.address = "Address cannot be empty";
+        break;
       case 3:
-        return formData.mediaUrl && formData.companyLogo && formData.companyImages;
+        if (!formData.mediaUrl) newErrors.mediaUrl = "Media URL cannot be empty";
+        break;
       default:
-        return false;
+        break;
     }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   return (
@@ -92,7 +192,7 @@ const MultiStepForm = () => {
                 }`}
               >
                 {completedSteps[0] ? (
-                  <FaCheck  className="w-5 h-5 mx-auto mt-3 text-background" />
+                  <FaCheck className="w-5 h-5 mx-auto mt-3 text-background" />
                 ) : (
                   <img
                     src="/images/companydetails.svg"
@@ -119,7 +219,7 @@ const MultiStepForm = () => {
                 }`}
               >
                 {completedSteps[1] ? (
-                  <FaCheck  className="w-5 h-5 mx-auto mt-3 text-background" />
+                  <FaCheck className="w-5 h-5 mx-auto mt-3 text-background" />
                 ) : (
                   <img
                     src="/images/phone.svg"
@@ -146,7 +246,7 @@ const MultiStepForm = () => {
                 }`}
               >
                 {completedSteps[2] ? (
-                  <FaCheck  className="w-5 h-5 mx-auto mt-3 text-background" />
+                  <FaCheck className="w-5 h-5 mx-auto mt-3 text-background" />
                 ) : (
                   <img
                     src="/images/notes.svg"
@@ -166,6 +266,7 @@ const MultiStepForm = () => {
               formData={formData}
               setFormData={setFormData}
               nextStep={nextStep}
+              errors={errors}
             />
           )}
           {step === 2 && (
@@ -174,6 +275,7 @@ const MultiStepForm = () => {
               setFormData={setFormData}
               nextStep={nextStep}
               prevStep={prevStep}
+              errors={errors}
             />
           )}
           {step === 3 && (
@@ -182,6 +284,7 @@ const MultiStepForm = () => {
               setFormData={setFormData}
               prevStep={prevStep}
               submitForm={submitForm}
+              errors={errors}
             />
           )}
         </div>

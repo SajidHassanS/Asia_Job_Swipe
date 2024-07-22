@@ -1,9 +1,7 @@
-"use client"
+"use client";
 import React from 'react';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { IoIosArrowDown } from "react-icons/io";
-import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -13,17 +11,56 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-type Checked = DropdownMenuCheckboxItemProps["checked"];
+import { IoIosArrowDown } from "react-icons/io";
 
 interface StepProps {
-  formData: any;
-  setFormData: (data: any) => void;
+  formData: FormData;
+  setFormData: React.Dispatch<React.SetStateAction<FormData>>;
   nextStep: () => void;
   prevStep: () => void;
+  errors: { [key: string]: string };
 }
 
-const Step2: React.FC<StepProps> = ({ formData, setFormData, nextStep, prevStep }) => {
+type FormData = {
+  companyName: string;
+  companySize: string;
+  foundedYear: string;
+  companyDescription: string;
+  sector: string;
+  services: string;
+  languages: string;
+  websiteUrl: string;
+  contactNumber: string;
+  email: string;
+  country: string;
+  province: string;
+  city: string;
+  address: string;
+  mediaUrl: string;
+  companyLogo: File | null;
+  companyImages: File[];
+};
+
+const countries = ["Thailand", "USA", "Canada"] as const;
+const provinces: { [key in typeof countries[number]]: string[] } = {
+  Thailand: ["Bangkok", "Chiang Mai", "Phuket"],
+  USA: ["California", "Texas", "New York"],
+  Canada: ["Ontario", "Quebec", "British Columbia"],
+};
+
+const cities: { [key: string]: string[] } = {
+  Bangkok: ["District 1", "District 2"],
+  "Chiang Mai": ["District 1", "District 2"],
+  Phuket: ["District 1", "District 2"],
+  California: ["Los Angeles", "San Francisco"],
+  Texas: ["Houston", "Dallas"],
+  "New York": ["New York City", "Buffalo"],
+  Ontario: ["Toronto", "Ottawa"],
+  Quebec: ["Montreal", "Quebec City"],
+  "British Columbia": ["Vancouver", "Victoria"],
+};
+
+const Step2: React.FC<StepProps> = ({ formData, setFormData, nextStep, prevStep, errors }) => {
   return (
     <div className="max-w-3xl border rounded-lg mx-auto p-4">
       <h2 className="text-3xl text-custom-dark-blue text-center font-bold my-10">Contact Details</h2>
@@ -38,6 +75,7 @@ const Step2: React.FC<StepProps> = ({ formData, setFormData, nextStep, prevStep 
           onChange={(e) => setFormData({ ...formData, websiteUrl: e.target.value })}
           className="w-full"
         />
+        {errors.websiteUrl && <p className="text-red-500">{errors.websiteUrl}</p>}
       </div>
 
       <div className="grid w-full items-center gap-1.5 mb-10">
@@ -50,6 +88,7 @@ const Step2: React.FC<StepProps> = ({ formData, setFormData, nextStep, prevStep 
           onChange={(e) => setFormData({ ...formData, contactNumber: e.target.value })}
           className="w-full"
         />
+        {errors.contactNumber && <p className="text-red-500">{errors.contactNumber}</p>}
       </div>
 
       <div className="grid w-full items-center gap-1.5 mb-10">
@@ -62,6 +101,7 @@ const Step2: React.FC<StepProps> = ({ formData, setFormData, nextStep, prevStep 
           onChange={(e) => setFormData({ ...formData, email: e.target.value })}
           className="w-full"
         />
+        {errors.email && <p className="text-red-500">{errors.email}</p>}
       </div>
 
       <div className="grid w-full gap-1.5 mb-10">
@@ -83,26 +123,18 @@ const Step2: React.FC<StepProps> = ({ formData, setFormData, nextStep, prevStep 
           <DropdownMenuContent className="w-56">
             <DropdownMenuLabel>Country Options</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuCheckboxItem
-              checked={formData.country === 'USA'}
-              onCheckedChange={() => setFormData({ ...formData, country: 'USA' })}
-            >
-              USA
-            </DropdownMenuCheckboxItem>
-            <DropdownMenuCheckboxItem
-              checked={formData.country === 'Canada'}
-              onCheckedChange={() => setFormData({ ...formData, country: 'Canada' })}
-            >
-              Canada
-            </DropdownMenuCheckboxItem>
-            <DropdownMenuCheckboxItem
-              checked={formData.country === 'UK'}
-              onCheckedChange={() => setFormData({ ...formData, country: 'UK' })}
-            >
-              UK
-            </DropdownMenuCheckboxItem>
+            {countries.map(country => (
+              <DropdownMenuCheckboxItem
+                key={country}
+                checked={formData.country === country}
+                onCheckedChange={() => setFormData({ ...formData, country })}
+              >
+                {country}
+              </DropdownMenuCheckboxItem>
+            ))}
           </DropdownMenuContent>
         </DropdownMenu>
+        {errors.country && <p className="text-red-500">{errors.country}</p>}
       </div>
 
       <div className="grid w-full gap-1.5 mb-10">
@@ -124,26 +156,18 @@ const Step2: React.FC<StepProps> = ({ formData, setFormData, nextStep, prevStep 
           <DropdownMenuContent className="w-56">
             <DropdownMenuLabel>Province Options</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuCheckboxItem
-              checked={formData.province === 'California'}
-              onCheckedChange={() => setFormData({ ...formData, province: 'California' })}
-            >
-              California
-            </DropdownMenuCheckboxItem>
-            <DropdownMenuCheckboxItem
-              checked={formData.province === 'Ontario'}
-              onCheckedChange={() => setFormData({ ...formData, province: 'Ontario' })}
-            >
-              Ontario
-            </DropdownMenuCheckboxItem>
-            <DropdownMenuCheckboxItem
-              checked={formData.province === 'London'}
-              onCheckedChange={() => setFormData({ ...formData, province: 'London' })}
-            >
-              London
-            </DropdownMenuCheckboxItem>
+            {(provinces[formData.country as keyof typeof provinces] || []).map(province => (
+              <DropdownMenuCheckboxItem
+                key={province}
+                checked={formData.province === province}
+                onCheckedChange={() => setFormData({ ...formData, province })}
+              >
+                {province}
+              </DropdownMenuCheckboxItem>
+            ))}
           </DropdownMenuContent>
         </DropdownMenu>
+        {errors.province && <p className="text-red-500">{errors.province}</p>}
       </div>
 
       <div className="grid w-full gap-1.5 mb-10">
@@ -165,26 +189,18 @@ const Step2: React.FC<StepProps> = ({ formData, setFormData, nextStep, prevStep 
           <DropdownMenuContent className="w-56">
             <DropdownMenuLabel>City Options</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuCheckboxItem
-              checked={formData.city === 'Los Angeles'}
-              onCheckedChange={() => setFormData({ ...formData, city: 'Los Angeles' })}
-            >
-              Los Angeles
-            </DropdownMenuCheckboxItem>
-            <DropdownMenuCheckboxItem
-              checked={formData.city === 'Toronto'}
-              onCheckedChange={() => setFormData({ ...formData, city: 'Toronto' })}
-            >
-              Toronto
-            </DropdownMenuCheckboxItem>
-            <DropdownMenuCheckboxItem
-              checked={formData.city === 'London'}
-              onCheckedChange={() => setFormData({ ...formData, city: 'London' })}
-            >
-              London
-            </DropdownMenuCheckboxItem>
+            {(cities[formData.province] || []).map(city => (
+              <DropdownMenuCheckboxItem
+                key={city}
+                checked={formData.city === city}
+                onCheckedChange={() => setFormData({ ...formData, city })}
+              >
+                {city}
+              </DropdownMenuCheckboxItem>
+            ))}
           </DropdownMenuContent>
         </DropdownMenu>
+        {errors.city && <p className="text-red-500">{errors.city}</p>}
       </div>
 
       <div className="grid w-full items-center gap-1.5 mb-10">
@@ -197,12 +213,13 @@ const Step2: React.FC<StepProps> = ({ formData, setFormData, nextStep, prevStep 
           onChange={(e) => setFormData({ ...formData, address: e.target.value })}
           className="w-full"
         />
+        {errors.address && <p className="text-red-500">{errors.address}</p>}
       </div>
 
-      {/* <div className="flex justify-between"> */}
-        {/* <Button onClick={prevStep} className="bg-custom-gray-blue w-full ">Back</Button> */}
-        <Button onClick={nextStep} className="bg-signature w-full ">Continue</Button>
-      {/* </div> */}
+      <div className="flex justify-between">
+        <Button onClick={prevStep} className="bg-custom-gray-blue w-1/4">Back</Button>
+        <Button onClick={nextStep} className="bg-signature w-1/4">Continue</Button>
+      </div>
     </div>
   );
 };
