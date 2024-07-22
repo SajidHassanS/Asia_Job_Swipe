@@ -256,6 +256,33 @@ export const resetPassword = createAsyncThunk<void, { email: string; otp: string
   }
 );
 
+
+
+export const loginCompanyRole = createAsyncThunk<User, { email: string; password: string }, { rejectValue: AuthError[] }>(
+  'auth/loginCompanyRole',
+  async ({ email, password }, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(`${API_URL}/auth/login/company-role`, { email, password });
+      localStorage.setItem('accessToken', response.data.accessToken);
+      localStorage.setItem('refreshToken', response.data.refreshToken);
+      localStorage.setItem('role', response.data.user.role);
+      localStorage.setItem('_id', response.data.user._id);
+      localStorage.setItem('userInfo', JSON.stringify(response.data.user));
+      return response.data.user; // Adjust the return value to only include user data
+    } catch (error: any) {
+      if (axios.isAxiosError(error) && error.response) {
+        if (error.response.data.errors) {
+          return rejectWithValue(error.response.data.errors);
+        }
+        if (error.response.data.message) {
+          return rejectWithValue([{ path: 'unknown', message: error.response.data.message }]);
+        }
+      }
+      return rejectWithValue([{ path: 'unknown', message: 'An unknown error occurred' }]);
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -292,6 +319,23 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      // Add extra reducers for loginCompanyRole
+      .addCase(loginCompanyRole.pending, (state: AuthState) => {
+        state.status = 'loading';
+      })
+      .addCase(loginCompanyRole.fulfilled, (state: AuthState, action: PayloadAction<User>) => {
+        state.status = 'succeeded';
+        state.user = action.payload;
+        state.role = action.payload.role || null;
+        state.errors = [];
+        state.jobSeekerId = action.payload.role === 'jobseeker' ? action.payload._id : null;
+      })
+      .addCase(loginCompanyRole.rejected, (state: AuthState, action: PayloadAction<AuthError[] | undefined>) => {
+        state.status = 'failed';
+        state.errors = action.payload || [{ path: 'unknown', message: 'An unknown error occurred' }];
+      })
+
+      // existing cases remain unchanged
       .addCase(logout.pending, (state: AuthState) => {
         // Handle any pending actions related to logout if needed
       })
@@ -417,3 +461,7 @@ const authSlice = createSlice({
 export const { setUser, signOut, clearErrors, setEmailForSignUp, setOtpForSignUp, setTokens } = authSlice.actions;
 
 export default authSlice.reducer;
+
+
+//this is my rough comment
+// just comment

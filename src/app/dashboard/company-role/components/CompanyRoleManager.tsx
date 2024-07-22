@@ -148,7 +148,7 @@ const CompanyRoleManager: React.FC = () => {
                     <DialogTrigger asChild>
                       <FaEdit className="cursor-pointer" onClick={() => handleEdit(role)} />
                     </DialogTrigger>
-                    <DialogContent className="sm:max-w-[425px]">
+                    <DialogContent className="sm:max-w-[425px] p-5">
                       <DialogHeader>
                         <DialogTitle>Edit Role</DialogTitle>
                         <DialogDescription>
@@ -226,7 +226,7 @@ const CompanyRoleManager: React.FC = () => {
                     <DialogTrigger asChild>
                       <AiFillDelete className="cursor-pointer text-red-500" onClick={() => handleDelete(role._id)} />
                     </DialogTrigger>
-                    <DialogContent className="sm:max-w-[425px]">
+                    <DialogContent className="sm:max-w-[425px] p-5">
                       <DialogHeader>
                         <DialogTitle>Delete Role</DialogTitle>
                         <DialogDescription>

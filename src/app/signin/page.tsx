@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../store";
-import { signIn, clearErrors } from "../../store/slices/authSlice";
+import { signIn, clearErrors, loginCompanyRole } from "../../store/slices/authSlice";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -66,13 +66,16 @@ const SignInPage = () => {
     dispatch(clearErrors()); // Clear previous error messages
     setRoleError(null); // Clear previous role error
     try {
+      const action = userType === 'companyRole' ? loginCompanyRole : signIn;
       const response = await dispatch(
-        signIn({ email, password, userType })
+        action({ email, password, userType })
       ).unwrap();
-      if (response.role !== userType) {
+  
+      if (response.role !== userType && userType !== 'companyRole') {
         setRoleError("Unauthorized: role mismatch");
         return;
       }
+  
       if (rememberMe) {
         localStorage.setItem("rememberedEmail", email);
         localStorage.setItem("rememberedPassword", password);
@@ -80,8 +83,9 @@ const SignInPage = () => {
         localStorage.removeItem("rememberedEmail");
         localStorage.removeItem("rememberedPassword");
       }
+  
       if (response) {
-        if (userType === "company") {
+        if (userType === "company" || userType === "companyRole") {
           router.push("/dashboard");
         } else {
           router.push("/");
@@ -91,6 +95,7 @@ const SignInPage = () => {
       // Errors are already handled in the Redux slice
     }
   };
+  
 
   const getErrorMessage = (field: string): string | null => {
     const error = auth.errors.find((error: AuthError) => error.path === field);
@@ -116,6 +121,9 @@ const SignInPage = () => {
               </TabsTrigger>
               <TabsTrigger value="company" className="w-1/3">
                 Employer
+              </TabsTrigger>
+              <TabsTrigger value="companyRole" className="w-1/3">
+                Company Role
               </TabsTrigger>
             </TabsList>
             <TabsContent value="jobSeeker">
@@ -269,6 +277,152 @@ const SignInPage = () => {
                 <CardHeader>
                   <CardTitle className="flex mb-5 justify-center text-darkGrey md:text-3xl">
                     Find the best talent
+                  </CardTitle>
+                  <CardDescription>
+                    <Button className="w-full text-darkGrey" variant="outline">
+                      <FcGoogle size={25} className="mr-2" /> Sign In with
+                      Google
+                    </Button>
+                  </CardDescription>
+                  <CardDescription>
+                    <div className="flex items-center justify-center">
+                      <div className="flex-grow border-t border-gray-300"></div>
+                      <Button
+                        asChild
+                        variant="link"
+                        className="mx-4 text-signinemail"
+                      >
+                        <Link href="/send-otp">Or Sign In with email</Link>
+                      </Button>
+                      <div className="flex-grow border-t border-gray-300"></div>
+                    </div>
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-5">
+                  <div className="space-y-1">
+                    <Label
+                      htmlFor="email"
+                      className="text-signininput text-base"
+                    >
+                      Email Address
+                    </Label>
+                    <Input
+                      type="email"
+                      id="email"
+                      className="text-signininput3 text-base"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="Enter email address"
+                    />
+                    {getErrorMessage("email") && (
+                      <span className="text-red-500">
+                        {getErrorMessage("email")}
+                      </span>
+                    )}
+                  </div>
+                  <div className="space-y-1 relative">
+                    <Label
+                      htmlFor="password"
+                      className="text-signininput text-base"
+                    >
+                      Password
+                    </Label>
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      className="text-signininput3 text-base"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Enter Password"
+                    />
+                    <div
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center top-5 cursor-pointer"
+                      onClick={togglePasswordVisibility}
+                    >
+                      {showPassword ? <FaEye /> : <FaEyeSlash />}
+                    </div>
+                    {getErrorMessage("password") && (
+                      <span className="text-red-500">
+                        {getErrorMessage("password")}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex justify-between">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="terms"
+                        checked={rememberMe}
+                        onCheckedChange={(checked) =>
+                          setRememberMe(checked as boolean)
+                        }
+                      />
+                      <label
+                        htmlFor="terms"
+                        className="text-sm signininput font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      >
+                        Remember me
+                      </label>
+                    </div>
+                    <div className="flex items-center justify-between mt-4">
+                      <Button asChild variant="link" className="text-signature">
+                        <Link href="/forgot-password">Forgot Password?</Link>
+                      </Button>
+                    </div>
+                  </div>
+                  <div>
+                    <Button
+                      variant="outline"
+                      size={"lg"}
+                      className="bg-signature w-full text-background"
+                      onClick={handleSignIn}
+                      disabled={auth.status === "loading"}
+                    >
+                      Continue
+                    </Button>
+                  </div>
+                  {auth.errors.length > 0 && (
+                    <div className="mt-4">
+                      {auth.errors
+                        .filter((error: AuthError) => error.path === "unknown")
+                        .map((error: AuthError, index: number) => (
+                          <p key={index} className="text-red-500">
+                            {error.message}
+                          </p>
+                        ))}
+                    </div>
+                  )}
+                  {roleError && (
+                    <div className="mt-4">
+                      <p className="text-red-500">{roleError}</p>
+                    </div>
+                  )}
+                  <div className="flex items-center">
+                    <h1 className="text-signinemail text-base">
+                      Don’t have an account?
+                    </h1>
+                    <Button asChild variant="link" className="text-signature">
+                      <Link href="/send-otp">Sign Up</Link>
+                    </Button>
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <Button
+                    asChild
+                    variant="link"
+                    className="w-full text-signature"
+                  >
+                    <Link href="/home">
+                      <FaArrowLeft size={20} className="mr-2" /> Back to Home
+                    </Link>
+                  </Button>
+                </CardFooter>
+              </Card>
+            </TabsContent>
+            <TabsContent value="companyRole">
+              <Card className="border-none shadow-none">
+                <CardHeader>
+                  <CardTitle className="flex mb-5 justify-center text-darkGrey md:text-3xl">
+                    Access Company Role Dashboard
                   </CardTitle>
                   <CardDescription>
                     <Button className="w-full text-darkGrey" variant="outline">

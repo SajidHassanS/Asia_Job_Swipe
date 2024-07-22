@@ -47,7 +47,7 @@ const CompanyRoleDialog: React.FC<CompanyRoleDialogProps> = ({ isOpen, onClose, 
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] p-5">
         <DialogHeader>
           <DialogTitle>{initialData ? 'Edit Company Role' : 'Add Company Role'}</DialogTitle>
           <DialogDescription>
