@@ -2,39 +2,51 @@
 
 import LoadingSkeleton from "@/components/LoadingSkeleton";
 import PaginationComponent from "@/components/Pagination";
-import useFetchCompanies from "@/hooks/useFetchCompanies";
-import { baseUrl } from "@/utils/constants";
-import { useState } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { useEffect, useState } from "react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import DataTable from "@/components/DataTable";
 import Image from "next/image";
 import Link from "next/link";
 import { FaEdit } from "react-icons/fa";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AiFillDelete } from "react-icons/ai";
 import { Button } from "@/components/ui/button";
 import { BiMessageRoundedDetail } from "react-icons/bi";
-import { BsBookmarkDash } from "react-icons/bs";
+import { BsBookmarkDash, BsBookmarkFill } from "react-icons/bs";
 import { RiDeleteBin5Line } from "react-icons/ri";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchAllApplications, shortlistApplication, rejectApplication } from "@/store/slices/appliedApplicantSlice/appliedApplicantSlice";
+import { RootState, AppDispatch } from "@/store";
 
-// Define the Pagination interface
+interface Experience {
+  from: string;
+  to: string;
+  onGoing: boolean;
+}
+
+interface JobSeeker {
+  firstName: string;
+  lastName: string;
+  profilePicture: string;
+  experience?: Experience[];
+}
+
+interface Job {
+  title: string;
+  sector: string;
+  // Add other relevant fields here if needed
+}
+
+interface JobApplication {
+  _id: string;
+  job: Job;
+  jobSeeker: JobSeeker;
+  shortlisted?: boolean;
+  status: string;
+  // Add other relevant fields here if needed
+}
+
 interface Pagination {
   totalPages: number;
   currentPage: number;
@@ -45,189 +57,167 @@ interface Pagination {
 }
 
 const AllCompaniesData = () => {
+  const dispatch = useDispatch<AppDispatch>();
   const [page, setPage] = useState<number>(1);
-  const api = `${baseUrl}/companies?page=${page}`;
-  const [pagination, setPagination] = useState<Pagination>({
-    totalPages: 5,
-    currentPage: 1,
-    hasNextPage: false,
-    hasPreviousPage: false,
-    nextPage: null,
-    previousPage: null,
-  });
+  const [selectedApplicationId, setSelectedApplicationId] = useState<string | null>(null);
+  const [isShortlistDialogOpen, setIsShortlistDialogOpen] = useState(false);
+  const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false);
 
-  const { data, loading, error } = useFetchCompanies(api, setPagination);
+  const token = localStorage.getItem("accessToken");
+  const companyId = localStorage.getItem("_id");
 
-  const companies = [
-    {
-      _id: 1,
-      picture: "/images/avatar.png", // Replace with the actual path to the logo
-      name: "Starbucksxxx",
-      matched: "30% matched",
-      sector: "Software Development",
-      experience: "3 Years Experience",
-    },
-    {
-      _id: 2,
-      picture: "/images/avatar.png", // Replace with the actual path to the logo
-      name: "Starbucks",
-      matched: "30% matched",
-      sector: "Software Development",
-      experience: "3 Years Experience",
-    },
-    // Add more entries based on the image data
-    {
-      _id: 3,
-      picture: "/images/avatar.png",
-      name: "Starbucks",
-      matched: "30% matched", 
-      sector: "Software Development",
-      experience: "3 Years Experience",
-    },
-    {
-      _id: 4,
-      picture: "/images/avatar.png",
-      name: "Starbucks",
-      matched: "30% matched",
-      sector: "Software Development",
-      experience: "3 Years Experience",
-    },
-    {
-      _id: 5,
-      picture: "/images/avatar.png",
-      name: "Starbucks",
-      matched: "30% matched",
-      sector: "Software Development",
-      experience: "3 Years Experience",
-    },
-    {
-      _id: 6,
-      picture: "/images/avatar.png",
-      name: "Starbucks",
-      matched: "30% matched",
-      sector: "Software Development",
-      experience: "3 Years Experience",
-    },
-    {
-      _id: 7,
-      picture: "/images/avatar.png",
-      name: "Starbucks",
-      matched: "30% matched",
-      sector: "Software Development",
-      experience: "3 Years Experience",
-    },
-    {
-      _id: 8,
-      picture: "/images/avatar.png",
-      name: "Starbucks",
-      matched: "30% matched",
-      sector: "Software Development",
-      experience: "3 Years Experience",
-    },
-    {
-      _id: 9,
-      picture: "/images/avatar.png",
-      name: "Starbucks",
-      matched: "30% matched",
-      sector: "Software Development",
-      experience: "3 Years Experience",
-    },
-    {
-      _id: 10,
-      picture: "/images/avatar.png",
-      name: "Starbucks",
-      matched: "30% matched",
-      sector: "Software Development",
-      experience: "3 Years Experience",
-    },
-    {
-      _id: 11,
-      picture: "/images/avatar.png",
-      name: "Starbucks",
-      matched: "30% matched",
-      sector: "Software Development",
-      experience: "3 Years Experience",
-    },
-  ];
+  const { applications = [], pagination, status, error } = useSelector((state: RootState) => state.appliedApplicant);
+
+  useEffect(() => {
+    if (token && companyId) {
+      dispatch(fetchAllApplications({ companyId, token }));
+    }
+  }, [dispatch, token, companyId, page]);
 
   const headers = [
     "Picture",
     "Name",
     "Contact Info",
     "Sector",
-    "Joined at",
-    "Company Size",
+    "Job Title",
+    "Experience",
     "Action",
   ];
 
-  if (loading) return <LoadingSkeleton />;
-  // if (error) return <div>Error: {error.message}</div>;
+  if (status === "loading") return <LoadingSkeleton />;
+  if (error) return <div>Error: {error}</div>;
 
-  const renderCompanyRow = (company: (typeof companies)[0]) => (
-    <>
-      <TableCell>
-        <div className="flex items-center space-x-2">
-          <Checkbox id="terms" />
-        </div>
-      </TableCell>
-      <TableCell className="flex gap-5 items-center">
-        <Link href={`/applicant-profile/${company._id}`}>
-          <Image src={company.picture} alt={company.name} width={40} height={40} /> {company.name}
-        </Link>
-      </TableCell>
+  const calculateTotalExperience = (experience: Experience[] = []): number => {
+    let totalExperience = 0;
 
-      <TableCell>
-        <div className="border rounded-full py-3 flex justify-center text-signature border-blue">
-          {company.matched}
-        </div>
-      </TableCell>
-      <TableCell>{company.sector}</TableCell>
-      <TableCell>{company.experience}</TableCell>
-      <TableCell className="flex items-center gap-6">
-        <Link href={"#"} className="text-threeicons bg-muted p-3 rounded-xl hover:text-signature/80 transition-colors">
-          <BiMessageRoundedDetail size={20} />
-        </Link>
-        <Link href={"#"} className="text-threeicons bg-muted p-3 rounded-xl hover:text-signature/80 transition-colors">
-          <BsBookmarkDash size={20} />
-        </Link>
-        <Dialog>
-          <DialogTrigger asChild>
-            <div className="cursor-pointer bg-muted p-3 rounded-xl text-threeicons hover:text-signature/80 transition-colors">
-              <RiDeleteBin5Line size={20} />
+    experience.forEach(job => {
+      const fromDate = new Date(job.from);
+      const toDate = job.onGoing ? new Date() : new Date(job.to);
+      const duration = toDate.getTime() - fromDate.getTime();
+      totalExperience += duration;
+    });
+
+    return totalExperience / (1000 * 60 * 60 * 24 * 365);
+  };
+
+  const handleShortlistConfirm = () => {
+    if (selectedApplicationId && token) {
+      dispatch(shortlistApplication({ applicationId: selectedApplicationId, token }));
+      setIsShortlistDialogOpen(false);
+    }
+  };
+
+  const handleRejectConfirm = () => {
+    if (selectedApplicationId && token) {
+      dispatch(rejectApplication({ applicationId: selectedApplicationId, token }));
+      setIsRejectDialogOpen(false);
+    }
+  };
+
+  const renderCompanyRow = (application: JobApplication) => {
+    const totalExperience = calculateTotalExperience(application.jobSeeker.experience);
+
+    return (
+      <>
+        <TableCell>
+          <div className="flex items-center space-x-2">
+            <Checkbox id="terms" />
+          </div>
+        </TableCell>
+        
+        <TableCell className="flex gap-5 items-center">
+        <Link href={`/applicant-profile/${application._id}`} className="flex gap-5 items-center">
+            <div className="w-10 h-10 overflow-hidden rounded-full">
+              <Image src={application.jobSeeker.profilePicture} alt={`${application.jobSeeker.firstName} ${application.jobSeeker.lastName}`} width={40} height={40} className="object-cover w-full h-full"/>
             </div>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Delete Company</DialogTitle>
-              <DialogDescription>
-                Are you sure you want to delete this company?
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter>
-              <DialogClose>
-                <Button variant="outline">Cancel</Button>
-              </DialogClose>
-              <Button type="button" variant={"destructive"}>
-                Delete
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </TableCell>
-    </>
-  );
+            <span>{`${application.jobSeeker.firstName} ${application.jobSeeker.lastName}`}</span>
+          </Link>
+        </TableCell>
+
+        <TableCell>
+          <div className="border rounded-full py-3 flex justify-center text-signature border-blue">
+            {/* Add the matched percentage or other info if available */}
+          </div>
+        </TableCell>
+      
+        <TableCell>{`${application.job.title}`}</TableCell>
+        <TableCell>{`${totalExperience.toFixed(1)} years`}</TableCell>
+        <TableCell className="flex items-center gap-6">
+          <Link href={"#"} className="text-threeicons bg-muted p-3 rounded-xl hover:text-signature/80 transition-colors">
+            <BiMessageRoundedDetail size={20} />
+          </Link>
+          <button
+            onClick={() => {
+              setSelectedApplicationId(application._id);
+              setIsShortlistDialogOpen(true);
+            }}
+            className="text-threeicons bg-muted p-3 rounded-xl hover:text-signature/80 transition-colors"
+          >
+             {application.status === "shortlisted" ?  <BsBookmarkFill color="blue" size={20} /> : <BsBookmarkDash size={20} />}
+          </button>
+          <button
+            onClick={() => {
+              setSelectedApplicationId(application._id);
+              setIsRejectDialogOpen(true);
+            }}
+            className="cursor-pointer bg-muted p-3 rounded-xl text-threeicons hover:text-signature/80 transition-colors"
+          >
+            <RiDeleteBin5Line size={20} />
+          </button>
+        </TableCell>
+      </>
+    );
+  };
 
   return (
     <div>
       <main className="my-4 px-4 flex-1">
         <div className="pb-3">
           <h1 className="text-2xl font-bold pb-3">All Applied Candidates</h1>
-          <p>Showing 73 People</p>
+          <p>Showing {applications.length} People</p>
         </div>
-        <DataTable  headers={headers} data={companies} renderRow={renderCompanyRow} />
+        <DataTable headers={headers} data={applications} renderRow={renderCompanyRow} />
       </main>
 
       <PaginationComponent page={page} pagination={pagination} changePage={setPage} />
+
+      <Dialog open={isShortlistDialogOpen} onOpenChange={setIsShortlistDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Shortlist Application</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to shortlist this application?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </DialogClose>
+            <Button type="button" variant={"destructive"} onClick={handleShortlistConfirm}>
+              Shortlist
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isRejectDialogOpen} onOpenChange={setIsRejectDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Reject Application</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to reject this application?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </DialogClose>
+            <Button type="button" variant={"destructive"} onClick={handleRejectConfirm}>
+              Reject
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
