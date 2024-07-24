@@ -62,7 +62,7 @@ const AllCompaniesData = () => {
     {
       _id: 1,
       picture: "/images/avatar.png", // Replace with the actual path to the logo
-      name: "Starbucks",
+      name: "Starbucksxxx",
       matched: "30% matched",
       sector: "Software Development",
       experience: "3 Years Experience",
@@ -80,7 +80,7 @@ const AllCompaniesData = () => {
       _id: 3,
       picture: "/images/avatar.png",
       name: "Starbucks",
-      matched: "30% matched",
+      matched: "30% matched", 
       sector: "Software Development",
       experience: "3 Years Experience",
     },

@@ -14,6 +14,7 @@ interface UserInfo {
 }
 
 interface Company {
+    _id: string;
   companyName: string;
   website: string;
   foundedYear: string;
@@ -246,12 +247,3 @@ const companyProfileSlice = createSlice({
 });
 
 export default companyProfileSlice.reducer;
-
-
-
-
-
-
-
-
-///sajidddd ddddd
