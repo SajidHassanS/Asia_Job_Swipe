@@ -1,71 +1,104 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from "react";
 import { FaRegEdit } from "react-icons/fa";
-import { MdOutlineMailOutline, MdPhoneAndroid } from "react-icons/md";
+import { MdOutlineMailOutline } from "react-icons/md";
+import { FaMapMarkerAlt } from "react-icons/fa";
 import { TbLanguage } from "react-icons/tb";
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-const AdditionalDetail = () => {
+interface AdditionalDetailProps {
+  email: string;
+  address: string;
+  languages: string;
+  onUpdate: (updates: Partial<{
+    email: string;
+    address: string;
+    languages: string[];
+  }>) => Promise<void>;
+}
+
+const AdditionalDetail: React.FC<AdditionalDetailProps> = ({ email, address, languages, onUpdate }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [details, setDetails] = useState({
-    email: "jakegyll@email.com",
-    phone: "+44 1245 572 135",
-    languages: "English, French",
+  const [formData, setFormData] = useState({
+    email,
+    languages,
+    address,
   });
-  const [formData, setFormData] = useState(details);
 
-  const handleEditClick = () => {
-    setFormData(details); // Reset form data to current details
-    setIsEditing(true);
-  };
+  useEffect(() => {
+    console.log("Updating formData with:", { email, address, languages });
+    setFormData({
+      email,
+      languages,
+      address,
+    });
+  }, [email, address, languages]);
 
-  const handleSave = () => {
-    setDetails(formData);
+  const handleSave = async () => {
+    await onUpdate({
+      email: formData.email,
+      languages: formData.languages.split(",").map(lang => lang.trim()),
+      address: formData.address,
+    });
     setIsEditing(false);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
+    setFormData((prevData) => ({
+      ...prevData,
       [name]: value,
-    });
+    }));
   };
 
   return (
     <div className="border rounded-[20px] py-6 px-5">
       <div className="flex justify-between">
         <h1 className="text-modaltext text-2xl">Additional Details</h1>
-        <button onClick={handleEditClick}>
+        <button onClick={() => setIsEditing(true)}>
           <FaRegEdit className="text-signature border rounded-lg p-2 cursor-pointer" size={40} />
         </button>
       </div>
 
       <div className="py-8">
         <div className="flex gap-5">
-          <div><MdOutlineMailOutline className="text-signininput4" size={30} /></div>
+          <div>
+            <MdOutlineMailOutline className="text-signininput4" size={30} />
+          </div>
           <div>
             <h1 className="text-lg text-signininput4">Email</h1>
-            <p className="text-lg text-modaltext">{details.email}</p>
+            <p className="text-lg text-modaltext">{formData.email}</p>
           </div>
         </div>
         <div className="py-8">
           <div className="flex gap-5">
-            <div><MdPhoneAndroid className="text-signininput4" size={30} /></div>
             <div>
-              <h1 className="text-lg text-signininput4">Phone</h1>
-              <p className="text-lg text-modaltext">{details.phone}</p>
+              <FaMapMarkerAlt className="text-signininput4" size={30} />
+            </div>
+            <div>
+              <h1 className="text-lg text-signininput4">Address</h1>
+              <p className="text-lg text-modaltext">{formData.address}</p>
             </div>
           </div>
         </div>
         <div>
           <div className="flex gap-5">
-            <div><TbLanguage className="text-signininput4" size={30} /></div>
+            <div>
+              <TbLanguage className="text-signininput4" size={30} />
+            </div>
             <div>
               <h1 className="text-lg text-signininput4">Languages</h1>
-              <p className="text-lg text-modaltext">{details.languages}</p>
+              <p className="text-lg text-modaltext">{formData.languages}</p>
             </div>
           </div>
         </div>
@@ -94,15 +127,15 @@ const AdditionalDetail = () => {
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="phone" className="text-right">
-                Phone
+              <Label htmlFor="address" className="text-right">
+                Address
               </Label>
               <Input
-                id="phone"
-                name="phone"
-                value={formData.phone}
+                id="address"
+                name="address"
+                value={formData.address}
                 onChange={handleChange}
-                placeholder="Phone"
+                placeholder="Address"
                 className="col-span-3"
               />
             </div>

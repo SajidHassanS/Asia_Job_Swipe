@@ -1,10 +1,9 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
+import { useDispatch } from "react-redux";
 import Image from "next/image";
 import { Progress } from "@/components/ui/progress";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { FaMapMarkerAlt } from "react-icons/fa";
-import Link from "next/link";
 import { FaGripfire, FaUsers } from "react-icons/fa";
 import { TbBuildingSkyscraper } from "react-icons/tb";
 import {
@@ -17,24 +16,67 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import Link from "next/link";
+import { AppDispatch } from "@/store";
+import { addOrUpdateCompanyLogo } from "@/store/slices/companyProfileSlice/companyProfileSlice";
 
-const ProfileCompletion = () => {
-  const [progress, setProgress] = useState(66);
+interface ProfileCompletionProps {
+  company: {
+    _id: string;
+    companyName: string;
+    website: string;
+    foundedYear: string;
+    numberOfEmployees: string;
+    sector: string;
+    companyLogo: string;
+    companyImages: string[];
+  };
+  token: string;
+  onUpdate: (updates: Partial<{
+    _id: string;
+    companyName: string;
+    website: string;
+    foundedYear: string;
+    numberOfEmployees: string;
+    sector: string;
+    companyLogo: string;
+    companyImages: string[];
+  }>) => Promise<void>;
+}
+
+const ProfileCompletion: React.FC<ProfileCompletionProps> = ({ company, token, onUpdate }) => {
+  const dispatch = useDispatch<AppDispatch>();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
-    companyName: "Dcodax",
-    website: "https://www.dcodax.com",
-    founded: "July 31, 2011",
-    employees: "4000+",
-    industry: "Software",
+    companyName: company.companyName,
+    website: company.website,
+    foundedYear: company.foundedYear,
+    numberOfEmployees: company.numberOfEmployees,
+    sector: company.sector,
   });
-  const [profileImage, setProfileImage] = useState("/images/motion.png");
+  const [profileImage, setProfileImage] = useState(company.companyLogo || "");
+
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const handleSave = () => {
-    // Handle save logic here
+  useEffect(() => {
+    setFormData({
+      companyName: company.companyName,
+      website: company.website,
+      foundedYear: company.foundedYear,
+      numberOfEmployees: company.numberOfEmployees,
+      sector: company.sector,
+    });
+    if (company.companyLogo) {
+      setProfileImage(company.companyLogo);
+    }
+  }, [company]);
+
+  const handleSave = async () => {
+    await onUpdate({
+      ...formData,
+      numberOfEmployees: parseInt(formData.numberOfEmployees, 10).toString(), // Ensure numberOfEmployees is a string
+    });
     setIsEditing(false);
-    console.log("Saved data:", formData);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -46,14 +88,14 @@ const ProfileCompletion = () => {
   };
 
   const handleCancel = () => {
-    // Reset form data to default or previous state
     setFormData({
-      companyName: "Dcodax",
-      website: "https://www.dcodax.com",
-      founded: "July 31, 2011",
-      employees: "4000+",
-      industry: "Software",
+      companyName: company.companyName,
+      website: company.website,
+      foundedYear: company.foundedYear,
+      numberOfEmployees: company.numberOfEmployees,
+      sector: company.sector,
     });
+    setProfileImage(company.companyLogo || "");
     setIsEditing(false);
   };
 
@@ -63,14 +105,29 @@ const ProfileCompletion = () => {
     }
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const storedCompanyId = company._id;
+
+    if (!storedCompanyId || !token) {
+      console.error("Company ID or token is not available.");
+      return;
+    }
+
+    console.log("Company ID: ", storedCompanyId);
+    console.log("Token: ", token);
+
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfileImage(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      const formData = new FormData();
+      formData.append("companyLogo", file);
+      
+      try {
+        const result = await dispatch(addOrUpdateCompanyLogo({ companyId: storedCompanyId, logo: formData, token })).unwrap();
+        console.log("API Result: ", result);
+        setProfileImage(result.companyLogo);
+      } catch (error) {
+        console.error("Failed to update company logo: ", error);
+      }
     }
   };
 
@@ -79,16 +136,20 @@ const ProfileCompletion = () => {
       <div className="flex gap-4 items-center rounded-tr-[20px] rounded-tl-[20px] bg-gradient-to-tr from-blue to-blue/20 p-5 relative">
         <div className="w-1/3 md:relative">
           <div
-            className="md:absolute border-8 rounded-full border-white md:left-[40px] md:top-[10px] w-24 h-24 md:w-36 md:h-36 overflow-hidden cursor-pointer"
+            className="md:absolute border-8 rounded-full border-white md:left-[40px] md:top-[10px] w-24 h-24 md:w-36 md:h-36 overflow-hidden cursor-pointer bg-gray-300 flex items-center justify-center text-white text-2xl"
             onClick={handleImageClick}
           >
-            <Image
-              src={profileImage}
-              alt="profile"
-              width={150}
-              height={150}
-              className="rounded-full object-cover w-24 md:w-36"
-            />
+            {profileImage ? (
+              <Image
+                src={profileImage}
+                alt="profile"
+                width={150}
+                height={150}
+                className="rounded-full object-cover w-24 md:w-36"
+              />
+            ) : (
+              <span>No Image</span>
+            )}
             <input
               type="file"
               accept="image/*"
@@ -119,7 +180,12 @@ const ProfileCompletion = () => {
             <div>
               <h1 className="md:text-3xl text-xl text-modaltext">{formData.companyName || "Full Name"}</h1>
               <p className="md:text-xl text-md text-signininput4 py-2">
-                <Link href={formData.website || "#"} className="text-signature hover:underline" target="_blank" rel="noopener noreferrer">
+                <Link
+                  href={formData.website || "#"}
+                  className="text-signature hover:underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   {formData.website || "https://ajs-files.hostdonor.com"}
                 </Link>
               </p>
@@ -148,7 +214,7 @@ const ProfileCompletion = () => {
                         name="companyName"
                         value={formData.companyName}
                         onChange={handleChange}
-                        placeholder="Full Name"
+                        placeholder="Company Name"
                         className="col-span-3"
                       />
                     </div>
@@ -161,46 +227,46 @@ const ProfileCompletion = () => {
                         name="website"
                         value={formData.website}
                         onChange={handleChange}
-                        placeholder="https://ajs-files.hostdonor.com"
+                        placeholder="Website"
                         className="col-span-3"
                       />
                     </div>
                     <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="founded" className="text-right">
-                        Founded
+                      <Label htmlFor="foundedYear" className="text-right">
+                        Founded Year
                       </Label>
                       <Input
-                        id="founded"
-                        name="founded"
-                        value={formData.founded}
+                        id="foundedYear"
+                        name="foundedYear"
+                        value={formData.foundedYear}
                         onChange={handleChange}
-                        placeholder="July 31, 2011"
+                        placeholder="Founded Year"
                         className="col-span-3"
                       />
                     </div>
                     <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="employees" className="text-right">
-                        Employees
+                      <Label htmlFor="numberOfEmployees" className="text-right">
+                        Number of Employees
                       </Label>
                       <Input
-                        id="employees"
-                        name="employees"
-                        value={formData.employees}
+                        id="numberOfEmployees"
+                        name="numberOfEmployees"
+                        value={formData.numberOfEmployees}
                         onChange={handleChange}
-                        placeholder="4000+"
+                        placeholder="Number of Employees"
                         className="col-span-3"
                       />
                     </div>
                     <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="industry" className="text-right">
+                      <Label htmlFor="sector" className="text-right">
                         Industry
                       </Label>
                       <Input
-                        id="industry"
-                        name="industry"
-                        value={formData.industry}
+                        id="sector"
+                        name="sector"
+                        value={formData.sector}
                         onChange={handleChange}
-                        placeholder="Software"
+                        placeholder="Industry"
                         className="col-span-3"
                       />
                     </div>
@@ -225,8 +291,8 @@ const ProfileCompletion = () => {
             <FaGripfire className="text-signature" size={30} />
           </div>
           <div className="text-xl">
-            <h1 className="text-signininput">Founded</h1>
-            <p>{formData.founded}</p>
+            <h1 className="text-signininput">Founded Year</h1>
+            <p>{formData.foundedYear}</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -234,8 +300,8 @@ const ProfileCompletion = () => {
             <FaUsers className="text-signature" size={30} />
           </div>
           <div className="text-xl">
-            <h1 className="text-signininput">Employees</h1>
-            <p>{formData.employees}</p>
+            <h1 className="text-signininput">Number of Employees</h1>
+            <p>{formData.numberOfEmployees}</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -244,7 +310,7 @@ const ProfileCompletion = () => {
           </div>
           <div className="text-xl">
             <h1 className="text-signininput">Industry</h1>
-            <p>{formData.industry}</p>
+            <p>{formData.sector}</p>
           </div>
         </div>
       </div>
