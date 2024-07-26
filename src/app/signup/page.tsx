@@ -112,7 +112,7 @@ const SignUpForm: React.FC = () => {
         localStorage.setItem("role", role); // Store the role in localStorage
         localStorage.setItem("_id", response._id); // Store user ID in localStorage
       }
-    } catch (error: any) {
+    } catch (error: any) { 
       if (Array.isArray(error)) {
         setErrorMessage(error.map((err: AuthError) => `${err.path}: ${err.message}`).join(', '));
       } else {

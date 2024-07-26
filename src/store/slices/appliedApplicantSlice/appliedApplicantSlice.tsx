@@ -7,18 +7,52 @@ interface Experience {
   from: string;
   to: string;
   onGoing: boolean;
+  jobTitle: string;
+  description: string;
+}
+
+interface Education {
+  levelOfEducation: string;
+  institution: string;
+  fieldOfStudy: string;
+  from: string;
+  to: string;
+  onGoing: boolean;
+  score: string;
+  scoreUnit: string;
+  description: string;
 }
 
 interface JobSeeker {
+  _id: string;
   firstName: string;
+  resume: string,
   lastName: string;
+  gender: string;
+  dateOfBirth: string;
+  languages: string[];
+  city: string;
+  province: string;
+  country: string;
+  introduction: string;
   profilePicture: string;
-  experience?: Experience[];
+  experience: Experience[];
+  education: Education[];
+  skills: string[];
+  userInfo: {
+    email: string;
+    phone: string;
+    linkedin: string;
+    facebook: string;
+    website: string;
+  };
+  profession: string;
 }
 
 interface Job {
   title: string;
   sector: string;
+  jobType: string;
 }
 
 interface JobApplication {
@@ -26,6 +60,7 @@ interface JobApplication {
   job: Job;
   jobSeeker: JobSeeker;
   status: string;
+  createdAt: string;
 }
 
 interface Pagination {
@@ -92,7 +127,7 @@ export const fetchJobApplicationDetail = createAsyncThunk<
         Authorization: `Bearer ${token}`,
       },
     });
-    return response.data;
+    return response.data.jobApplication;
   } catch (error: any) {
     if (axios.isAxiosError(error) && error.response) {
       return rejectWithValue(error.response.data.message || "An error occurred while fetching the application details.");
@@ -166,8 +201,16 @@ const appliedApplicantSlice = createSlice({
         state.status = "failed";
         state.error = action.payload || "An unknown error occurred";
       })
+      .addCase(fetchJobApplicationDetail.pending, (state) => {
+        state.status = "loading";
+      })
       .addCase(fetchJobApplicationDetail.fulfilled, (state, action: PayloadAction<JobApplication>) => {
+        state.status = "succeeded";
         state.applicationDetail = action.payload;
+      })
+      .addCase(fetchJobApplicationDetail.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload || "An unknown error occurred";
       })
       .addCase(shortlistApplication.fulfilled, (state, action: PayloadAction<{ applicationId: string; shortlisted: boolean }>) => {
         state.applications = state.applications.map(application =>

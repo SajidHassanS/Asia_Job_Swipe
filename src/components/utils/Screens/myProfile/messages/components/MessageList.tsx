@@ -18,7 +18,7 @@ import {
 
 const MessageList = () => {
   const [messages, setMessages] = useState([
-    { id: 1, name: 'Jan Mayer', time: '12 mins ago', text: 'We want to invite you for a qui...', avatar: '/images/messages/4.png', chat: ['Hello!', 'How are you?'] },
+    { id: 1, name: 'Jan Mayer khan', time: '12 mins ago', text: 'We want to invite you for a qui...', avatar: '/images/messages/4.png', chat: ['Hello!', 'How are you?'] },
     { id: 2, name: 'Joe Bartmann', time: '3:40 PM', text: 'Hey thanks for your interview...', avatar: '/images/messages/2.png', chat: ['Hey!', 'Thanks for the interview.'] },
     // Add more messages here
   ]);

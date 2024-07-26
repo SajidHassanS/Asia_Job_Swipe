@@ -119,7 +119,7 @@ export const verifyOTP = createAsyncThunk<void, { email: string; otp: string }, 
   'auth/verifyOTP',
   async ({ email, otp }, { dispatch, rejectWithValue }) => {
     try {
-      await axios.post(`${API_URL}/auth/verify-otp`, { email, otp: Number(otp) });
+      await axios.post(`${API_URL}/auth/verify-otp`, { email, otp });
       dispatch(setEmailForSignUp(email));
       dispatch(setOtpForSignUp(otp));
     } catch (error: any) {
