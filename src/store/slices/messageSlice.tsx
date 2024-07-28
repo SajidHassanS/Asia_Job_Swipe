@@ -1,15 +1,37 @@
+"use client";
+
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 import socket from '@/services/socket';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://ajs-server.hostdonor.com/api/v1';
 
-interface Message {
-  _id: string;
-  sender: string;
-  receiver: string;
-  message: string;
-  timestamp: string;
+// messageSlice.ts
+export interface Message {
+    _id: string;
+    sender: {
+      _id: string; // Ensure _id is included
+      companyName?: string;
+      companyLogo?: string;
+      firstName?: string;
+      lastName?: string;
+      sender: User;
+      message: string;
+      receiverId: string;
+      profilePicture?: string;
+      role: string;
+    };
+    receiver: {
+      _id: string; // Ensure _id is included
+      companyName?: string;
+      companyLogo?: string;
+      firstName?: string;
+      lastName?: string;
+      profilePicture?: string;
+      role: string;
+    };
+    message: string;
+    createdAt: string;
 }
 
 interface JobSeeker {
@@ -25,10 +47,24 @@ interface JobApplication {
   jobSeeker: JobSeeker;
 }
 
+interface User {
+    _id: string;
+    role: string;
+    companyName?: string;
+    companyLogo?: string;
+    firstName?: string;
+    lastName?: string;
+    profilePicture?: string;
+}
+
 interface Chat {
   _id: string;
-  participants: string[];
+  participants: JobSeeker[];
   messages: Message[];
+  users: User[];
+  latestMessage: Message;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface MessagesState {
@@ -79,7 +115,7 @@ export const fetchMessages = createAsyncThunk<
         Authorization: `Bearer ${token}`,
       },
     });
-    return response.data.messages; // Ensure we return the correct data structure
+    return response.data.messages;
   } catch (error: any) {
     if (axios.isAxiosError(error) && error.response) {
       return rejectWithValue(error.response.data.message || 'An error occurred while fetching the messages.');
@@ -107,10 +143,31 @@ export const sendMessage = createAsyncThunk<
         },
       }
     );
-    return response.data.sentMessage; // Ensure the response data contains the sentMessage including _id
+    return response.data.sentMessage; // Ensure backend response contains 'sentMessage'
   } catch (error: any) {
     if (axios.isAxiosError(error) && error.response) {
       return rejectWithValue(error.response.data.message || 'An error occurred while sending the message.');
+    } else {
+      return rejectWithValue('An unknown error occurred');
+    }
+  }
+});
+
+export const fetchChats = createAsyncThunk<
+  Chat[],
+  { token: string },
+  { rejectValue: string }
+>('message/fetchChats', async ({ token }, { rejectWithValue }) => {
+  try {
+    const response = await axios.get(`${API_URL}/chats`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      return rejectWithValue(error.response.data.message || 'An error occurred while fetching the chats.');
     } else {
       return rejectWithValue('An unknown error occurred');
     }
@@ -122,7 +179,31 @@ const messageSlice = createSlice({
   initialState,
   reducers: {
     receiveMessage: (state, action: PayloadAction<Message>) => {
-      state.messages.push(action.payload);
+      const newMessage = action.payload;
+
+      // Find or create chat
+      const chatIndex = state.chats.findIndex(chat =>
+        chat._id === newMessage.receiver._id || chat._id === newMessage.sender._id
+      );
+
+      if (chatIndex !== -1) {
+        // Update existing chat
+        state.chats[chatIndex].messages.push(newMessage);
+        state.chats[chatIndex].latestMessage = newMessage;
+      } else {
+        // Create new chat
+        state.chats.push({
+          _id: newMessage.receiver._id || newMessage.sender._id,
+          participants: [], // Optionally populate with participants
+          messages: [newMessage],
+          users: [], // Optionally populate with users
+          latestMessage: newMessage,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        });
+      }
+
+      state.messages.push(newMessage); // Also add to global messages
     },
   },
   extraReducers: (builder) => {
@@ -161,6 +242,18 @@ const messageSlice = createSlice({
         state.error = null;
       })
       .addCase(sendMessage.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload || 'An unknown error occurred';
+      })
+      .addCase(fetchChats.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchChats.fulfilled, (state, action: PayloadAction<Chat[]>) => {
+        state.status = 'succeeded';
+        state.chats = action.payload;
+        state.error = null;
+      })
+      .addCase(fetchChats.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload || 'An unknown error occurred';
       });

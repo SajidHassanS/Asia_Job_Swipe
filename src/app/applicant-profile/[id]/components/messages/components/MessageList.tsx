@@ -115,32 +115,34 @@ const MessageList = () => {
     }
   };
 
-  if (status === "loading") {
-    return <div>Loading...</div>;
-  }
-
-  if (status === "failed") {
-    return <div>Error: {error}</div>;
-  }
-
   return (
     <div className="h-screen flex flex-col">
-      {jobApplication && (
-        <div className="flex items-center p-4 bg-gray-100 border-b">
-          <Image
-            src={jobApplication.jobSeeker.profilePicture || '/images/profilepics.png'}
-            alt="Profile"
-            width={40}
-            height={40}
-            className="h-10 w-10 rounded-full mr-4"
-            onError={(e) => e.currentTarget.src = '/images/fallback.png'} // Fallback image
-          />
-          <div>
-            <p className="font-semibold text-lg">{jobApplication.jobSeeker.firstName} {jobApplication.jobSeeker.lastName}</p>
-            <p className="text-sm text-gray-500">Status: Online</p> {/* Update status dynamically if possible */}
+      <div className="flex items-center p-4 bg-gray-100 border-b">
+        {jobApplication ? (
+          <>
+            <Image
+              src={jobApplication.jobSeeker.profilePicture || '/images/profilepics.png'}
+              alt="Profile"
+              width={40}
+              height={40}
+              className="h-10 w-10 rounded-full mr-4"
+              onError={(e) => e.currentTarget.src = '/images/fallback.png'} // Fallback image
+            />
+            <div>
+              <p className="font-semibold text-lg">{jobApplication.jobSeeker.firstName} {jobApplication.jobSeeker.lastName}</p>
+              <p className="text-sm text-gray-500">Status: Online</p> {/* Update status dynamically if possible */}
+            </div>
+          </>
+        ) : (
+          <div className="flex items-center">
+            <div className="h-10 w-10 rounded-full mr-4 bg-gray-300"></div>
+            <div>
+              <p className="font-semibold text-lg">Loading...</p>
+              <p className="text-sm text-gray-500">Please wait</p>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       <div className="flex-1 p-4 overflow-y-auto">
         <ul>
@@ -155,7 +157,7 @@ const MessageList = () => {
                   className={`h-10 w-10 rounded-full ${message.sender === companyDetails.userInfo._id ? 'ml-2' : 'mr-2'}`}
                   onError={(e) => e.currentTarget.src = '/images/fallback.png'} // Fallback image
                 />
-                <div className={`p-2 rounded-lg ${message.sender === companyDetails.userInfo._id ? 'bg-blue  text-white' : 'bg-gray-200 text-black'}`}>
+                <div className={`p-2 rounded-lg ${message.sender === companyDetails.userInfo._id ? 'bg-blue text-white' : 'bg-gray-200 text-black'}`}>
                   <p>{message.message}</p>
                 </div>
               </div>
