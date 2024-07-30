@@ -1,10 +1,11 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { AppDispatch, RootState } from "@/store"; // Make sure to update the imports according to your store setup
+import { fetchShortlistedApplications } from "@/store/slices/appliedApplicantSlice/appliedApplicantSlice"; // Import the thunk
 import LoadingSkeleton from "@/components/LoadingSkeleton";
 import PaginationComponent from "@/components/Pagination";
-import useFetchCompanies from "@/hooks/useFetchCompanies";
-import { baseUrl } from "@/utils/constants";
-import { useState } from "react";
 import {
   Table,
   TableBody,
@@ -34,142 +35,60 @@ import { BsBookmarkDash } from "react-icons/bs";
 import { RiDeleteBin5Line } from "react-icons/ri";
 import { Checkbox } from "@/components/ui/checkbox";
 
-// Define the Pagination interface
-interface Pagination {
-  totalPages: number;
-  currentPage: number;
-  hasNextPage: boolean;
-  hasPreviousPage: boolean;
-  nextPage: number | null;
-  previousPage: number | null;
-}
-
-const AllCompaniesData = () => {
+const AllShortlistedApplications = () => {
   const [page, setPage] = useState<number>(1);
-  const api = `${baseUrl}/companies?page=${page}`;
-  const [pagination, setPagination] = useState<Pagination>({
-    totalPages: 5,
-    currentPage: 1,
-    hasNextPage: false,
-    hasPreviousPage: false,
-    nextPage: null,
-    previousPage: null,
-  });
+  const dispatch = useDispatch<AppDispatch>();
 
-  const { data, loading, error } = useFetchCompanies(api, setPagination);
+  // Retrieve state from Redux
+  const { applications, pagination, status, error } = useSelector(
+    (state: RootState) => state.appliedApplicant
+  );
 
-  const companies = [
-    {
-      picture: "/images/avatar.png", // Replace with the actual path to the logo
-      name: "Starbucks",
-      matched: "30% matched",
-      sector: "Software Development",
-      experience: "3 Years Experience",
-    },
-    {
-      picture: "/images/avatar.png", // Replace with the actual path to the logo
-      name: "Starbucks",
-      matched: "30% matched",
-      sector: "Software Development",
-      experience: "3 Years Experience",
-    },
-    // Add more entries based on the image data
-    {
-      picture: "/images/avatar.png",
-      name: "Starbucks",
-      matched: "30% matched",
-      sector: "Software Development",
-      experience: "3 Years Experience",
-    },
-    {
-      picture: "/images/avatar.png",
-      name: "Starbucks",
-      matched: "30% matched",
-      sector: "Software Development",
-      experience: "3 Years Experience",
-    },
-    {
-      picture: "/images/avatar.png",
-      name: "Starbucks",
-      matched: "30% matched",
-      sector: "Software Development",
-      experience: "3 Years Experience",
-    },
-    {
-      picture: "/images/avatar.png",
-      name: "Starbucks",
-      matched: "30% matched",
-      sector: "Software Development",
-      experience: "3 Years Experience",
-    },
-    {
-      picture: "/images/avatar.png",
-      name: "Starbucks",
-      matched: "30% matched",
-      sector: "Software Development",
-      experience: "3 Years Experience",
-    },
-    {
-      picture: "/images/avatar.png",
-      name: "Starbucks",
-      matched: "30% matched",
-      sector: "Software Development",
-      experience: "3 Years Experience",
-    },
-    {
-      picture: "/images/avatar.png",
-      name: "Starbucks",
-      matched: "30% matched",
-      sector: "Software Development",
-      experience: "3 Years Experience",
-    },
-    {
-      picture: "/images/avatar.png",
-      name: "Starbucks",
-      matched: "30% matched",
-      sector: "Software Development",
-      experience: "3 Years Experience",
-    },
-    {
-      picture: "/images/avatar.png",
-      name: "Starbucks",
-      matched: "30% matched",
-      sector: "Software Development",
-      experience: "3 Years Experience",
-    },
-  ];
+  useEffect(() => {
+    const token = localStorage.getItem("accesstoken"); // Retrieve the token from local storage
+    const companyId = localStorage.getItem("_id"); // Replace with your actual company ID or get it from context/state
+
+    if (token && companyId) {
+      dispatch(fetchShortlistedApplications({ companyId, token }));
+    }
+  }, [dispatch, page]);
+
+  if (status === "loading") return <LoadingSkeleton />;
+  if (status === "failed") return <div>Error: {error}</div>;
 
   const headers = [
-    "Picture",
+    "Profile Picture",
     "Name",
-    "Contact Info",
+    "Matched",
     "Sector",
-    "Joined at",
-    "Company Size",
+    "Experience",
     "Action",
   ];
 
-  if (loading) return <LoadingSkeleton />;
-  // if (error) return <div>Error: {error.message}</div>;
-
-  const renderCompanyRow = (company: (typeof companies)[0]) => (
+  const renderApplicationRow = (application: typeof applications[0]) => (
     <>
       <TableCell>
         <div className="flex items-center space-x-2">
-          <Checkbox id="terms" />
+          <Checkbox id="select-application" />
         </div>
       </TableCell>
       <TableCell className="flex gap-5 items-center">
-        <Image src={company.picture} alt={company.name} width={40} height={40} /> {company.name}
+        <Image
+          src={application.jobSeeker.profilePicture || "/images/avatar.png"}
+          alt={application.jobSeeker.firstName}
+          width={40}
+          height={40}
+        />{" "}
+        {application.jobSeeker.firstName} {application.jobSeeker.lastName}
       </TableCell>
 
       <TableCell>
         <div className="border rounded-full py-3 flex justify-center text-signature border-blue">
-          {company.matched}
+          {application.job.title}
         </div>
       </TableCell>
-      <TableCell>{company.sector}</TableCell>
-      <TableCell>{company.experience}</TableCell>
+      <TableCell>{application.job.sector}</TableCell>
+      <TableCell>{application.jobSeeker.experience.length} Years Experience</TableCell>
       <TableCell className="flex items-center gap-6">
         <Link href={"#"} className="text-threeicons bg-muted p-3 rounded-xl hover:text-signature/80 transition-colors">
           <BiMessageRoundedDetail size={20} />
@@ -185,9 +104,9 @@ const AllCompaniesData = () => {
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle>Delete Company</DialogTitle>
+              <DialogTitle>Delete Application</DialogTitle>
               <DialogDescription>
-                Are you sure you want to delete this company?
+                Are you sure you want to delete this application?
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
@@ -208,15 +127,23 @@ const AllCompaniesData = () => {
     <div>
       <main className="my-4 px-4 flex-1">
         <div className="pb-3">
-          <h1 className="text-2xl font-bold pb-3">All Saved Candidates</h1>
-          <p>Showing 73 People</p>
+          <h1 className="text-2xl font-bold pb-3">All Shortlisted Candidates</h1>
+          <p>Showing {applications.length} Candidates</p>
         </div>
-        <DataTable headers={headers} data={companies} renderRow={renderCompanyRow} />
+        <DataTable
+          headers={headers}
+          data={applications}
+          renderRow={renderApplicationRow}
+        />
       </main>
 
-      <PaginationComponent page={page} pagination={pagination} changePage={setPage} />
+      <PaginationComponent
+        page={page}
+        pagination={pagination}
+        changePage={setPage}
+      />
     </div>
   );
 };
 
-export default AllCompaniesData;
+export default AllShortlistedApplications;

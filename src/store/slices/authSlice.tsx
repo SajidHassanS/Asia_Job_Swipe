@@ -184,15 +184,23 @@ export const signIn = createAsyncThunk<User, { email: string; password: string; 
   }
 );
 
-export const googleSignIn = createAsyncThunk<User, { code: string; role: string }, { rejectValue: AuthError[] }>(
+export const googleSignIn = createAsyncThunk<User, { role: string }, { rejectValue: AuthError[] }>(
   'auth/googleSignIn',
-  async ({ code, role }, { rejectWithValue }) => {
+  async ({ role }, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${API_URL}/auth/google`, { code, role });
-      localStorage.setItem('accessToken', response.data.accessToken);
-      localStorage.setItem('refreshToken', response.data.refreshToken);
-      localStorage.setItem('userInfo', JSON.stringify(response.data.user));
-      return response.data.user; // Adjust the return value to only include user data
+      const response = await axios.get(`${API_URL}/auth/google`, {
+        params: { role }
+      });
+
+      // Assuming the response contains accessToken, refreshToken, and user data
+      const { accessToken, refreshToken, user } = response.data;
+
+      // Save tokens and user information in localStorage
+      localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('refreshToken', refreshToken);
+      localStorage.setItem('userInfo', JSON.stringify(user));
+
+      return user;
     } catch (error: any) {
       if (axios.isAxiosError(error) && error.response) {
         if (error.response.data.errors) {
@@ -428,12 +436,20 @@ const authSlice = createSlice({
         state.status = 'succeeded';
         state.user = action.payload;
         state.error = null;
-        state.jobSeekerId = action.payload.role === 'jobseeker' ? action.payload._id : null;
+      
+        // Check for job seeker role and set jobSeekerId if applicable
+        if (action.payload.role === 'jobSeeker') {
+          state.jobSeekerId = action.payload._id;
+        } else {
+          state.jobSeekerId = null;
+        }
       })
       .addCase(googleSignIn.rejected, (state: AuthState, action: PayloadAction<AuthError[] | undefined>) => {
         state.status = 'failed';
         state.errors = action.payload || [{ path: 'unknown', message: 'An unknown error occurred' }];
       })
+
+      
       .addCase(sendForgotPasswordOTP.pending, (state: AuthState) => {
         state.otpStatus = 'loading';
       })

@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../store";
-import { signIn, clearErrors, loginCompanyRole } from "../../store/slices/authSlice";
+import { signIn, clearErrors, loginCompanyRole, googleSignIn } from "../../store/slices/authSlice";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { FaArrowLeft, FaEye, FaEyeSlash } from "react-icons/fa6";
 import { FcGoogle } from "react-icons/fc";
 
@@ -35,6 +35,7 @@ const SignInPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [roleError, setRoleError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -58,18 +59,24 @@ const SignInPage = () => {
     }
   }, [auth?.user, router, auth.role, roleError]);
 
+  useEffect(() => {
+    // Extract any session or status information from the URL if needed
+    // For example, if the backend redirects back with a session token or status
+
+    // You might want to clear any specific query parameters after processing them
+    // For example: router.replace(router.pathname);
+  }, [dispatch, searchParams, router]);
+
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
 
   const handleSignIn = async () => {
-    dispatch(clearErrors()); // Clear previous error messages
-    setRoleError(null); // Clear previous role error
+    dispatch(clearErrors());
+    setRoleError(null);
     try {
       const action = userType === 'companyRole' ? loginCompanyRole : signIn;
-      const response = await dispatch(
-        action({ email, password, userType })
-      ).unwrap();
+      const response = await dispatch(action({ email, password, userType })).unwrap();
   
       if (response.role !== userType && userType !== 'companyRole') {
         setRoleError("Unauthorized: role mismatch");
@@ -95,7 +102,11 @@ const SignInPage = () => {
       // Errors are already handled in the Redux slice
     }
   };
-  
+
+  const handleGoogleSignIn = () => {
+    // Redirect to your backend endpoint that handles Google OAuth
+    window.location.href = `https://ajs-server.hostdonor.com/api/v1/auth/google?role=${userType}`;
+  };
 
   const getErrorMessage = (field: string): string | null => {
     const error = auth.errors.find((error: AuthError) => error.path === field);
@@ -133,7 +144,11 @@ const SignInPage = () => {
                     Get more opportunities
                   </CardTitle>
                   <CardDescription>
-                    <Button className="w-full text-darkGrey" variant="outline">
+                    <Button
+                      className="w-full text-darkGrey"
+                      variant="outline"
+                      onClick={handleGoogleSignIn}
+                    >
                       <FcGoogle size={25} className="mr-2" /> Sign In with
                       Google
                     </Button>
@@ -279,7 +294,11 @@ const SignInPage = () => {
                     Find the best talent
                   </CardTitle>
                   <CardDescription>
-                    <Button className="w-full text-darkGrey" variant="outline">
+                    <Button
+                      className="w-full text-darkGrey"
+                      variant="outline"
+                      onClick={handleGoogleSignIn}
+                    >
                       <FcGoogle size={25} className="mr-2" /> Sign In with
                       Google
                     </Button>
@@ -425,7 +444,11 @@ const SignInPage = () => {
                     Access Company Role Dashboard
                   </CardTitle>
                   <CardDescription>
-                    <Button className="w-full text-darkGrey" variant="outline">
+                    <Button
+                      className="w-full text-darkGrey"
+                      variant="outline"
+                      onClick={handleGoogleSignIn}
+                    >
                       <FcGoogle size={25} className="mr-2" /> Sign In with
                       Google
                     </Button>

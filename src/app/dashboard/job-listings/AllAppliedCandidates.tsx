@@ -1,206 +1,106 @@
 "use client";
 
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import LoadingSkeleton from "@/components/LoadingSkeleton";
 import PaginationComponent from "@/components/Pagination";
-import useFetchCompanies from "@/hooks/useFetchCompanies";
-import { baseUrl } from "@/utils/constants";
-import { useState } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import DataTable from "@/components/DataTable";
-import Image from "next/image";
-import Link from "next/link";
-import { FaEdit } from "react-icons/fa";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { AiFillDelete } from "react-icons/ai";
+import { Table, TableBody, TableCell, TableRow, TableHeader, TableHead } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { BiMessageRoundedDetail } from "react-icons/bi";
-import { BsBookmarkDash } from "react-icons/bs";
-import { RiDeleteBin5Line } from "react-icons/ri";
 import { Checkbox } from "@/components/ui/checkbox";
-
-// Define the Pagination interface
-interface Pagination {
-  totalPages: number;
-  currentPage: number;
-  hasNextPage: boolean;
-  hasPreviousPage: boolean;
-  nextPage: number | null;
-  previousPage: number | null;
-}
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { RootState, AppDispatch } from "@/store";
+import { getJobsByCompany } from "@/store/slices/postJobSlice";
+import { format } from "date-fns";
+import { FaEdit } from "react-icons/fa";
+import { RiDeleteBin5Line } from "react-icons/ri";
 
 const AllCompaniesData = () => {
   const [page, setPage] = useState<number>(1);
-  const api = `${baseUrl}/companies?page=${page}`;
-  const [pagination, setPagination] = useState<Pagination>({
-    totalPages: 5,
+  const dispatch = useDispatch<AppDispatch>();
+  const { jobs, status, error, pagination } = useSelector((state: RootState) => state.postJob);
+
+  const [paginationState, setPaginationState] = useState({
+    totalPages: 1,
     currentPage: 1,
     hasNextPage: false,
     hasPreviousPage: false,
-    nextPage: null,
-    previousPage: null,
+    nextPage: null as number | null,
+    previousPage: null as number | null,
   });
 
-  const { data, loading, error } = useFetchCompanies(api, setPagination);
+  // Ensure localStorage access only in client-side environment
+  const companyId = typeof window !== 'undefined' ? localStorage.getItem("_id") : null;
 
-  const companies = [
-    {
-      _id: 1,
-      picture: "/images/avatar.png", // Replace with the actual path to the logo
-      name: "Starbucks",
-      matched: "30% matched",
-      sector: "Software Development",
-      experience: "3 Years Experience",
-    },
-    {
-      _id: 2,
-      picture: "/images/avatar.png", // Replace with the actual path to the logo
-      name: "Starbucks",
-      matched: "30% matched",
-      sector: "Software Development",
-      experience: "3 Years Experience",
-    },
-    // Add more entries based on the image data
-    {
-      _id: 3,
-      picture: "/images/avatar.png",
-      name: "Starbucks",
-      matched: "30% matched",
-      sector: "Software Development",
-      experience: "3 Years Experience",
-    },
-    {
-      _id: 4,
-      picture: "/images/avatar.png",
-      name: "Starbucks",
-      matched: "30% matched",
-      sector: "Software Development",
-      experience: "3 Years Experience",
-    },
-    {
-      _id: 5,
-      picture: "/images/avatar.png",
-      name: "Starbucks",
-      matched: "30% matched",
-      sector: "Software Development",
-      experience: "3 Years Experience",
-    },
-    {
-      _id: 6,
-      picture: "/images/avatar.png",
-      name: "Starbucks",
-      matched: "30% matched",
-      sector: "Software Development",
-      experience: "3 Years Experience",
-    },
-    {
-      _id: 7,
-      picture: "/images/avatar.png",
-      name: "Starbucks",
-      matched: "30% matched",
-      sector: "Software Development",
-      experience: "3 Years Experience",
-    },
-    {
-      _id: 8,
-      picture: "/images/avatar.png",
-      name: "Starbucks",
-      matched: "30% matched",
-      sector: "Software Development",
-      experience: "3 Years Experience",
-    },
-    {
-      _id: 9,
-      picture: "/images/avatar.png",
-      name: "Starbucks",
-      matched: "30% matched",
-      sector: "Software Development",
-      experience: "3 Years Experience",
-    },
-    {
-      _id: 10,
-      picture: "/images/avatar.png",
-      name: "Starbucks",
-      matched: "30% matched",
-      sector: "Software Development",
-      experience: "3 Years Experience",
-    },
-    {
-      _id: 11,
-      picture: "/images/avatar.png",
-      name: "Starbucks",
-      matched: "30% matched",
-      sector: "Software Development",
-      experience: "3 Years Experience",
-    },
-  ];
+  useEffect(() => {
+    if (companyId) {
+      dispatch(getJobsByCompany({ companyId, page }));
+    }
+  }, [dispatch, companyId, page]);
 
-  const headers = [
-    "Picture",
-    "Name",
-    "Contact Info",
-    "Sector",
-    "Joined at",
-    "Company Size",
-    "Action",
-  ];
+  useEffect(() => {
+    if (pagination) {
+      setPaginationState({
+        totalPages: pagination.totalPages || 1,
+        currentPage: pagination.currentPage || 1,
+        hasNextPage: pagination.hasNextPage || false,
+        hasPreviousPage: pagination.hasPreviousPage || false,
+        nextPage: pagination.nextPage,
+        previousPage: pagination.previousPage,
+      });
+    }
+  }, [pagination]);
 
-  if (loading) return <LoadingSkeleton />;
-  // if (error) return <div>Error: {error.message}</div>;
+  if (status === 'loading') return <LoadingSkeleton />;
+  if (status === 'failed') return <div>Error: {error}</div>;
 
-  const renderCompanyRow = (company: (typeof companies)[0]) => (
-    <>
+  const renderJobRow = (job: any) => (
+    <TableRow key={job._id}>
       <TableCell>
         <div className="flex items-center space-x-2">
-          <Checkbox id="terms" />
+          <Checkbox id={`job-${job._id}`} />
         </div>
       </TableCell>
-      <TableCell className="flex gap-5 items-center">
-        <Link href={`/applicant-profile/${company._id}`}>
-          <Image src={company.picture} alt={company.name} width={40} height={40} /> {company.name}
-        </Link>
-      </TableCell>
-
+      <TableCell className="font-medium">{job.title}</TableCell>
       <TableCell>
-        <div className="border rounded-full py-3 flex justify-center text-signature border-blue">
-          {company.matched}
+        <div className={`border rounded-full py-1 px-3 text-center ${job.active ? "text-green-500 border-green-500" : "text-yellow-500 border-yellow-500"}`}>
+          {job.active ? "Active" : "Partially Active"}
         </div>
       </TableCell>
-      <TableCell>{company.sector}</TableCell>
-      <TableCell>{company.experience}</TableCell>
-      <TableCell className="flex items-center gap-6">
-        <Link href={"#"} className="text-threeicons bg-muted p-3 rounded-xl hover:text-signature/80 transition-colors">
-          <BiMessageRoundedDetail size={20} />
-        </Link>
-        <Link href={"#"} className="text-threeicons bg-muted p-3 rounded-xl hover:text-signature/80 transition-colors">
-          <BsBookmarkDash size={20} />
-        </Link>
+      <TableCell>{format(new Date(job.createdAt), "dd MMM, yyyy")}</TableCell>
+      <TableCell>{job.careerLevel.charAt(0).toUpperCase() + job.careerLevel.slice(1)} Level</TableCell>
+      <TableCell className="flex items-center gap-2">
         <Dialog>
           <DialogTrigger asChild>
-            <div className="cursor-pointer bg-muted p-3 rounded-xl text-threeicons hover:text-signature/80 transition-colors">
+            <div className="cursor-pointer p-3 rounded-xl text-blue-500 hover:text-blue-700 transition-colors">
+              <FaEdit size={20} />
+            </div>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Edit Job</DialogTitle>
+              <DialogDescription>
+                {/* Include form or content to edit job details here */}
+              </DialogDescription>
+              <DialogFooter>
+                <DialogClose>
+                  <Button variant="outline">Cancel</Button>
+                </DialogClose>
+                <Button type="button">Save</Button>
+              </DialogFooter>
+            </DialogHeader>
+          </DialogContent>
+        </Dialog>
+        <Dialog>
+          <DialogTrigger asChild>
+            <div className="cursor-pointer p-3 rounded-xl text-red-500 hover:text-red-700 transition-colors">
               <RiDeleteBin5Line size={20} />
             </div>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle>Delete Company</DialogTitle>
+              <DialogTitle>Delete Job</DialogTitle>
               <DialogDescription>
-                Are you sure you want to delete this company?
+                Are you sure you want to delete this job?
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
@@ -214,7 +114,7 @@ const AllCompaniesData = () => {
           </DialogContent>
         </Dialog>
       </TableCell>
-    </>
+    </TableRow>
   );
 
   return (
@@ -222,12 +122,26 @@ const AllCompaniesData = () => {
       <main className="my-4 px-4 flex-1">
         <div className="pb-3">
           <h1 className="text-2xl font-bold pb-3">All Posted Jobs</h1>
-          <p>Showing 73 People</p>
+          <p>Showing {jobs.length} Jobs</p>
         </div>
-        <DataTable headers={headers} data={companies} renderRow={renderCompanyRow} />
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead></TableHead>
+              <TableHead>Job Title</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Created Date</TableHead>
+              <TableHead>Career Level</TableHead>
+              <TableHead>Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {jobs.map(renderJobRow)}
+          </TableBody>
+        </Table>
       </main>
 
-      <PaginationComponent page={page} pagination={pagination} changePage={setPage} />
+      <PaginationComponent page={page} pagination={paginationState} changePage={setPage} />
     </div>
   );
 };

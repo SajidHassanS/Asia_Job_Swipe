@@ -13,7 +13,7 @@ import MessageListener from "@/services/MessageListener";
 
 const MessageList = () => {
   const dispatch: AppDispatch = useDispatch();
-  const { chats, messages, status } = useSelector((state: RootState) => state.messageSlice);
+  const { chats, messages, status, error } = useSelector((state: RootState) => state.messageSlice);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState("");
@@ -44,7 +44,8 @@ const MessageList = () => {
           console.log("Dispatching fetchMessages action for receiverId:", receiver._id);
           dispatch(fetchMessages({ receiverId: receiver._id, token: accessToken }))
             .unwrap()
-            .then(() => {
+            .then((data) => {
+              console.log("Fetched messages:", data);
               scrollToBottom();
             })
             .catch((err) => {
@@ -52,6 +53,8 @@ const MessageList = () => {
             });
         }
       }
+    } else if (!accessToken) {
+      console.error("Access token not found");
     }
   }, [selectedChat, dispatch, accessToken, chats, userId]);
 
@@ -103,8 +106,11 @@ const MessageList = () => {
   };
 
   const getUserProfilePicture = (user) => {
+    console.log("getUserProfilePicture called with user:", user);
     if (!user) return '/images/profilepics.png';
-    return user.profilePicture || user.companyLogo || '/images/profilepics.png';
+    const profilePicture = user.profilePicture || user.companyLogo || '/images/profilepics.png';
+    console.log("User profile picture:", profilePicture);
+    return profilePicture;
   };
 
   const getUserName = (user) => {
@@ -150,6 +156,7 @@ const MessageList = () => {
           ) : filteredChats.length > 0 ? (
             filteredChats.map((chat) => {
               const user = chat.users.find((user) => user._id !== userId);
+              console.log("Chat User: ", user); // Debugging log to check user data
               return (
                 <li
                   key={chat._id}
@@ -332,12 +339,21 @@ const MessageList = () => {
                     const isSender = msg.sender === userId;
                     const chat = chats.find((chat) => chat._id === selectedChat);
                     const sender = getMessageUser(chat?.users, msg.sender);
+                    const receiver = getMessageUser(chat?.users, msg.receiver);
+
+                    console.log('Message:', msg);
+                    console.log('Is Sender:', isSender);
+                    console.log('Sender:', sender);
+                    console.log('Receiver:', receiver);
+
+                    // Use sender's information for all messages
+                    const displayUser = sender;
 
                     return (
                       <li key={msg._id} className={`mb-4 flex ${isSender ? 'justify-end' : 'justify-start'}`}>
                         <div className={`flex items-center ${isSender ? 'flex-row-reverse' : ''}`}>
                           <Image
-                            src={getUserProfilePicture(sender)}
+                            src={getUserProfilePicture(displayUser)}
                             alt="avatar"
                             width={40}
                             height={40}
@@ -361,6 +377,7 @@ const MessageList = () => {
                 </div>
               )}
             </div>
+            {/* Moved the bottomRef div just above the input area */}
             <div ref={bottomRef} />
             <div className="p-4 border-t">
               <div className="flex items-center">

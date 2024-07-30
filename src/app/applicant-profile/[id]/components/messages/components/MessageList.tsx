@@ -1,4 +1,3 @@
-"use client";
 import { useEffect, useState, useRef } from "react";
 import { useParams } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
@@ -22,7 +21,7 @@ interface Message {
 const MessageList = () => {
   const dispatch = useDispatch();
   const params = useParams();
-  const { messages = [], status, error, jobApplication } = useSelector((state: RootState) => state.messageSlice);
+  const { messages = [], jobApplication } = useSelector((state: RootState) => state.messageSlice);
   const [newMessage, setNewMessage] = useState("");
   const [companyDetails, setCompanyDetails] = useState<any>(null);
   const token = typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
@@ -105,7 +104,7 @@ const MessageList = () => {
   };
 
   const isMessageForCurrentChat = (message: Message) => {
-    if (!jobApplication) return false;
+    if (!jobApplication || !companyDetails) return false;
     const { userInfo } = jobApplication.jobSeeker;
     return (
       (message.sender === userInfo && message.receiver === companyDetails?.userInfo?._id) ||

@@ -182,6 +182,36 @@ export const rejectApplication = createAsyncThunk<
   }
 });
 
+export const fetchShortlistedApplications = createAsyncThunk<
+  { shortlistedJobApplications: JobApplication[]; pagination: Pagination },
+  { companyId: string; token: string },
+  { rejectValue: string }
+>(
+  "jobApplications/fetchShortlistedApplications",
+  async ({ companyId, token }, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(
+        `${API_URL}/job-applications/company/shortlisted/${companyId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error: any) {
+      if (axios.isAxiosError(error) && error.response) {
+        return rejectWithValue(
+          error.response.data.message ||
+            "An error occurred while fetching the shortlisted applications."
+        );
+      } else {
+        return rejectWithValue("An unknown error occurred");
+      }
+    }
+  }
+);
+
 const appliedApplicantSlice = createSlice({
   name: "jobApplications",
   initialState,
@@ -219,6 +249,29 @@ const appliedApplicantSlice = createSlice({
       })
       .addCase(rejectApplication.fulfilled, (state, action: PayloadAction<{ applicationId: string }>) => {
         state.applications = state.applications.filter(application => application._id !== action.payload.applicationId);
+      })
+      
+      .addCase(fetchShortlistedApplications.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(
+        fetchShortlistedApplications.fulfilled,
+        (
+          state,
+          action: PayloadAction<{
+            shortlistedJobApplications: JobApplication[];
+            pagination: Pagination;
+          }>
+        ) => {
+          state.status = "succeeded";
+          state.applications = action.payload.shortlistedJobApplications;
+          state.pagination = action.payload.pagination;
+          state.error = null;
+        }
+      )
+      .addCase(fetchShortlistedApplications.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload || "An unknown error occurred";
       });
   },
 });

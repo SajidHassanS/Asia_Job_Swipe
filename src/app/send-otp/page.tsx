@@ -20,7 +20,7 @@ import Link from "next/link";
 import { FcGoogle } from "react-icons/fc";
 import { FaArrowLeft } from "react-icons/fa6";
 import { useRouter } from "next/navigation";
-import { signIn, useSession } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
 
 const SendOTPPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -34,15 +34,27 @@ const SendOTPPage: React.FC = () => {
   const [timer, setTimer] = useState<number>(0);
   const [canResend, setCanResend] = useState<boolean>(false);
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
-    if (session) {
-      localStorage.setItem("accessToken", auth.accessToken || "");
-      localStorage.setItem("refreshToken", auth.refreshToken || "");
-      router.push("/");
+    // Check for tokens and role in the URL after Google signup
+    const accessToken = searchParams.get("accessToken");
+    const refreshToken = searchParams.get("refreshToken");
+    const userRole = searchParams.get("role");
+
+    if (accessToken && refreshToken && userRole) {
+      localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("refreshToken", refreshToken);
+      localStorage.setItem("role", userRole);
+
+      // Redirect based on role
+      if (userRole === "company") {
+        router.push("/dashboard");
+      } else if (userRole === "jobSeeker") {
+        router.push("/");
+      }
     }
-  }, [session, router, auth.accessToken, auth.refreshToken]);
+  }, [router, searchParams]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
@@ -123,7 +135,7 @@ const SendOTPPage: React.FC = () => {
                     <Button
                       className="w-full text-darkGrey"
                       variant="outline"
-                      onClick={() => signIn("google")}
+                      onClick={() => handleGoogleSignIn("jobSeeker")}
                     >
                       <FcGoogle size={25} className="mr-2" /> Sign Up with Google
                     </Button>
@@ -220,7 +232,7 @@ const SendOTPPage: React.FC = () => {
                     <Button
                       className="w-full text-darkGrey"
                       variant="outline"
-                      onClick={() => signIn("google")}
+                      onClick={() => handleGoogleSignIn("company")}
                     >
                       <FcGoogle size={25} className="mr-2" /> Sign Up with Google
                     </Button>
@@ -259,7 +271,7 @@ const SendOTPPage: React.FC = () => {
                         onChange={(e) => setOtp(e.target.value)}
                         placeholder="Enter OTP"
                       />
-                    </div> 
+                    </div>
                   )}
                   <div>
                     <Button
