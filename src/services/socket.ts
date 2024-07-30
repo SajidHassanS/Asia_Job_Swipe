@@ -1,16 +1,32 @@
-import { io } from "socket.io-client";
+"use client";
 
-const SOCKET_URL = process.env.NEXT_PUBLIC_API_URL || 'https://ajs-server.hostdonor.com/api/v1';
+import socket from "@/utils/constants"; // Ensure socket is correctly initialized
+import { useEffect } from "react";
 
-let userId: string | null = null;
-if (typeof window !== "undefined") {
-  userId = localStorage.getItem('_id'); // Ensure the _id is stored in localStorage
-}
+const Socket = () => {
+  useEffect(() => {
+    if (socket && !socket.connected) {
+      console.log("Attempting to connect socket...");
+      socket.connect();
 
-const socket = io(SOCKET_URL, {
-  query: {
-    userId: userId || '',
-  },
-});
+      const handleConnect = () => console.log("Socket connected:", socket?.id);
+      const handleDisconnect = () => console.log("Socket disconnected");
+      const handleError = (error: any) => console.error("Socket connection error:", error);
 
-export default socket;
+      socket.on("connect", handleConnect);
+      socket.on("disconnect", handleDisconnect);
+      socket.on("connect_error", handleError);
+
+      // Cleanup listeners on component unmount
+      return () => {
+        socket?.off("connect", handleConnect);
+        socket?.off("disconnect", handleDisconnect);
+        socket?.off("connect_error", handleError);
+      };
+    }
+  }, []);
+
+  return null;
+};
+
+export default Socket;

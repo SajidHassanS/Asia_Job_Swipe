@@ -3,13 +3,13 @@ import { useEffect, useState, useRef } from "react";
 import { useParams } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store";
-import { fetchJobApplicationDetail, fetchMessages, sendMessage, receiveMessage } from "@/store/slices/messageSlice";
-import socket from "@/services/socket";
+import { fetchJobApplicationDetail, fetchMessages, sendMessage } from "@/store/slices/messageSlice";
 import { GrAttachment } from "react-icons/gr";
 import { FaSmile } from "react-icons/fa";
 import { BiSolidRightArrow } from "react-icons/bi";
 import Image from "next/image";
 import axios from 'axios';
+import MessageListener from "@/services/MessageListener";
 
 interface Message {
   _id: string;
@@ -45,7 +45,7 @@ const MessageList = () => {
 
   useEffect(() => {
     if (companyId && token) {
-      const applicationId = Array.isArray(params.id) ? params.id[0] : params.id; // Ensure applicationId is a string
+      const applicationId = Array.isArray(params.id) ? params.id[0] : params.id;
       dispatch(fetchJobApplicationDetail({ applicationId, token }) as any)
         .unwrap()
         .then((response: any) => {
@@ -57,28 +57,17 @@ const MessageList = () => {
                 console.log('Fetched messages:', fetchedMessages);
                 scrollToBottom();
               })
-              .catch((err: any) => {
+              .catch((err) => {
                 console.error("Error fetching messages:", err);
               });
           } else {
             console.error("JobSeeker userInfo not found in response.");
           }
         })
-        .catch((err: any) => {
+        .catch((err) => {
           console.error("Error fetching job application details:", err);
         });
     }
-
-    socket.on("newMessage", (message: Message) => {
-      if (message.sender !== companyDetails?.userInfo._id) {
-        dispatch(receiveMessage(message));
-      }
-      scrollToBottom();
-    });
-
-    return () => {
-      socket.off("newMessage");
-    };
   }, [dispatch, params.id, token, companyDetails]);
 
   useEffect(() => {
@@ -96,14 +85,14 @@ const MessageList = () => {
       console.log("Sending message to:", messageToSend.receiverId);
       dispatch(sendMessage(messageToSend) as any)
         .unwrap()
-        .then((response: any) => {
+        .then(() => {
           setNewMessage("");
           if (inputRef.current) {
             inputRef.current.focus();
           }
           scrollToBottom();
         })
-        .catch((err: any) => {
+        .catch((err) => {
           console.error("Error sending message:", err);
         });
     }
@@ -115,8 +104,21 @@ const MessageList = () => {
     }
   };
 
+  const isMessageForCurrentChat = (message: Message) => {
+    if (!jobApplication) return false;
+    const { userInfo } = jobApplication.jobSeeker;
+    return (
+      (message.sender === userInfo && message.receiver === companyDetails?.userInfo?._id) ||
+      (message.sender === companyDetails?.userInfo?._id && message.receiver === userInfo)
+    );
+  };
+
+  const filteredMessages = messages.filter(isMessageForCurrentChat);
+
   return (
     <div className="h-screen flex flex-col">
+      {/* Including the MessageListener component */}
+      <MessageListener />
       <div className="flex items-center p-4 bg-gray-100 border-b">
         {jobApplication ? (
           <>
@@ -126,11 +128,11 @@ const MessageList = () => {
               width={40}
               height={40}
               className="h-10 w-10 rounded-full mr-4"
-              onError={(e) => e.currentTarget.src = '/images/fallback.png'} // Fallback image
+              onError={(e) => e.currentTarget.src = '/images/fallback.png'}
             />
             <div>
               <p className="font-semibold text-lg">{jobApplication.jobSeeker.firstName} {jobApplication.jobSeeker.lastName}</p>
-              <p className="text-sm text-gray-500">Status: Online</p> {/* Update status dynamically if possible */}
+              <p className="text-sm text-gray-500">Status: Online</p>
             </div>
           </>
         ) : (
@@ -146,7 +148,7 @@ const MessageList = () => {
 
       <div className="flex-1 p-4 overflow-y-auto">
         <ul>
-          {companyDetails && messages.map((message) => (
+          {companyDetails && filteredMessages.map((message) => (
             <li key={message._id} className={`mb-4 flex ${message.sender === companyDetails.userInfo._id ? 'justify-end' : 'justify-start'}`}>
               <div className={`flex items-center ${message.sender === companyDetails.userInfo._id ? 'flex-row-reverse' : ''}`}>
                 <Image
@@ -155,7 +157,7 @@ const MessageList = () => {
                   width={40}
                   height={40}
                   className={`h-10 w-10 rounded-full ${message.sender === companyDetails.userInfo._id ? 'ml-2' : 'mr-2'}`}
-                  onError={(e) => e.currentTarget.src = '/images/fallback.png'} // Fallback image
+                  onError={(e) => e.currentTarget.src = '/images/fallback.png'}
                 />
                 <div className={`p-2 rounded-lg ${message.sender === companyDetails.userInfo._id ? 'bg-blue text-white' : 'bg-gray-200 text-black'}`}>
                   <p>{message.message}</p>

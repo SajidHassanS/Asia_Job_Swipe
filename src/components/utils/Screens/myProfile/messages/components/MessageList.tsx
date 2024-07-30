@@ -1,51 +1,19 @@
 "use client";
-import React, { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState, AppDispatch } from "@/store"; // Adjust the path as necessary
-import {
-  fetchChats,
-  fetchMessages,
-  sendMessage,
-  receiveMessage,
-} from "@/store/slices/messageSlice"; // Adjust the path as necessary
-import socket from "@/services/socket";
+import { RootState, AppDispatch } from "@/store";
+import { fetchChats, fetchMessages, sendMessage } from "@/store/slices/messageSlice";
 import { TbMessage2Off } from "react-icons/tb";
 import { IoVideocamOutline, IoCallOutline, IoSearch } from "react-icons/io5";
 import { BsDot } from "react-icons/bs";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import Image from "next/image";
-
-// Define types
-interface User {
-  _id: string;
-  firstName: string;
-  lastName: string;
-  profilePicture?: string;
-  companyLogo?: string;
-}
-
-interface Message {
-  _id: string;
-  sender: User;
-  receiver: User;
-  message: string;
-  createdAt: string; // or Date if you prefer to use Date objects
-}
+import MessageListener from "@/services/MessageListener";
 
 const MessageList = () => {
   const dispatch: AppDispatch = useDispatch();
-  const { chats, messages, status, error } = useSelector(
-    (state: RootState) => state.messageSlice
-  ); // Correct slice name
+  const { chats, messages, status } = useSelector((state: RootState) => state.messageSlice);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState("");
@@ -55,15 +23,12 @@ const MessageList = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  // Fetch accessToken and userId from localStorage
-  const accessToken =
-    typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
+  const accessToken = typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
   const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
   const userId = userInfo._id;
 
   useEffect(() => {
     if (accessToken) {
-      console.log("Dispatching fetchChats action");
       dispatch(fetchChats({ token: accessToken }));
     } else {
       console.error("Access token not found");
@@ -72,24 +37,23 @@ const MessageList = () => {
 
   useEffect(() => {
     if (selectedChat && accessToken) {
-      console.log("Dispatching fetchMessages action");
-      dispatch(fetchMessages({ receiverId: selectedChat, token: accessToken }));
-    } else if (!accessToken) {
-      console.error("Access token not found");
+      const chat = chats.find((chat) => chat._id === selectedChat);
+      if (chat) {
+        const receiver = chat.users.find((user) => user._id !== userId);
+        if (receiver) {
+          console.log("Dispatching fetchMessages action for receiverId:", receiver._id);
+          dispatch(fetchMessages({ receiverId: receiver._id, token: accessToken }))
+            .unwrap()
+            .then(() => {
+              scrollToBottom();
+            })
+            .catch((err) => {
+              console.error("Error fetching messages:", err);
+            });
+        }
+      }
     }
-  }, [selectedChat, dispatch, accessToken]);
-
-  useEffect(() => {
-    socket.on("newMessage", (message: Message) => {
-      console.log("Received new message:", message);
-      dispatch(receiveMessage(message));
-      scrollToBottom();
-    });
-
-    return () => {
-      socket.off("newMessage");
-    };
-  }, [dispatch]);
+  }, [selectedChat, dispatch, accessToken, chats, userId]);
 
   useEffect(() => {
     scrollToBottom();
@@ -102,11 +66,20 @@ const MessageList = () => {
 
   const handleSendMessage = () => {
     if (selectedChat && newMessage.trim() !== "" && accessToken) {
+      const chat = chats.find((chat) => chat._id === selectedChat);
+      const receiver = chat?.users.find((user) => user._id !== userId);
+
+      if (!receiver) {
+        console.error("Receiver not found for the selected chat.");
+        return;
+      }
+
       const messageToSend = {
-        receiverId: selectedChat,
+        receiverId: receiver._id,
         message: newMessage,
         token: accessToken,
       };
+
       console.log("Sending message to:", messageToSend.receiverId);
       dispatch(sendMessage(messageToSend) as any)
         .unwrap()
@@ -129,6 +102,16 @@ const MessageList = () => {
     }
   };
 
+  const getUserProfilePicture = (user) => {
+    if (!user) return '/images/profilepics.png';
+    return user.profilePicture || user.companyLogo || '/images/profilepics.png';
+  };
+
+  const getUserName = (user) => {
+    if (!user) return '';
+    return user.firstName || user.companyName || '';
+  };
+
   const filteredChats = (chats || []).filter((chat) =>
     chat.users.some(
       (user) =>
@@ -138,8 +121,14 @@ const MessageList = () => {
     )
   );
 
+  const getMessageUser = (chatUsers, userId) => {
+    return chatUsers.find((user) => user._id === userId);
+  };
+
   return (
     <div className="md:flex border rounded-[20px] h-screen">
+      {/* Including the MessageListener component */}
+      <MessageListener />
       <div className="md:w-1/3 border-r px-4 py-4 md:pl-16 md:pr-10">
         <div className="relative mb-4 w-full">
           <div className="absolute inset-y-0 left-0 flex items-center pl-3">
@@ -156,9 +145,7 @@ const MessageList = () => {
         <ul className="overflow-y-auto h-[calc(100vh-60px)]">
           {status === "loading" ? (
             <div className="flex flex-col items-center justify-center h-full">
-              <p className="text-lg text-signature opacity-70">
-                Loading Chats...
-              </p>
+              <p className="text-lg text-signature opacity-70">Loading Chats...</p>
             </div>
           ) : filteredChats.length > 0 ? (
             filteredChats.map((chat) => {
@@ -169,25 +156,26 @@ const MessageList = () => {
                   className="mb-4 pb-4 border-b flex items-center cursor-pointer"
                   onClick={() => handleSelectChat(chat._id)}
                 >
-                  <img
-                    src={user?.profilePicture || user?.companyLogo}
+                  <Image
+                    src={getUserProfilePicture(user)}
                     alt="avatar"
                     className="mr-2 h-10 w-10 rounded-full"
+                    width={40}
+                    height={40}
+                    onError={(e) => (e.currentTarget.src = '/images/profilepics.png')}
                   />
                   <div>
                     <div className="flex justify-between">
                       <div className="flex items-center">
                         <p className="font-semibold text-base">
-                          {user?.firstName || user?.companyName}{" "}
+                          {getUserName(user)}{" "}
                           {user?.lastName}
                         </p>
                         <BsDot color="blue" />
                       </div>
                       <div>
                         <span className=" text-sm text-gray-500">
-                          {new Date(
-                            chat.latestMessage.createdAt
-                          ).toLocaleString()}
+                          {new Date(chat.latestMessage.createdAt).toLocaleString()}
                         </span>
                       </div>
                     </div>
@@ -219,19 +207,19 @@ const MessageList = () => {
                   onOpenChange={setIsProfilePicDialogOpen}
                 >
                   <DialogTrigger asChild>
-                    <img
+                    <Image
                       src={
-                        chats
-                          .find((chat) => chat._id === selectedChat)
-                          ?.users.find((user) => user._id !== userId)
-                          ?.profilePicture ||
-                        chats
-                          .find((chat) => chat._id === selectedChat)
-                          ?.users.find((user) => user._id !== userId)
-                          ?.companyLogo
+                        getUserProfilePicture(
+                          chats
+                            .find((chat) => chat._id === selectedChat)
+                            ?.users.find((user) => user._id !== userId)
+                        )
                       }
                       alt="avatar"
                       className="h-10 w-10 rounded-full cursor-pointer"
+                      width={40}
+                      height={40}
+                      onError={(e) => (e.currentTarget.src = '/images/profilepics.png')}
                     />
                   </DialogTrigger>
                   <DialogContent>
@@ -240,17 +228,16 @@ const MessageList = () => {
                       <DialogDescription>
                         <Image
                           src={
-                            chats
-                              .find((chat) => chat._id === selectedChat)
-                              ?.users.find((user) => user._id !== userId)
-                              ?.profilePicture ||
-                            chats
-                              .find((chat) => chat._id === selectedChat)
-                              ?.users.find((user) => user._id !== userId)
-                              ?.companyLogo || ""
+                            getUserProfilePicture(
+                              chats
+                                .find((chat) => chat._id === selectedChat)
+                                ?.users.find((user) => user._id !== userId)
+                            )
                           }
                           alt="Profile Picture"
                           layout="fill"
+                          width={500}
+                          height={500}
                         />
                       </DialogDescription>
                     </DialogHeader>
@@ -265,16 +252,12 @@ const MessageList = () => {
                   </DialogContent>
                 </Dialog>
                 <p className="font-semibold text-base">
-                  {
+                  {getUserName(
                     chats.find((chat) => chat._id === selectedChat)
-                      ?.users.find((user) => user._id !== userId)?.firstName ||
-                    ""
-                  }{" "}
-                  {
-                    chats.find((chat) => chat._id === selectedChat)
-                      ?.users.find((user) => user._id !== userId)?.lastName ||
-                    ""
-                  }
+                      ?.users.find((user) => user._id !== userId)
+                  )}{" "}
+                  {chats.find((chat) => chat._id === selectedChat)
+                    ?.users.find((user) => user._id !== userId)?.lastName || ""}
                 </p>
               </div>
               <div>
@@ -345,43 +328,40 @@ const MessageList = () => {
                 </div>
               ) : messages.length > 0 ? (
                 <ul>
-                  {messages.map((msg) => (
-                    <li
-                      key={msg._id}
-                      className={`${
-                        msg.sender._id === userId
-                          ? "text-right"
-                          : "text-left"
-                      } mb-4`}
-                    >
-                      <div
-                        className={`p-3 rounded-lg ${
-                          msg.sender._id === userId
-                            ? "bg-blue  text-white"
-                            : "bg-gray-200"
-                        }`}
-                      >
-                        <p>{msg.message}</p>
-                        <span className="text-xs text-gray-500">
-                          {new Date(msg.createdAt).toLocaleTimeString()}
-                        </span>
-                      </div>
-                    </li>
-                  ))}
+                  {messages.map((msg) => {
+                    const isSender = msg.sender === userId;
+                    const chat = chats.find((chat) => chat._id === selectedChat);
+                    const sender = getMessageUser(chat?.users, msg.sender);
+
+                    return (
+                      <li key={msg._id} className={`mb-4 flex ${isSender ? 'justify-end' : 'justify-start'}`}>
+                        <div className={`flex items-center ${isSender ? 'flex-row-reverse' : ''}`}>
+                          <Image
+                            src={getUserProfilePicture(sender)}
+                            alt="avatar"
+                            width={40}
+                            height={40}
+                            className={`h-10 w-10 rounded-full ${isSender ? 'ml-2' : 'mr-2'}`}
+                            onError={(e) => (e.currentTarget.src = '/images/profilepics.png')}
+                          />
+                          <div className={`p-2 rounded-lg ${isSender ? 'bg-blue text-white' : 'bg-gray-200 text-black'}`}>
+                            <p>{msg.message}</p>
+                            <span className="text-xs text-gray-500">{new Date(msg.createdAt).toLocaleTimeString()}</span>
+                          </div>
+                        </div>
+                      </li>
+                    );
+                  })}
                   <div ref={bottomRef} />
                 </ul>
               ) : (
                 <div className="flex flex-col items-center justify-center h-full">
-                  <TbMessage2Off
-                    className="text-signature opacity-40"
-                    size={200}
-                  />
-                  <p className="text-lg text-signature opacity-70">
-                    No Messages
-                  </p>
+                  <TbMessage2Off className="text-signature opacity-40" size={200} />
+                  <p className="text-lg text-signature opacity-70">No Messages</p>
                 </div>
               )}
             </div>
+            <div ref={bottomRef} />
             <div className="p-4 border-t">
               <div className="flex items-center">
                 <input
@@ -394,7 +374,7 @@ const MessageList = () => {
                 />
                 <button
                   onClick={handleSendMessage}
-                  className="ml-2 px-4 py-2 bg-blue  text-white rounded"
+                  className="ml-2 px-4 py-2 bg-blue text-white rounded"
                 >
                   Send
                 </button>

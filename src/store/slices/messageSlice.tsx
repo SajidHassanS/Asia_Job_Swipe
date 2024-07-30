@@ -2,41 +2,38 @@
 
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
-import socket from '@/services/socket';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://ajs-server.hostdonor.com/api/v1';
 
-// messageSlice.ts
 export interface Message {
+  _id: string;
+  sender: {
     _id: string;
-    sender: {
-      _id: string; // Ensure _id is included
-      companyName?: string;
-      companyLogo?: string;
-      firstName?: string;
-      lastName?: string;
-      sender: User;
-      message: string;
-      receiverId: string;
-      profilePicture?: string;
-      role: string;
-    };
-    receiver: {
-      _id: string; // Ensure _id is included
-      companyName?: string;
-      companyLogo?: string;
-      firstName?: string;
-      lastName?: string;
-      profilePicture?: string;
-      role: string;
-    };
-    message: string;
-    createdAt: string;
+    companyName?: string;
+    companyLogo?: string;
+    firstName?: string;
+    lastName?: string;
+    profilePicture?: string;
+    role: string;
+  };
+  receiver: {
+    _id: string;
+    companyName?: string;
+    companyLogo?: string;
+    firstName?: string;
+    lastName?: string;
+    profilePicture?: string;
+    role: string;
+  };
+  message: string;
+  createdAt: string;
 }
 
 interface JobSeeker {
   _id: string;
-  userInfo: string;
+  userInfo: {
+    _id: string;
+  };
   firstName: string;
   lastName: string;
   profilePicture: string;
@@ -48,13 +45,13 @@ interface JobApplication {
 }
 
 interface User {
-    _id: string;
-    role: string;
-    companyName?: string;
-    companyLogo?: string;
-    firstName?: string;
-    lastName?: string;
-    profilePicture?: string;
+  _id: string;
+  role: string;
+  companyName?: string;
+  companyLogo?: string;
+  firstName?: string;
+  lastName?: string;
+  profilePicture?: string;
 }
 
 interface Chat {
@@ -238,7 +235,6 @@ const messageSlice = createSlice({
       .addCase(sendMessage.fulfilled, (state, action: PayloadAction<Message>) => {
         state.status = 'succeeded';
         state.messages.push(action.payload);
-        socket.emit('newMessage', action.payload); // Emit socket event for new message
         state.error = null;
       })
       .addCase(sendMessage.rejected, (state, action) => {

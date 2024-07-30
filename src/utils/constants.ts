@@ -2,16 +2,17 @@ import { FaSearchMinus } from "react-icons/fa";
 import { IoMdNotificationsOutline } from "react-icons/io";
 import { IoBriefcaseOutline, IoSettingsOutline } from "react-icons/io5";
 import { MdDashboard } from "react-icons/md";
+import { io, Socket } from 'socket.io-client';
 import { PiBuildingsFill } from "react-icons/pi";
 import { PiPuzzlePiece } from "react-icons/pi";
 import { FaBriefcase, FaUser, FaBuilding, FaDollarSign } from "react-icons/fa";
 import { LuClipboardList } from "react-icons/lu";
-export const baseUrl = "https://ajs-server.hostdonor.com";
+export const baseUrl =  'https://ajs-server.hostdonor.com';
+console.log("urllllll" ,baseUrl);
 import { IoBagCheck } from "react-icons/io5";
 import { AiOutlineMessage } from "react-icons/ai";
 import { FaUsers } from "react-icons/fa";
 import { TbBuildingSkyscraper } from "react-icons/tb";
-
 // Define the Menu type
 type Menu = {
   name: string;
@@ -102,3 +103,21 @@ export const statsData: StatsData[] = [
     change: true,
   },
 ];
+
+
+let socket: Socket | null = null;
+
+if (typeof window !== "undefined") {
+  const userInfoStr = localStorage.getItem('userInfo');
+  const userInfo = userInfoStr ? JSON.parse(userInfoStr) : {};
+  const userId = userInfo._id || null;
+
+  socket = io(baseUrl, {
+    autoConnect: false,
+    query: { userId: userId || '' },
+  });
+
+  console.log("Socket initialized with user ID:", userId);
+}
+
+export default socket;

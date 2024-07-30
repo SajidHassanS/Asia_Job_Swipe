@@ -6,5 +6,5 @@ const index = () => {
    <MessageList/>
   )
 }
-
+ 
 export default index
