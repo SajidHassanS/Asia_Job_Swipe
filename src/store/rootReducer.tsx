@@ -16,6 +16,7 @@ import roleAuthReducer from './slices/companyRoleSlice/RoleAuthSlice'
 import companyProfileReducer from './slices/companyProfileSlice/companyProfileSlice'
 import appliedApplicantReducer from './slices/appliedApplicantSlice/appliedApplicantSlice'
 import messageSliceReducer from './slices/messageSlice'
+import jobOfferReducer from './slices/jobOfferSlice'
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -34,6 +35,7 @@ const rootReducer = combineReducers({
   companyProfile: companyProfileReducer,
   appliedApplicant: appliedApplicantReducer,
   messageSlice: messageSliceReducer,
+  jobOffer: jobOfferReducer,
 
 });
 

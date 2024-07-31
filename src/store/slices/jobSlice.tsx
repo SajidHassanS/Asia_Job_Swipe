@@ -3,9 +3,8 @@ import axios from 'axios';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://ajs-server.hostdonor.com/api/v1';
 
-
 const getAuthData = () => {
-  const token = localStorage.getItem('accessToken');
+  const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
   return token;
 };
 
@@ -69,6 +68,26 @@ export const fetchJobById = createAsyncThunk('jobs/fetchJobById', async (jobId: 
   }
 });
 
+export const fetchBestMatchedJobs = createAsyncThunk('jobs/fetchBestMatchedJobs', async (jobSeekerId: string, { rejectWithValue }) => {
+  const token = getAuthData();
+  if (!token) return rejectWithValue('Access token is missing');
+
+  try {
+    const response = await axios.get(`${API_URL}/jobs/best-matched/${jobSeekerId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data.jobs; // Assuming the response contains a list of jobs
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      return rejectWithValue(
+        error.response.data.message || 'An error occurred while fetching best-matched jobs.'
+      );
+    } else {
+      return rejectWithValue('An unknown error occurred');
+    }
+  }
+});
+
 interface Company {
   companyLogo: string;
   companyName: string;
@@ -98,9 +117,9 @@ interface Job {
   candidateType: string;
   createdAt: string;
   updatedAt: string;
-  description: string; // Add this line
-  sector: string; // Add this line
-  active: boolean; // Ensure this is included
+  description: string;
+  sector: string;
+  active: boolean;
 }
 
 interface SavedJob {
@@ -121,6 +140,7 @@ interface JobState {
   jobs: Job[];
   savedJobs: SavedJob[];
   job: Job | null;
+  bestMatchedJobs: Job[]; // Add this line
   totalJobs: number;
   totalPages: number;
   currentPage: number;
@@ -132,6 +152,7 @@ const initialState: JobState = {
   jobs: [],
   savedJobs: [],
   job: null,
+  bestMatchedJobs: [], // Add this line
   totalJobs: 0,
   totalPages: 0,
   currentPage: 1,
@@ -181,6 +202,17 @@ const jobSlice = createSlice({
         state.job = action.payload;
       })
       .addCase(fetchJobById.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message || null;
+      })
+      .addCase(fetchBestMatchedJobs.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchBestMatchedJobs.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.bestMatchedJobs = action.payload;
+      })
+      .addCase(fetchBestMatchedJobs.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message || null;
       });

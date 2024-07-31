@@ -1,17 +1,32 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import Sidebar from './Sidebar';
 import JobListings from './JobListings';
+import SkeletonJobCard from './SkeletonJobCard';
 import HeroComponent from "../../../../components/repeatComponents/Hero";
 import PaginationComponent from './Pagination';
-import jobs from '../../../../components/repeatComponents/JobList'; // Importing jobs data
+import { RootState, AppDispatch } from '@/store';
+import { fetchJobOffers, setCurrentPage, acceptJobOffer, rejectJobOffer } from '@/store/slices/jobOfferSlice'; // Updated import
+import { JobOffer } from '@/store/slices/jobOfferSlice'; // Adjusted import for type
 
-const AllJobs: React.FC = () => {
+const AllJobOffers: React.FC = () => {
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [location, setLocation] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const jobsPerPage = 10;
+
+  const dispatch = useDispatch<AppDispatch>();
+
+  const currentPage = useSelector((state: RootState) => state.jobOffer.currentPage);
+  const jobOffers = useSelector((state: RootState) => state.jobOffer.jobOffers) as JobOffer[];
+  const loading = useSelector((state: RootState) => state.jobOffer.status === 'loading');
+  const totalPages = useSelector((state: RootState) => state.jobOffer.totalPages);
+  const totalJobOffers = useSelector((state: RootState) => state.jobOffer.totalJobOffers);
+
+  useEffect(() => {
+    const jobSeekerId = localStorage.getItem('jobSeekerId') || '';
+    dispatch(fetchJobOffers(jobSeekerId));
+  }, [dispatch, currentPage]);
 
   const handleCheckboxChange = (filter: string) => {
     setSelectedFilters(prevFilters =>
@@ -19,37 +34,40 @@ const AllJobs: React.FC = () => {
         ? prevFilters.filter(f => f !== filter)
         : [...prevFilters, filter]
     );
+    dispatch(setCurrentPage(1)); // Reset to first page on filter change
   };
 
   const handleSearch = (searchTerm: string, location: string) => {
     setSearchTerm(searchTerm);
     setLocation(location);
-    setCurrentPage(1); // Reset to first page on new search
+    dispatch(setCurrentPage(1)); // Reset to first page on new search
   };
 
-  const filteredJobs = jobs.filter(job => {
-    const matchesFilters = selectedFilters.length === 0 || selectedFilters.some(filter =>
-      job.tags.includes(filter) || (job.categories && job.categories.includes(filter))
-    );
-    const matchesSearchTerm = searchTerm === '' || job.title.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesLocation = location === '' || job.location.toLowerCase().includes(location.toLowerCase());
+  const handleAccept = (offerId: string) => {
+    dispatch(acceptJobOffer({ offerId, interviewDate: '2024-08-01', interviewTime: '10:00 AM' })); // Replace with actual data collection logic
+  };
+
+  const handleReject = (offerId: string) => {
+    dispatch(rejectJobOffer(offerId));
+  };
+
+  const filteredJobOffers = jobOffers.filter((offer) => {
+    const matchesFilters = selectedFilters.length === 0 || selectedFilters.some(filter => {
+      return offer.jobTitle.toLowerCase().includes(filter.toLowerCase());
+    });
+    const matchesSearchTerm = searchTerm === '' || offer.jobTitle.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesLocation = location === '' || (offer.jobLocation ?? '').toLowerCase().includes(location.toLowerCase());
 
     return matchesFilters && matchesSearchTerm && matchesLocation;
-  });
+  }).sort((a, b) => new Date(b.createdAt ?? "").getTime() - new Date(a.createdAt ?? "").getTime());
 
-  // Get current jobs
-  const indexOfLastJob = currentPage * jobsPerPage;
-  const indexOfFirstJob = indexOfLastJob - jobsPerPage;
-  const currentJobs = filteredJobs.slice(indexOfFirstJob, indexOfLastJob);
-
-  // Change page
-  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+  const paginate = (pageNumber: number) => dispatch(setCurrentPage(pageNumber));
 
   return (
     <div>
       <div className='bg-muted md:pb-10'>
         <HeroComponent
-          title="Find the best job!"
+          title="Find the best job offers!"
           titleClassName="text-3xl md:text-7xl md:pt-8 text-center font-bold text-darkGrey"
           spanClassName="text-signature"
           showSuggestions={true}
@@ -61,17 +79,30 @@ const AllJobs: React.FC = () => {
       <div className="md:container md:my-16 my-4 md:flex gap-5">
         <Sidebar onCheckboxChange={handleCheckboxChange} selectedFilters={selectedFilters} />
         <div className="w-full">
-          <JobListings jobs={currentJobs} totalJobs={filteredJobs.length} />
-          <PaginationComponent
-            jobsPerPage={jobsPerPage}
-            totalJobs={filteredJobs.length}
-            paginate={paginate}
-            currentPage={currentPage}
-          />
+          {loading ? (
+            Array.from({ length: 10 }).map((_, index) => <SkeletonJobCard key={index} />)
+          ) : (
+            <>
+              <JobListings
+                jobs={filteredJobOffers}
+                totalJobs={filteredJobOffers.length}
+                origin="yourOriginValue"
+                onAccept={handleAccept}
+                onReject={handleReject}
+              />
+              <PaginationComponent
+                jobsPerPage={10}
+                totalJobs={totalJobOffers}
+                paginate={paginate}
+                currentPage={currentPage}
+                totalPages={totalPages}
+              />
+            </>
+          )}
         </div>
       </div>
     </div>
   );
 };
 
-export default AllJobs;
+export default AllJobOffers;

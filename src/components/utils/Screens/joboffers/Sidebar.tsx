@@ -18,88 +18,88 @@ const Sidebar: React.FC<SidebarProps> = ({ onCheckboxChange, selectedFilters }) 
             <AccordionItem value="item-1">
               <AccordionTrigger className="text-base">Job Type</AccordionTrigger>
               <AccordionContent>
-                <Checkbox id="full-time" checked={selectedFilters.includes("Full-Time")} onChange={() => onCheckboxChange("Full-Time")}>
-                  Full-Time (3)
+                <Checkbox id="full-time" checked={selectedFilters.includes("full-time")} onChange={() => onCheckboxChange("full-time")}>
+                  Full-Time
                 </Checkbox>
-                <Checkbox id="part-time" checked={selectedFilters.includes("Part-Time")} onChange={() => onCheckboxChange("Part-Time")}>
-                  Part-Time (5)
+                <Checkbox id="part-time" checked={selectedFilters.includes("part-time")} onChange={() => onCheckboxChange("part-time")}>
+                  Part-Time
                 </Checkbox>
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="item-2">
               <AccordionTrigger className="text-base">Categories</AccordionTrigger>
               <AccordionContent>
-                <Checkbox id="design" checked={selectedFilters.includes("Design")} onChange={() => onCheckboxChange("Design")}>
-                  Design (24)
+                <Checkbox id="design" checked={selectedFilters.includes("design")} onChange={() => onCheckboxChange("design")}>
+                  Design
                 </Checkbox>
-                <Checkbox id="sales" checked={selectedFilters.includes("Sales")} onChange={() => onCheckboxChange("Sales")}>
-                  Sales (3)
+                <Checkbox id="sales" checked={selectedFilters.includes("sales")} onChange={() => onCheckboxChange("sales")}>
+                  Sales
                 </Checkbox>
-                <Checkbox id="marketing" checked={selectedFilters.includes("Marketing")} onChange={() => onCheckboxChange("Marketing")}>
-                  Marketing (3)
+                <Checkbox id="marketing" checked={selectedFilters.includes("marketing")} onChange={() => onCheckboxChange("marketing")}>
+                  Marketing
                 </Checkbox>
-                <Checkbox id="business" checked={selectedFilters.includes("Business")} onChange={() => onCheckboxChange("Business")}>
-                  Business (3)
+                <Checkbox id="business" checked={selectedFilters.includes("business")} onChange={() => onCheckboxChange("business")}>
+                  Business
                 </Checkbox>
-                <Checkbox id="human-resource" checked={selectedFilters.includes("Human Resource")} onChange={() => onCheckboxChange("Human Resource")}>
-                  Human Resource (6)
+                <Checkbox id="human-resource" checked={selectedFilters.includes("human-resource")} onChange={() => onCheckboxChange("human-resource")}>
+                  Human Resource
                 </Checkbox>
-                <Checkbox id="finance" checked={selectedFilters.includes("Finance")} onChange={() => onCheckboxChange("Finance")}>
-                  Finance (4)
+                <Checkbox id="finance" checked={selectedFilters.includes("finance")} onChange={() => onCheckboxChange("finance")}>
+                  Finance
                 </Checkbox>
-                <Checkbox id="engineering" checked={selectedFilters.includes("Engineering")} onChange={() => onCheckboxChange("Engineering")}>
-                  Engineering (4)
+                <Checkbox id="engineering" checked={selectedFilters.includes("engineering")} onChange={() => onCheckboxChange("engineering")}>
+                  Engineering
                 </Checkbox>
-                <Checkbox id="technology" checked={selectedFilters.includes("Technology")} onChange={() => onCheckboxChange("Technology")}>
-                  Technology (5)
+                <Checkbox id="technology" checked={selectedFilters.includes("technology")} onChange={() => onCheckboxChange("technology")}>
+                  Technology
                 </Checkbox>
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="item-3">
               <AccordionTrigger className="text-base">Career Level</AccordionTrigger>
               <AccordionContent>
-                <Checkbox id="entry-level" checked={selectedFilters.includes("Entry Level")} onChange={() => onCheckboxChange("Entry Level")}>
-                  Entry Level (57)
+                <Checkbox id="entry-level" checked={selectedFilters.includes("entry-level")} onChange={() => onCheckboxChange("entry-level")}>
+                  Entry Level
                 </Checkbox>
-                <Checkbox id="middle" checked={selectedFilters.includes("Middle")} onChange={() => onCheckboxChange("Middle")}>
-                  Middle (3)
+                <Checkbox id="middle" checked={selectedFilters.includes("middle")} onChange={() => onCheckboxChange("middle")}>
+                  Middle
                 </Checkbox>
-                <Checkbox id="senior" checked={selectedFilters.includes("Senior")} onChange={() => onCheckboxChange("Senior")}>
-                  Senior (5)
+                <Checkbox id="senior" checked={selectedFilters.includes("senior")} onChange={() => onCheckboxChange("senior")}>
+                  Senior
                 </Checkbox>
-                <Checkbox id="executive" checked={selectedFilters.includes("Executive")} onChange={() => onCheckboxChange("Executive")}>
-                  Executive (12)
+                <Checkbox id="executive" checked={selectedFilters.includes("executive")} onChange={() => onCheckboxChange("executive")}>
+                  Executive
                 </Checkbox>
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="item-4">
               <AccordionTrigger className="text-base">Candidate Type</AccordionTrigger>
               <AccordionContent>
-                <Checkbox id="remote" checked={selectedFilters.includes("Remote")} onChange={() => onCheckboxChange("Remote")}>
-                  Remote (4)
+                <Checkbox id="remote" checked={selectedFilters.includes("remote")} onChange={() => onCheckboxChange("remote")}>
+                  Remote
                 </Checkbox>
-                <Checkbox id="contract" checked={selectedFilters.includes("Contract")} onChange={() => onCheckboxChange("Contract")}>
-                  Contract (6)
+                <Checkbox id="contract" checked={selectedFilters.includes("contract")} onChange={() => onCheckboxChange("contract")}>
+                  Contract
                 </Checkbox>
-                <Checkbox id="internship" checked={selectedFilters.includes("Internship")} onChange={() => onCheckboxChange("Internship")}>
-                  Internship (10)
+                <Checkbox id="internship" checked={selectedFilters.includes("internship")} onChange={() => onCheckboxChange("internship")}>
+                  Internship
                 </Checkbox>
-                <Checkbox id="foreigner" checked={selectedFilters.includes("Foreigner")} onChange={() => onCheckboxChange("Foreigner")}>
-                  Foreigner (4)
+                <Checkbox id="foreigner" checked={selectedFilters.includes("foreigner")} onChange={() => onCheckboxChange("foreigner")}>
+                  Foreigner
                 </Checkbox>
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="item-5">
               <AccordionTrigger className="text-base">Salary Range</AccordionTrigger>
               <AccordionContent>
-                <Checkbox id="$15k/Monthly" checked={selectedFilters.includes("$15k/Monthly")} onChange={() => onCheckboxChange("$15k/Monthly")}>
-                  $15k/Monthly (6)
+                <Checkbox id="15000-25000" checked={selectedFilters.includes("15000-25000")} onChange={() => onCheckboxChange("15000-25000")}>
+                  $15k - $25k/Monthly
                 </Checkbox>
-                <Checkbox id="$25k/Monthly" checked={selectedFilters.includes("$25k/Monthly")} onChange={() => onCheckboxChange("$25k/Monthly")}>
-                  $25k/Monthly (1)
+                <Checkbox id="25000-35000" checked={selectedFilters.includes("25000-35000")} onChange={() => onCheckboxChange("25000-35000")}>
+                  $25k - $35k/Monthly
                 </Checkbox>
-                <Checkbox id="$35k/Monthly" checked={selectedFilters.includes("$35k/Monthly")} onChange={() => onCheckboxChange("$35k/Monthly")}>
-                  $35k/Monthly (1)
+                <Checkbox id="35000-45000" checked={selectedFilters.includes("35000-45000")} onChange={() => onCheckboxChange("35000-45000")}>
+                  $35k - $45k/Monthly
                 </Checkbox>
               </AccordionContent>
             </AccordionItem>
@@ -116,88 +116,88 @@ const Sidebar: React.FC<SidebarProps> = ({ onCheckboxChange, selectedFilters }) 
                 <AccordionItem value="item-1">
                   <AccordionTrigger className="text-base">Job Type</AccordionTrigger>
                   <AccordionContent>
-                    <Checkbox id="full-time" checked={selectedFilters.includes("Full-Time")} onChange={() => onCheckboxChange("Full-Time")}>
-                      Full-Time (3)
+                    <Checkbox id="full-time" checked={selectedFilters.includes("full-time")} onChange={() => onCheckboxChange("full-time")}>
+                      Full-Time
                     </Checkbox>
-                    <Checkbox id="part-time" checked={selectedFilters.includes("Part-Time")} onChange={() => onCheckboxChange("Part-Time")}>
-                      Part-Time (5)
+                    <Checkbox id="part-time" checked={selectedFilters.includes("part-time")} onChange={() => onCheckboxChange("part-time")}>
+                      Part-Time
                     </Checkbox>
                   </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="item-2">
                   <AccordionTrigger className="text-base">Categories</AccordionTrigger>
                   <AccordionContent>
-                    <Checkbox id="design" checked={selectedFilters.includes("Design")} onChange={() => onCheckboxChange("Design")}>
-                      Design (24)
+                    <Checkbox id="design" checked={selectedFilters.includes("design")} onChange={() => onCheckboxChange("design")}>
+                      Design
                     </Checkbox>
-                    <Checkbox id="sales" checked={selectedFilters.includes("Sales")} onChange={() => onCheckboxChange("Sales")}>
-                      Sales (3)
+                    <Checkbox id="sales" checked={selectedFilters.includes("sales")} onChange={() => onCheckboxChange("sales")}>
+                      Sales
                     </Checkbox>
-                    <Checkbox id="marketing" checked={selectedFilters.includes("Marketing")} onChange={() => onCheckboxChange("Marketing")}>
-                      Marketing (3)
+                    <Checkbox id="marketing" checked={selectedFilters.includes("marketing")} onChange={() => onCheckboxChange("marketing")}>
+                      Marketing
                     </Checkbox>
-                    <Checkbox id="business" checked={selectedFilters.includes("Business")} onChange={() => onCheckboxChange("Business")}>
-                      Business (3)
+                    <Checkbox id="business" checked={selectedFilters.includes("business")} onChange={() => onCheckboxChange("business")}>
+                      Business
                     </Checkbox>
-                    <Checkbox id="human-resource" checked={selectedFilters.includes("Human Resource")} onChange={() => onCheckboxChange("Human Resource")}>
-                      Human Resource (6)
+                    <Checkbox id="human-resource" checked={selectedFilters.includes("human-resource")} onChange={() => onCheckboxChange("human-resource")}>
+                      Human Resource
                     </Checkbox>
-                    <Checkbox id="finance" checked={selectedFilters.includes("Finance")} onChange={() => onCheckboxChange("Finance")}>
-                      Finance (4)
+                    <Checkbox id="finance" checked={selectedFilters.includes("finance")} onChange={() => onCheckboxChange("finance")}>
+                      Finance
                     </Checkbox>
-                    <Checkbox id="engineering" checked={selectedFilters.includes("Engineering")} onChange={() => onCheckboxChange("Engineering")}>
-                      Engineering (4)
+                    <Checkbox id="engineering" checked={selectedFilters.includes("engineering")} onChange={() => onCheckboxChange("engineering")}>
+                      Engineering
                     </Checkbox>
-                    <Checkbox id="technology" checked={selectedFilters.includes("Technology")} onChange={() => onCheckboxChange("Technology")}>
-                      Technology (5)
+                    <Checkbox id="technology" checked={selectedFilters.includes("technology")} onChange={() => onCheckboxChange("technology")}>
+                      Technology
                     </Checkbox>
                   </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="item-3">
                   <AccordionTrigger className="text-base">Career Level</AccordionTrigger>
                   <AccordionContent>
-                    <Checkbox id="entry-level" checked={selectedFilters.includes("Entry Level")} onChange={() => onCheckboxChange("Entry Level")}>
-                      Entry Level (57)
+                    <Checkbox id="entry-level" checked={selectedFilters.includes("entry-level")} onChange={() => onCheckboxChange("entry-level")}>
+                      Entry Level
                     </Checkbox>
-                    <Checkbox id="middle" checked={selectedFilters.includes("Middle")} onChange={() => onCheckboxChange("Middle")}>
-                      Middle (3)
+                    <Checkbox id="middle" checked={selectedFilters.includes("middle")} onChange={() => onCheckboxChange("middle")}>
+                      Middle
                     </Checkbox>
-                    <Checkbox id="senior" checked={selectedFilters.includes("Senior")} onChange={() => onCheckboxChange("Senior")}>
-                      Senior (5)
+                    <Checkbox id="senior" checked={selectedFilters.includes("senior")} onChange={() => onCheckboxChange("senior")}>
+                      Senior
                     </Checkbox>
-                    <Checkbox id="executive" checked={selectedFilters.includes("Executive")} onChange={() => onCheckboxChange("Executive")}>
-                      Executive (12)
+                    <Checkbox id="executive" checked={selectedFilters.includes("executive")} onChange={() => onCheckboxChange("executive")}>
+                      Executive
                     </Checkbox>
                   </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="item-4">
                   <AccordionTrigger className="text-base">Candidate Type</AccordionTrigger>
                   <AccordionContent>
-                    <Checkbox id="remote" checked={selectedFilters.includes("Remote")} onChange={() => onCheckboxChange("Remote")}>
-                      Remote (4)
+                    <Checkbox id="remote" checked={selectedFilters.includes("remote")} onChange={() => onCheckboxChange("remote")}>
+                      Remote
                     </Checkbox>
-                    <Checkbox id="contract" checked={selectedFilters.includes("Contract")} onChange={() => onCheckboxChange("Contract")}>
-                      Contract (6)
+                    <Checkbox id="contract" checked={selectedFilters.includes("contract")} onChange={() => onCheckboxChange("contract")}>
+                      Contract
                     </Checkbox>
-                    <Checkbox id="internship" checked={selectedFilters.includes("Internship")} onChange={() => onCheckboxChange("Internship")}>
-                      Internship (10)
+                    <Checkbox id="internship" checked={selectedFilters.includes("internship")} onChange={() => onCheckboxChange("internship")}>
+                      Internship
                     </Checkbox>
-                    <Checkbox id="foreigner" checked={selectedFilters.includes("Foreigner")} onChange={() => onCheckboxChange("Foreigner")}>
-                      Foreigner (4)
+                    <Checkbox id="foreigner" checked={selectedFilters.includes("foreigner")} onChange={() => onCheckboxChange("foreigner")}>
+                      Foreigner
                     </Checkbox>
                   </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="item-5">
                   <AccordionTrigger className="text-base">Salary Range</AccordionTrigger>
                   <AccordionContent>
-                    <Checkbox id="$15k/Monthly" checked={selectedFilters.includes("$15k/Monthly")} onChange={() => onCheckboxChange("$15k/Monthly")}>
-                      $15k/Monthly (6)
+                    <Checkbox id="15000-25000" checked={selectedFilters.includes("15000-25000")} onChange={() => onCheckboxChange("15000-25000")}>
+                      $15k - $25k/Monthly
                     </Checkbox>
-                    <Checkbox id="$25k/Monthly" checked={selectedFilters.includes("$25k/Monthly")} onChange={() => onCheckboxChange("$25k/Monthly")}>
-                      $25k/Monthly (1)
+                    <Checkbox id="25000-35000" checked={selectedFilters.includes("25000-35000")} onChange={() => onCheckboxChange("25000-35000")}>
+                      $25k - $35k/Monthly
                     </Checkbox>
-                    <Checkbox id="$35k/Monthly" checked={selectedFilters.includes("$35k/Monthly")} onChange={() => onCheckboxChange("$35k/Monthly")}>
-                      $35k/Monthly (1)
+                    <Checkbox id="35000-45000" checked={selectedFilters.includes("35000-45000")} onChange={() => onCheckboxChange("35000-45000")}>
+                      $35k - $45k/Monthly
                     </Checkbox>
                   </AccordionContent>
                 </AccordionItem>
