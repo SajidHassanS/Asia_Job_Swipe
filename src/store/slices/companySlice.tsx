@@ -29,6 +29,8 @@ interface Company {
   specialty?: string;
   city: string;
   province: string;
+  location: string;
+  plan: string;
   country: string;
   address: string;
   description: string;

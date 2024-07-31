@@ -73,7 +73,7 @@ const JobListings: React.FC = () => {
                   <Image
                     width={61}
                     height={61}
-                    src={company.companyImages[0] || '/public/images/22.png'}
+                    src={company.companyImages?.[0] || '/public/images/22.png'}
                     alt={company.companyName}
                     className="mr-4"
                   />

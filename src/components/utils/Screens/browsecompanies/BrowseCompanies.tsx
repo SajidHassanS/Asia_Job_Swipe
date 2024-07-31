@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import JobListings from './JobListings';
 import Hero from './Hero';
-import { fetchCompanies } from '../../../../store/slices/companySlice'; // Adjust the import path
-import { RootState,AppDispatch  } from '../../../../store';
+import { fetchCompanies } from '@/store/slices/companySlice'; // Adjust the import path
+import { RootState,AppDispatch  } from '@/store';
 
 const AllJobs = () => {
   const dispatch = useDispatch<AppDispatch>();

@@ -1,4 +1,3 @@
-"use client";
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store";
@@ -9,7 +8,7 @@ import Step3 from "./Step3";
 import Image from "next/image";
 import { IoIosCheckmarkCircle } from "react-icons/io";
 import { FaCheck } from "react-icons/fa6";
-import { updateCompanyProfile, updateCompanyLogo, updateCompanyImages } from "@/store/slices/companyProfileSlice/companyProfileSlice";
+import { updateCompanyProfile, addOrUpdateCompanyLogo, addOrUpdateCompanyImages } from "@/store/slices/companyProfileSlice/companyProfileSlice";
 
 const MultiStepForm = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -38,8 +37,8 @@ const MultiStepForm = () => {
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
-  const token = localStorage.getItem("accessToken");
-  const companyId = localStorage.getItem("_id");
+  const token = typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
+  const companyId = typeof window !== "undefined" ? localStorage.getItem("_id") : null;
 
   const nextStep = () => {
     if (validateStep()) {
@@ -63,8 +62,8 @@ const MultiStepForm = () => {
         id: companyId,
         updates: {
           companyName: formData.companyName,
-          numberOfEmployees: parseInt(formData.companySize, 10),
-          foundedYear: parseInt(formData.foundedYear, 10),
+          numberOfEmployees: formData.companySize.toString(), // Convert to string
+          foundedYear: formData.foundedYear.toString(), // Convert to string
           sector: formData.sector,
           services: formData.services.split(',').map(service => service.trim()),
           description: formData.companyDescription,
@@ -79,20 +78,23 @@ const MultiStepForm = () => {
         token: token
       })).unwrap();
 
+      
       // Update company logo
       if (formData.companyLogo) {
-        await dispatch(updateCompanyLogo({
+        const logoFormData = new FormData();
+        logoFormData.append('companyLogo', formData.companyLogo);
+        await dispatch(addOrUpdateCompanyLogo({
           companyId: companyId,
-          file: formData.companyLogo,
+          logo: logoFormData,
           token: token
         })).unwrap();
       }
 
       // Update company images
       if (formData.companyImages.length > 0) {
-        await dispatch(updateCompanyImages({
+        await dispatch(addOrUpdateCompanyImages({
           companyId: companyId,
-          files: formData.companyImages,
+          images: formData.companyImages,
           token: token
         })).unwrap();
       }

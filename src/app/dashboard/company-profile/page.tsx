@@ -1,4 +1,3 @@
-"use client";
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '@/store';
@@ -53,56 +52,61 @@ const Profile = () => {
   });
 
   useEffect(() => {
-    const storedCompanyId = localStorage.getItem("_id");
-    const storedToken = localStorage.getItem("accessToken");
-    if (storedCompanyId) {
-      dispatch(fetchCompanyProfile(storedCompanyId));
+    if (typeof window !== "undefined") {
+      const storedCompanyId = localStorage.getItem("_id");
+      const storedToken = localStorage.getItem("accessToken");
+      if (storedCompanyId) {
+        dispatch(fetchCompanyProfile(storedCompanyId));
+      }
     }
   }, [dispatch]);
 
   useEffect(() => {
     if (company) {
       console.log("Company data from Redux:", company);
-      setCompanyData({
-        _id: company._id,
-        companyName: company.companyName,
-        website: company.website,
-        foundedYear: new Date(company.foundedYear).getFullYear().toString(),
-        numberOfEmployees: company.numberOfEmployees.toString(),
-        sector: company.sector,
-        email: company.userInfo.email,
-        address: company.address,
-        city: company.city,
-        country: company.country,
-        province: company.province,
-        languages: company.languages,
-        description: company.description,
-        services: company.services,
-        companyImages: company.companyImages,
+      setCompanyData((prevData) => ({
+        ...prevData,
+        _id: company._id ?? prevData._id,
+        companyName: company.companyName ?? prevData.companyName,
+        website: company.website ?? prevData.website,
+        foundedYear: company.foundedYear ? new Date(company.foundedYear).getFullYear().toString() : prevData.foundedYear,
+        numberOfEmployees: company.numberOfEmployees?.toString() ?? prevData.numberOfEmployees,
+        sector: company.sector ?? prevData.sector,
+        email: company.userInfo?.email ?? prevData.email,
+        address: company.address ?? prevData.address,
+        city: company.city ?? prevData.city,
+        country: company.country ?? prevData.country,
+        province: company.province ?? prevData.province,
+        languages: company.languages ?? prevData.languages,
+        description: company.description ?? prevData.description,
+        services: company.services ?? prevData.services,
+        companyImages: company.companyImages ?? prevData.companyImages,
         companyLogo: company.companyLogo || "/images/motion.png",
-      });
+      }));
     }
   }, [company]);
 
   const handleUpdate = async (updates: Partial<CompanyData>) => {
-    const storedCompanyId = localStorage.getItem("_id");
-    const storedAccessToken = localStorage.getItem("accessToken");
+    if (typeof window !== "undefined") {
+      const storedCompanyId = localStorage.getItem("_id");
+      const storedAccessToken = localStorage.getItem("accessToken");
 
-    if (storedCompanyId && storedAccessToken) {
-      const updatedData = {
-        ...companyData,
-        ...updates,
-        numberOfEmployees: parseInt(companyData.numberOfEmployees, 10).toString(), // Ensure numberOfEmployees remains a string
-      };
+      if (storedCompanyId && storedAccessToken) {
+        const updatedData = {
+          ...companyData,
+          ...updates,
+          numberOfEmployees: parseInt(companyData.numberOfEmployees, 10).toString(),
+        };
 
-      await dispatch(
-        updateCompanyProfile({
-          id: storedCompanyId,
-          updates: updatedData,
-          token: storedAccessToken,
-        })
-      );
-      setCompanyData((prevData) => ({ ...prevData, ...updates }));
+        await dispatch(
+          updateCompanyProfile({
+            id: storedCompanyId,
+            updates: updatedData,
+            token: storedAccessToken,
+          })
+        );
+        setCompanyData((prevData) => ({ ...prevData, ...updates }));
+      }
     }
   };
 

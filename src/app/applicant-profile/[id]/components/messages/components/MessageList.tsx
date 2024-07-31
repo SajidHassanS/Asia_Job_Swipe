@@ -15,7 +15,7 @@ interface Message {
   sender: string;
   receiver: string;
   message: string;
-  timestamp: string;
+  createdAt: string;
 }
 
 const MessageList = () => {
@@ -48,22 +48,22 @@ const MessageList = () => {
       dispatch(fetchJobApplicationDetail({ applicationId, token }) as any)
         .unwrap()
         .then((response: any) => {
-          const jobSeekerUserInfo = response.jobSeeker?.userInfo;
-          if (jobSeekerUserInfo) {
-            dispatch(fetchMessages({ receiverId: jobSeekerUserInfo, token }) as any)
+          const jobSeeker = response.jobApplication?.jobSeeker;
+          if (jobSeeker) {
+            dispatch(fetchMessages({ receiverId: jobSeeker._id, token }) as any) // Corrected to use _id directly
               .unwrap()
               .then((fetchedMessages: Message[]) => {
                 console.log('Fetched messages:', fetchedMessages);
                 scrollToBottom();
               })
-              .catch((err) => {
+              .catch((err: unknown) => {
                 console.error("Error fetching messages:", err);
               });
           } else {
-            console.error("JobSeeker userInfo not found in response.");
+            console.error("JobSeeker not found in response.");
           }
         })
-        .catch((err) => {
+        .catch((err: unknown) => {
           console.error("Error fetching job application details:", err);
         });
     }
@@ -74,9 +74,9 @@ const MessageList = () => {
   }, [messages]);
 
   const handleSendMessage = () => {
-    if (jobApplication && jobApplication.jobSeeker.userInfo && newMessage.trim() && token) {
+    if (jobApplication && jobApplication.jobSeeker._id && newMessage.trim() && token) {
       const messageToSend = {
-        receiverId: jobApplication.jobSeeker.userInfo,
+        receiverId: jobApplication.jobSeeker._id, // Use string ID
         message: newMessage,
         token,
       };
@@ -91,7 +91,7 @@ const MessageList = () => {
           }
           scrollToBottom();
         })
-        .catch((err) => {
+        .catch((err: unknown) => {
           console.error("Error sending message:", err);
         });
     }
@@ -105,10 +105,10 @@ const MessageList = () => {
 
   const isMessageForCurrentChat = (message: Message) => {
     if (!jobApplication || !companyDetails) return false;
-    const { userInfo } = jobApplication.jobSeeker;
+    const jobSeekerId = jobApplication.jobSeeker._id; // Ensure using correct ID type
     return (
-      (message.sender === userInfo && message.receiver === companyDetails?.userInfo?._id) ||
-      (message.sender === companyDetails?.userInfo?._id && message.receiver === userInfo)
+      (message.sender === jobSeekerId && message.receiver === companyDetails?._id) ||
+      (message.sender === companyDetails?._id && message.receiver === jobSeekerId)
     );
   };
 
@@ -116,7 +116,6 @@ const MessageList = () => {
 
   return (
     <div className="h-screen flex flex-col">
-      {/* Including the MessageListener component */}
       <MessageListener />
       <div className="flex items-center p-4 bg-gray-100 border-b">
         {jobApplication ? (
@@ -148,17 +147,17 @@ const MessageList = () => {
       <div className="flex-1 p-4 overflow-y-auto">
         <ul>
           {companyDetails && filteredMessages.map((message) => (
-            <li key={message._id} className={`mb-4 flex ${message.sender === companyDetails.userInfo._id ? 'justify-end' : 'justify-start'}`}>
-              <div className={`flex items-center ${message.sender === companyDetails.userInfo._id ? 'flex-row-reverse' : ''}`}>
+            <li key={message._id} className={`mb-4 flex ${message.sender === companyDetails._id ? 'justify-end' : 'justify-start'}`}>
+              <div className={`flex items-center ${message.sender === companyDetails._id ? 'flex-row-reverse' : ''}`}>
                 <Image
-                  src={message.sender === companyDetails.userInfo._id ? companyDetails.companyLogo : jobApplication?.jobSeeker.profilePicture || '/images/profilepics.png'}
+                  src={message.sender === companyDetails._id ? companyDetails.companyLogo : jobApplication?.jobSeeker.profilePicture || '/images/profilepics.png'}
                   alt="avatar"
                   width={40}
                   height={40}
-                  className={`h-10 w-10 rounded-full ${message.sender === companyDetails.userInfo._id ? 'ml-2' : 'mr-2'}`}
+                  className={`h-10 w-10 rounded-full ${message.sender === companyDetails._id ? 'ml-2' : 'mr-2'}`}
                   onError={(e) => e.currentTarget.src = '/images/fallback.png'}
                 />
-                <div className={`p-2 rounded-lg ${message.sender === companyDetails.userInfo._id ? 'bg-blue text-white' : 'bg-gray-200 text-black'}`}>
+                <div className={`p-2 rounded-lg ${message.sender === companyDetails._id ? 'bg-blue text-white' : 'bg-gray-200 text-black'}`}>
                   <p>{message.message}</p>
                 </div>
               </div>
