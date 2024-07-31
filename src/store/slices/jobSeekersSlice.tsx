@@ -14,6 +14,7 @@ interface JobSeeker {
   firstName: string;
   lastName: string;
   savedJobs: Job[];
+  profilePicture?: string; 
   // Add other job seeker details as needed
 }
 

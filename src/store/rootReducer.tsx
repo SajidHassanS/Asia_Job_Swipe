@@ -5,6 +5,7 @@ import authReducer from './slices/authSlice';
 import jobReducer from './slices/jobSlice';
 import userSettingsReducer from './slices/userSettingsSlice';
 import jobSeekerReducer from './slices/jobSeekerSlice';
+import jobSeekersReducer from './slices/jobSeekersSlice';
 import profileReducer from './slices/profileSlices'
 import experienceReducer from './slices/experienceSlice/experienceSlice';
 import postJobReducer from './slices/postJobSlice';
@@ -17,10 +18,12 @@ import companyProfileReducer from './slices/companyProfileSlice/companyProfileSl
 import appliedApplicantReducer from './slices/appliedApplicantSlice/appliedApplicantSlice'
 import messageSliceReducer from './slices/messageSlice'
 import jobOfferReducer from './slices/jobOfferSlice'
+import searchReducer from './slices/searchSlice'
 
 const rootReducer = combineReducers({
   auth: authReducer,
   jobSeeker: jobSeekerReducer,
+  jobSeekers: jobSeekersReducer,
   profile: profileReducer,
   job: jobReducer, // Ensure correct naming
   company: companyReducer,
@@ -36,6 +39,7 @@ const rootReducer = combineReducers({
   appliedApplicant: appliedApplicantReducer,
   messageSlice: messageSliceReducer,
   jobOffer: jobOfferReducer,
+  search:searchReducer,
 
 });
 

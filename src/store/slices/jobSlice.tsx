@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
+import { Job, JobState, SavedJob } from './types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://ajs-server.hostdonor.com/api/v1';
 
@@ -76,7 +77,7 @@ export const fetchBestMatchedJobs = createAsyncThunk('jobs/fetchBestMatchedJobs'
     const response = await axios.get(`${API_URL}/jobs/best-matched/${jobSeekerId}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
-    return response.data.jobs; // Assuming the response contains a list of jobs
+    return response.data.jobs;
   } catch (error: any) {
     if (axios.isAxiosError(error) && error.response) {
       return rejectWithValue(
@@ -88,71 +89,11 @@ export const fetchBestMatchedJobs = createAsyncThunk('jobs/fetchBestMatchedJobs'
   }
 });
 
-interface Company {
-  companyLogo: string;
-  companyName: string;
-  city: string;
-  province: string;
-  country: string;
-  sector: string;
-}
-
-interface Salary {
-  from: number;
-  to: number;
-}
-
-interface Job {
-  _id: string;
-  title: string;
-  company: Company;
-  salary: Salary;
-  skills: string[];
-  jobType: string;
-  city: string;
-  province: string;
-  country: string;
-  availability: string;
-  careerLevel: string;
-  candidateType: string;
-  createdAt: string;
-  updatedAt: string;
-  description: string;
-  sector: string;
-  active: boolean;
-}
-
-interface SavedJob {
-  _id: string;
-  jobSeeker: {
-    _id: string;
-    firstName: string;
-    lastName: string;
-    gender: string;
-    introduction: string;
-    dateOfBirth: string;
-    userInfo: string;
-  };
-  job: Job;
-}
-
-interface JobState {
-  jobs: Job[];
-  savedJobs: SavedJob[];
-  job: Job | null;
-  bestMatchedJobs: Job[]; // Add this line
-  totalJobs: number;
-  totalPages: number;
-  currentPage: number;
-  status: 'idle' | 'loading' | 'succeeded' | 'failed';
-  error: string | null;
-}
-
 const initialState: JobState = {
   jobs: [],
   savedJobs: [],
   job: null,
-  bestMatchedJobs: [], // Add this line
+  bestMatchedJobs: [],
   totalJobs: 0,
   totalPages: 0,
   currentPage: 1,

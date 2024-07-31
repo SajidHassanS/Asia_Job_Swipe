@@ -6,9 +6,9 @@ import JobListings from './JobListings';
 import SkeletonJobCard from './SkeletonJobCard';
 import HeroComponent from "../../../../components/repeatComponents/Hero";
 import PaginationComponent from './Pagination';
-import { RootState, AppDispatch } from '@/store';
-import { fetchJobs, setCurrentPage } from '@/store/slices/jobSlice';
-import { Job } from '@/store/slices/types'; // Ensure this import matches the Redux slice
+import { RootState, AppDispatch } from '../../../../store';
+import { fetchJobs, setCurrentPage } from '../../../../store/slices/jobSlice';
+import { Job } from '../../../../store/slices/types'; // Ensure this import matches the Redux slice
 
 const AllJobs: React.FC = () => {
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);

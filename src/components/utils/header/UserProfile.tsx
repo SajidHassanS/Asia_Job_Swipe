@@ -1,7 +1,8 @@
 "use client";
-import React from 'react';
-import { useSelector } from 'react-redux';
+import React,{useEffect} from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { Button } from "@/components/ui/button";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,8 +22,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { RootState } from '../../../store';  // Adjust the path as necessary
+ 
+import { RootState, AppDispatch } from '@/store';
 import Link from 'next/link';
+import { getJobSeekerById } from '@/store/slices/jobSeekersSlice';
+import Image from 'next/image';
 
 interface UserProfileProps {
   isDialogOpen: boolean;
@@ -31,23 +35,36 @@ interface UserProfileProps {
 }
 
 const UserProfile: React.FC<UserProfileProps> = ({ isDialogOpen, setIsDialogOpen, handleLogout }) => {
+  const dispatch = useDispatch<AppDispatch>();
+  
   const jobSeeker = useSelector((state: RootState) => state.auth.user);
+  
+  const jobSeekerData = useSelector((state: RootState) => state.jobSeekers.jobSeeker);
+  console.log("sajid hassan" , jobSeekerData)
+
+  useEffect(() => {
+    const jobSeekerId = localStorage.getItem('_id'); // Adjust this key if necessary
+    if (jobSeekerId) {
+      dispatch(getJobSeekerById(jobSeekerId));
+    }
+  }, [dispatch]);
 
   // Use a default avatar image if none is provided
-  const avatarSrc =  '/images/avatar.png';
+  const avatarSrc = jobSeekerData?.profilePicture || '/images/avatar.png';
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <div className="flex items-center gap-2 cursor-pointer">
-        <div className="">
-          <Avatar className="h-[2rem] w-[2rem]">
-            <AvatarImage src={avatarSrc} alt="avatar" />
-            <AvatarFallback>{jobSeeker?.firstName?.charAt(0)}</AvatarFallback>
-          </Avatar>
+        <div className="  ">
+          
+             
+            <Image src={avatarSrc} alt="avatar" className=' rounded-full' width={30} height={30} />
+           
+           
         </div>
         <div className="">
           <p className="font-semibold truncate overflow-hidden">
-            {jobSeeker?.firstName ?? 'Guest'}
+            {jobSeekerData?.firstName ?? 'Guest'}
           </p>
         </div>
         <DropdownMenu>
