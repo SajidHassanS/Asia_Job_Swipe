@@ -1,16 +1,8 @@
-// next.config.mjs
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  images: {
-    domains: ['localhost', 'ajs-files.hostdonor.com', 'example.com'], 
-  },
-  webpack: (config) => {
-    config.resolve.fallback = {
-      ...config.resolve.fallback,
-      'engine.io-parser': false, // If the package is not needed or causing issues
-    };
-    return config;
-  },
-};
+import withTM from 'next-transpile-modules';
 
-export default nextConfig;
+export default withTM({
+  transpileModules: ['engine.io-parser', 'socket.io-client'],
+  images: {
+    domains: ['localhost', 'ajs-files.hostdonor.com', 'example.com'],
+  },
+});
