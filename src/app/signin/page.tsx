@@ -21,12 +21,6 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FaArrowLeft, FaEye, FaEyeSlash } from "react-icons/fa6";
 import { FcGoogle } from "react-icons/fc";
- 
-
-// Inside your component
-const router = useRouter();
-
-
 
 interface AuthError {
   path: string;
@@ -59,6 +53,7 @@ const SignInPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [roleError, setRoleError] = useState<string | null>(null);
+  const router = useRouter(); // Correct placement of useRouter
 
   useEffect(() => {
     const savedEmail = localStorage.getItem("rememberedEmail");
@@ -79,7 +74,7 @@ const SignInPage = () => {
         router.push("/");
       }
     }
-  }, [auth?.user, auth.role, roleError]);
+  }, [auth?.user, auth.role, roleError, router]);
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
