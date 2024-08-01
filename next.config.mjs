@@ -1,9 +1,18 @@
 // next.config.mjs
-/** @type {import('next').NextConfig} */
+import withTM from 'next-transpile-modules';
+import { createRequire } from 'module';
+
+const require = createRequire(import.meta.url);
+
 const nextConfig = {
-  images: {
-    domains: ['localhost', 'ajs-files.hostdonor.com','example.com'], 
+  webpack: (config) => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      'engine.io-client': require.resolve('engine.io-client'),
+      'engine.io-parser': require.resolve('engine.io-parser'),
+    };
+    return config;
   },
 };
-          
-export default nextConfig;
+
+export default withTM(['engine.io-client', 'engine.io-parser', 'socket.io-client'])(nextConfig);
