@@ -57,7 +57,7 @@ const Profile = () => {
     if (typeof window !== "undefined") {
       const storedCompanyId = localStorage.getItem("_id");
       const storedToken = localStorage.getItem("accessToken");
-      if (storedCompanyId) {
+      if (storedCompanyId) { 
         dispatch(fetchCompanyProfile(storedCompanyId));
       }
     }

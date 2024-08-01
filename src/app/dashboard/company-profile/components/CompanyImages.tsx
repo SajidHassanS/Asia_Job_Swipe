@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useRef, useEffect } from "react";
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '@/store';
@@ -37,32 +38,34 @@ const CompanyImages: React.FC<CompanyImagesProps> = ({ companyImages, onUpdate }
   }, [companyImages]);
 
   const handleSave = async () => {
-    const storedCompanyId = localStorage.getItem("_id");
-    const storedAccessToken = localStorage.getItem("accessToken");
+    if (typeof window !== "undefined") {
+      const storedCompanyId = localStorage.getItem("_id");
+      const storedAccessToken = localStorage.getItem("accessToken");
 
-    if (storedCompanyId && storedAccessToken) {
-      const files = currentImages.map((image, index) => {
-        if (image.startsWith('data:')) {
-          try {
-            return dataURLtoFile(image, `image_${index}.jpg`);
-          } catch (error) {
-            console.error(error);
+      if (storedCompanyId && storedAccessToken) {
+        const files = currentImages.map((image, index) => {
+          if (image.startsWith('data:')) {
+            try {
+              return dataURLtoFile(image, `image_${index}.jpg`);
+            } catch (error) {
+              console.error(error);
+              return null;
+            }
+          } else {
             return null;
           }
-        } else {
-          return null;
+        }).filter(file => file !== null) as File[];
+
+        if (files.length > 0) {
+          await dispatch(addOrUpdateCompanyImages({
+            companyId: storedCompanyId,
+            images: files,
+            token: storedAccessToken
+          })).unwrap();
         }
-      }).filter(file => file !== null) as File[];
 
-      if (files.length > 0) {
-        await dispatch(addOrUpdateCompanyImages({
-          companyId: storedCompanyId,
-          images: files,
-          token: storedAccessToken
-        })).unwrap();
+        setIsEditing(false);
       }
-
-      setIsEditing(false);
     }
   };
 
@@ -90,39 +93,42 @@ const CompanyImages: React.FC<CompanyImagesProps> = ({ companyImages, onUpdate }
   };
 
   const removeImage = async () => {
-    const storedCompanyId = localStorage.getItem("_id");
-    const storedAccessToken = localStorage.getItem("accessToken");
-    if (storedAccessToken && imageToDelete !== null) {
-      const imageUrl = currentImages[imageToDelete];
-      const filename = imageUrl.split('&')[1]; // Extract filename after the ampersand (&)
+    if (typeof window !== "undefined") {
+      const storedCompanyId = localStorage.getItem("_id");
+      const storedAccessToken = localStorage.getItem("accessToken");
 
-      if (!filename) {
-        console.error("Invalid filename.");
-        return;
-      }
+      if (storedAccessToken && imageToDelete !== null) {
+        const imageUrl = currentImages[imageToDelete];
+        const filename = imageUrl.split('&')[1]; // Extract filename after the ampersand (&)
 
-      console.log("Deleting filename: ", filename);
-
-      try {
-        await dispatch(deleteCompanyImage({
-          filename,
-          token: storedAccessToken
-        })).unwrap();
-
-        const updatedImages = currentImages.filter((_, i) => i !== imageToDelete);
-        setCurrentImages(updatedImages);
-
-        await onUpdate({ companyImages: updatedImages });  // Update the images in the backend
-
-        // Refresh the profile to get the latest images from the backend
-        if (storedCompanyId) {
-          await dispatch(fetchCompanyProfile(storedCompanyId));
+        if (!filename) {
+          console.error("Invalid filename.");
+          return;
         }
 
-        setIsConfirmDialogOpen(false);
-        setImageToDelete(null);
-      } catch (error) {
-        console.error("Failed to delete the image: ", error);
+        console.log("Deleting filename: ", filename);
+
+        try {
+          await dispatch(deleteCompanyImage({
+            filename,
+            token: storedAccessToken
+          })).unwrap();
+
+          const updatedImages = currentImages.filter((_, i) => i !== imageToDelete);
+          setCurrentImages(updatedImages);
+
+          await onUpdate({ companyImages: updatedImages });  // Update the images in the backend
+
+          // Refresh the profile to get the latest images from the backend
+          if (storedCompanyId) {
+            await dispatch(fetchCompanyProfile(storedCompanyId));
+          }
+
+          setIsConfirmDialogOpen(false);
+          setImageToDelete(null);
+        } catch (error) {
+          console.error("Failed to delete the image: ", error);
+        }
       }
     }
   };
