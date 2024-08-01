@@ -1,10 +1,10 @@
 import Navbar from "@/app/dashboard/components/Navbar";
 import Sidebar from "@/app/dashboard/components/Sidebar";
 
-import "../globals.css";
+// import "../globals.css";
 import DashboardProtectedRoutes from "@/components/HOC/DashboardProtectedRoutes";
 
-
+ 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <DashboardProtectedRoutes>
