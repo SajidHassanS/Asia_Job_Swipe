@@ -1,5 +1,5 @@
 // next.config.mjs
-import engineIoParser from 'engine.io-parser';
+import * as engineIoParser from 'engine.io-parser';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
