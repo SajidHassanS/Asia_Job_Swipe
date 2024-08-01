@@ -39,7 +39,7 @@ const SuccessGoogleContent: React.FC = () => {
 const SuccessGoogle: React.FC = () => {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      success google
+      <SuccessGoogleContent />
     </Suspense>
   );
 };
