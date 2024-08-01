@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '@/store';
@@ -29,7 +29,6 @@ interface CompanyData {
   companyLogo: string;
 }
 
-
 const Profile = () => {
   const dispatch: AppDispatch = useDispatch();
   const { company } = useSelector((state: RootState) => state.companyProfile);
@@ -56,7 +55,6 @@ const Profile = () => {
   useEffect(() => {
     if (typeof window !== "undefined") {
       const storedCompanyId = localStorage.getItem("_id");
-      const storedToken = localStorage.getItem("accessToken");
       if (storedCompanyId) { 
         dispatch(fetchCompanyProfile(storedCompanyId));
       }
@@ -65,7 +63,6 @@ const Profile = () => {
 
   useEffect(() => {
     if (company) {
-      console.log("Company data from Redux:", company);
       setCompanyData((prevData) => ({
         ...prevData,
         _id: company._id ?? prevData._id,
@@ -118,7 +115,9 @@ const Profile = () => {
         <div>
           <div className="md:flex px-4 py-5 md:gap-10">
             <div className="md:w-2/3 w-full">
-              <ProfileCompletion company={companyData} token={localStorage.getItem("accessToken") || ""} onUpdate={handleUpdate} />
+              {typeof window !== "undefined" && (
+                <ProfileCompletion company={companyData} token={localStorage.getItem("accessToken") || ""} onUpdate={handleUpdate} />
+              )}
               <div className="my-10">
                 <AboutMe description={companyData.description} onUpdate={handleUpdate} />
               </div>
