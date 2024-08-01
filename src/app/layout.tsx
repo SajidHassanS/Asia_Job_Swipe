@@ -32,8 +32,8 @@ export default function RootLayout({
           <ReduxProvider>
 
           <AppInitializer />
-          <Socket/>
-      <MessageListener/>
+          {/* <Socket/>
+      <MessageListener/> */}
           <AppDataProvider>
           <ThemeProvider
             attribute="class"
