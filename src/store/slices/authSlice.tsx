@@ -210,12 +210,43 @@ export const signInCompany = createAsyncThunk<User, { email: string; password: s
   }
 );
 
-export const googleSignIn = createAsyncThunk<User, { role: string }, { rejectValue: AuthError[] }>(
+// export const googleSignIn = createAsyncThunk<User, { role: string }, { rejectValue: AuthError[] }>(
+//   'auth/googleSignIn',
+//   async ({ role }, { rejectWithValue }) => {
+//     try {
+//       const response = await axios.get(`${API_URL}/auth/google`, {
+//         params: { role }
+//       });
+
+//       // Assuming the response contains accessToken, refreshToken, and user data
+//       const { accessToken, refreshToken, user } = response.data;
+
+//       // Save tokens and user information in localStorage
+//       localStorage.setItem('accessToken', accessToken);
+//       localStorage.setItem('refreshToken', refreshToken);
+//       localStorage.setItem('userInfo', JSON.stringify(user));
+
+//       return user;
+//     } catch (error: any) {
+//       if (axios.isAxiosError(error) && error.response) {
+//         if (error.response.data.errors) {
+//           return rejectWithValue(error.response.data.errors);
+//         }
+//         if (error.response.data.message) {
+//           return rejectWithValue([{ path: 'unknown', message: error.response.data.message }]);
+//         }
+//       }
+//       return rejectWithValue([{ path: 'unknown', message: 'An unknown error occurred' }]);
+//     }
+//   }
+// );
+
+export const googleSignIn = createAsyncThunk<User, { code: string; role: string }, { rejectValue: AuthError[] }>(
   'auth/googleSignIn',
-  async ({ role }, { rejectWithValue }) => {
+  async ({ code, role }, { rejectWithValue }) => {
     try {
       const response = await axios.get(`${API_URL}/auth/google`, {
-        params: { role }
+        params: { code, role }
       });
 
       // Assuming the response contains accessToken, refreshToken, and user data
