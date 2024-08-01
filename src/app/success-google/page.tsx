@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+
 
 const SuccessGoogle: React.FC = () => {
   const router = useRouter();
@@ -34,9 +35,11 @@ const SuccessGoogle: React.FC = () => {
   }, [router, searchParams]);
 
   return (
+    <Suspense fallback={<div>Loading...</div>}>
     <div className="flex items-center justify-center min-h-screen">
       <p>Signing in...</p>
     </div>
+    </Suspense>
   );
 };
 

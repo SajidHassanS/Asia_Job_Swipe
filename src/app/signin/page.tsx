@@ -5,6 +5,8 @@ import { AppDispatch, RootState } from "../../store";
 import { signInJobSeeker, signInCompany, clearErrors, loginCompanyRole ,User } from "../../store/slices/authSlice";
 import { AsyncThunk, ThunkDispatch } from "@reduxjs/toolkit"; // Import necessary types from Redux Toolkit
 import { Button } from "@/components/ui/button";
+import React, { Suspense } from "react";
+
 import {
   Card,
   CardContent,
@@ -119,6 +121,7 @@ const SignInPage = () => {
   };
 
   return (
+    <Suspense fallback={<div>Loading...</div>}>
     <div className="md:flex">
       <div
         className="hidden md:flex md:w-1/2 w-full min-h-screen bg-cover bg-center"
@@ -596,6 +599,7 @@ const SignInPage = () => {
         </div>
       </div>
     </div>
+    </Suspense>
   );
 };
 
