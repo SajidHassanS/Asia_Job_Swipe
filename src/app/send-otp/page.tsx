@@ -35,7 +35,9 @@ const SendOTPPage: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+
   useEffect(() => {
+  if (typeof window !== "undefined") {
     // Check for tokens and role in the URL after Google signup
     const accessToken = searchParams.get("accessToken");
     const refreshToken = searchParams.get("refreshToken");
@@ -53,7 +55,8 @@ const SendOTPPage: React.FC = () => {
         router.push("/");
       }
     }
-  }, [router, searchParams]);
+  }
+}, [router, searchParams]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
