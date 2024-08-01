@@ -157,7 +157,7 @@ const MessageList = () => {
                   className={`h-10 w-10 rounded-full ${message.sender === companyDetails._id ? 'ml-2' : 'mr-2'}`}
                   onError={(e) => e.currentTarget.src = '/images/fallback.png'}
                 />
-                <div className={`p-2 rounded-lg ${message.sender === companyDetails._id ? 'bg-blue text-white' : 'bg-gray-200 text-black'}`}>
+                <div className={`p-2 rounded-lg ${message.sender === companyDetails._id ? 'bg-signature text-background' : 'bg-gray-200 text-black'}`}>
                   <p>{message.message}</p>
                 </div>
               </div>
@@ -189,3 +189,4 @@ const MessageList = () => {
 };
 
 export default MessageList;
+ 
