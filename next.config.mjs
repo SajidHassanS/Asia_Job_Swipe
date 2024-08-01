@@ -1,6 +1,4 @@
 // next.config.mjs
-import * as engineIoParser from 'engine.io-parser';
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
@@ -9,7 +7,7 @@ const nextConfig = {
   webpack: (config) => {
     config.resolve.fallback = {
       ...config.resolve.fallback,
-      'engine.io-parser': engineIoParser,
+      'engine.io-parser': false, // If the package is not needed or causing issues
     };
     return config;
   },
