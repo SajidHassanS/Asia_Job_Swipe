@@ -3,8 +3,7 @@
 import React, { useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-
-const SuccessGoogle: React.FC = () => {
+const SuccessGoogleContent: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -34,11 +33,13 @@ const SuccessGoogle: React.FC = () => {
     }
   }, [router, searchParams]);
 
+  return <div>Signing in...</div>;
+};
+
+const SuccessGoogle: React.FC = () => {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-    <div className="flex items-center justify-center min-h-screen">
-      <p>Signing in...</p>
-    </div>
+      success google
     </Suspense>
   );
 };

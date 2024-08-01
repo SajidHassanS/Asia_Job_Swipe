@@ -4,14 +4,7 @@ import React, { useState, useEffect, Suspense } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState, AppDispatch } from "../../store";
 import { sendOTP, verifyOTP, clearErrors } from "../../store/slices/authSlice";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -33,30 +26,34 @@ const SendOTPPage: React.FC = () => {
   const [timer, setTimer] = useState<number>(0);
   const [canResend, setCanResend] = useState<boolean>(false);
   const router = useRouter();
-  const searchParams = useSearchParams();
 
+  const ClientComponent = () => {
+    const searchParams = useSearchParams();
 
-  useEffect(() => {
-  if (typeof window !== "undefined") {
-    // Check for tokens and role in the URL after Google signup
-    const accessToken = searchParams.get("accessToken");
-    const refreshToken = searchParams.get("refreshToken");
-    const userRole = searchParams.get("role");
+    useEffect(() => {
+      if (typeof window !== "undefined") {
+        // Check for tokens and role in the URL after Google signup
+        const accessToken = searchParams.get("accessToken");
+        const refreshToken = searchParams.get("refreshToken");
+        const userRole = searchParams.get("role");
 
-    if (accessToken && refreshToken && userRole) {
-      localStorage.setItem("accessToken", accessToken);
-      localStorage.setItem("refreshToken", refreshToken);
-      localStorage.setItem("role", userRole);
+        if (accessToken && refreshToken && userRole) {
+          localStorage.setItem("accessToken", accessToken);
+          localStorage.setItem("refreshToken", refreshToken);
+          localStorage.setItem("role", userRole);
 
-      // Redirect based on role
-      if (userRole === "company") {
-        router.push("/dashboard");
-      } else if (userRole === "jobSeeker") {
-        router.push("/");
+          // Redirect based on role
+          if (userRole === "company") {
+            router.push("/dashboard");
+          } else if (userRole === "jobSeeker") {
+            router.push("/");
+          }
+        }
       }
-    }
-  }
-}, [router, searchParams]);
+    }, [router, searchParams]);
+
+    return null; // Just for handling side effects
+  };
 
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
@@ -111,222 +108,223 @@ const SendOTPPage: React.FC = () => {
   };
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <div className="md:flex">
-        <div
-          className="hidden md:flex md:w-1/2 w-full min-h-screen bg-cover bg-center"
-          style={{ backgroundImage: "url('/images/signupimage.png')" }}
-        ></div>
-        <div className="md:w-1/2 w-full flex items-center justify-center min-h-screen py-8">
-          <div className="w-[550px]">
-            <Tabs defaultValue="jobSeeker" className="w-full">
-              <TabsList className="flex justify-center w-full mb-4">
-                <TabsTrigger value="jobSeeker" className="w-1/3" onClick={() => setRole("jobSeeker")}>
-                  Job Seeker
-                </TabsTrigger>
-                <TabsTrigger value="company" className="w-1/3" onClick={() => setRole("company")}>
-                  Company
-                </TabsTrigger>
-              </TabsList>
-              <TabsContent value="jobSeeker">
-                <Card className="border-none shadow-none">
-                  <CardHeader>
-                    <CardTitle className="flex mb-5 justify-center text-darkGrey md:text-3xl">
-                      {step === "sendOTP" ? "Verify your email" : "Enter OTP"}
-                    </CardTitle>
-                    <CardDescription>
-                      <Button
-                        className="w-full text-darkGrey"
-                        variant="outline"
-                        onClick={() => handleGoogleSignIn("jobSeeker")}
-                      >
-                        <FcGoogle size={25} className="mr-2" /> Sign Up with Google
-                      </Button>
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-5">
-                    {message && (
-                      <p className={messageType === "success" ? "text-green-500" : "text-red-500"}>
-                        {message}
-                      </p>
-                    )}
-                    {step === "sendOTP" ? (
-                      <div className="space-y-1">
-                        <Label htmlFor="email" className="text-signininput text-base">
-                          Email Address
-                        </Label>
-                        <Input
-                          type="email"
-                          id="email"
-                          className="text-signininput3 text-base"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          placeholder="Enter email address"
-                        />
-                      </div>
-                    ) : (
-                      <div className="space-y-1">
-                        <Label htmlFor="otp" className="text-signininput text-base">
-                          OTP
-                        </Label>
-                        <Input
-                          type="text"
-                          id="otp"
-                          className="text-signininput3 text-base"
-                          value={otp}
-                          onChange={(e) => setOtp(e.target.value)}
-                          placeholder="Enter OTP"
-                        />
-                      </div>
-                    )}
-                    <div>
-                      <Button
-                        variant="outline"
-                        size={"lg"}
-                        className="bg-signature w-full text-background"
-                        onClick={step === "sendOTP" ? handleSendOTP : handleVerifyOTP}
-                      >
-                        {step === "sendOTP" ? "Send OTP" : "Verify OTP"}
-                      </Button>
-                      {step === "verifyOTP" && (
-                        <div className="flex justify-between items-center mt-4">
-                          <span className="text-sm text-gray-600">
-                            {canResend
-                              ? "Didn't receive the code?"
-                              : `Resend code in ${timer}s`}
-                          </span>
-                          {canResend && (
-                            <Button
-                              variant="link"
-                              onClick={handleSendOTP}
-                              disabled={!canResend}
-                              className="text-signature"
-                            >
-                              Resend OTP
-                            </Button>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                    {auth.otpError && <p className="text-red-500">{auth.otpError}</p>}
-                    <div className="flex items-center">
-                      <h1 className="text-signinemail text-base">Already have an account?</h1>
-                      <Button asChild variant="link" className="text-signature">
-                        <Link href="/signin">Sign In</Link>
-                      </Button>
-                    </div>
-                  </CardContent>
-                  <CardFooter>
-                    <Button asChild variant="link" className="w-full text-signature">
-                      <Link href="/home">
-                        <FaArrowLeft size={20} className="mr-2" /> Back to Home
-                      </Link>
+    <div className="md:flex">
+      <div
+        className="hidden md:flex md:w-1/2 w-full min-h-screen bg-cover bg-center"
+        style={{ backgroundImage: "url('/images/signupimage.png')" }}
+      ></div>
+      <div className="md:w-1/2 w-full flex items-center justify-center min-h-screen py-8">
+        <div className="w-[550px]">
+          <Suspense fallback={<div>Loading...</div>}>
+            <ClientComponent />
+          </Suspense>
+          <Tabs defaultValue="jobSeeker" className="w-full">
+            <TabsList className="flex justify-center w-full mb-4">
+              <TabsTrigger value="jobSeeker" className="w-1/3" onClick={() => setRole("jobSeeker")}>
+                Job Seeker
+              </TabsTrigger>
+              <TabsTrigger value="company" className="w-1/3" onClick={() => setRole("company")}>
+                Company
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="jobSeeker">
+              <Card className="border-none shadow-none">
+                <CardHeader>
+                  <CardTitle className="flex mb-5 justify-center text-darkGrey md:text-3xl">
+                    {step === "sendOTP" ? "Verify your email" : "Enter OTP"}
+                  </CardTitle>
+                  <CardDescription>
+                    <Button
+                      className="w-full text-darkGrey"
+                      variant="outline"
+                      onClick={() => handleGoogleSignIn("jobSeeker")}
+                    >
+                      <FcGoogle size={25} className="mr-2" /> Sign Up with Google
                     </Button>
-                  </CardFooter>
-                </Card>
-              </TabsContent>
-              <TabsContent value="company">
-                <Card className="border-none shadow-none">
-                  <CardHeader>
-                    <CardTitle className="flex mb-5 justify-center text-darkGrey md:text-3xl">
-                      {step === "sendOTP" ? "Verify your email" : "Enter OTP"}
-                    </CardTitle>
-                    <CardDescription>
-                      <Button
-                        className="w-full text-darkGrey"
-                        variant="outline"
-                        onClick={() => handleGoogleSignIn("company")}
-                      >
-                        <FcGoogle size={25} className="mr-2" /> Sign Up with Google
-                      </Button>
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-5">
-                    {message && (
-                      <p className={messageType === "success" ? "text-green-500" : "text-red-500"}>
-                        {message}
-                      </p>
-                    )}
-                    {step === "sendOTP" ? (
-                      <div className="space-y-1">
-                        <Label htmlFor="email" className="text-signininput text-base">
-                          Email Address
-                        </Label>
-                        <Input
-                          type="email"
-                          id="email"
-                          className="text-signininput3 text-base"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          placeholder="Enter email address"
-                        />
-                      </div>
-                    ) : (
-                      <div className="space-y-1">
-                        <Label htmlFor="otp" className="text-signininput text-base">
-                          OTP
-                        </Label>
-                        <Input
-                          type="text"
-                          id="otp"
-                          className="text-signininput3 text-base"
-                          value={otp}
-                          onChange={(e) => setOtp(e.target.value)}
-                          placeholder="Enter OTP"
-                        />
-                      </div>
-                    )}
-                    <div>
-                      <Button
-                        variant="outline"
-                        size={"lg"}
-                        className="bg-signature w-full text-background"
-                        onClick={step === "sendOTP" ? handleSendOTP : handleVerifyOTP}
-                      >
-                        {step === "sendOTP" ? "Send OTP" : "Verify OTP"}
-                      </Button>
-                      {step === "verifyOTP" && (
-                        <div className="flex justify-between items-center mt-4">
-                          <span className="text-sm text-gray-600">
-                            {canResend
-                              ? "Didn't receive the code?"
-                              : `Resend code in ${timer}s`}
-                          </span>
-                          {canResend && (
-                            <Button
-                              variant="link"
-                              onClick={handleSendOTP}
-                              disabled={!canResend}
-                              className="text-signature"
-                            >
-                              Resend OTP
-                            </Button>
-                          )}
-                        </div>
-                      )}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-5">
+                  {message && (
+                    <p className={messageType === "success" ? "text-green-500" : "text-red-500"}>
+                      {message}
+                    </p>
+                  )}
+                  {step === "sendOTP" ? (
+                    <div className="space-y-1">
+                      <Label htmlFor="email" className="text-signininput text-base">
+                        Email Address
+                      </Label>
+                      <Input
+                        type="email"
+                        id="email"
+                        className="text-signininput3 text-base"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="Enter email address"
+                      />
                     </div>
-                    {auth.otpError && <p className="text-red-500">{auth.otpError}</p>}
-                    <div className="flex items-center">
-                      <h1 className="text-signinemail text-base">Already have an account?</h1>
-                      <Button asChild variant="link" className="text-signature">
-                        <Link href="/signin">Sign In</Link>
-                      </Button>
+                  ) : (
+                    <div className="space-y-1">
+                      <Label htmlFor="otp" className="text-signininput text-base">
+                        OTP
+                      </Label>
+                      <Input
+                        type="text"
+                        id="otp"
+                        className="text-signininput3 text-base"
+                        value={otp}
+                        onChange={(e) => setOtp(e.target.value)}
+                        placeholder="Enter OTP"
+                      />
                     </div>
-                  </CardContent>
-                  <CardFooter>
-                    <Button asChild variant="link" className="w-full text-signature">
-                      <Link href="/home">
-                        <FaArrowLeft size={20} className="mr-2" /> Back to Home
-                      </Link>
+                  )}
+                  <div>
+                    <Button
+                      variant="outline"
+                      size={"lg"}
+                      className="bg-signature w-full text-background"
+                      onClick={step === "sendOTP" ? handleSendOTP : handleVerifyOTP}
+                    >
+                      {step === "sendOTP" ? "Send OTP" : "Verify OTP"}
                     </Button>
-                  </CardFooter>
-                </Card>
-              </TabsContent>
-            </Tabs>
-          </div>
+                    {step === "verifyOTP" && (
+                      <div className="flex justify-between items-center mt-4">
+                        <span className="text-sm text-gray-600">
+                          {canResend
+                            ? "Didn't receive the code?"
+                            : `Resend code in ${timer}s`}
+                        </span>
+                        {canResend && (
+                          <Button
+                            variant="link"
+                            onClick={handleSendOTP}
+                            disabled={!canResend}
+                            className="text-signature"
+                          >
+                            Resend OTP
+                          </Button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  {auth.otpError && <p className="text-red-500">{auth.otpError}</p>}
+                  <div className="flex items-center">
+                    <h1 className="text-signinemail text-base">Already have an account?</h1>
+                    <Button asChild variant="link" className="text-signature">
+                      <Link href="/signin">Sign In</Link>
+                    </Button>
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <Button asChild variant="link" className="w-full text-signature">
+                    <Link href="/home">
+                      <FaArrowLeft size={20} className="mr-2" /> Back to Home
+                    </Link>
+                  </Button>
+                </CardFooter>
+              </Card>
+            </TabsContent>
+            <TabsContent value="company">
+              <Card className="border-none shadow-none">
+                <CardHeader>
+                  <CardTitle className="flex mb-5 justify-center text-darkGrey md:text-3xl">
+                    {step === "sendOTP" ? "Verify your email" : "Enter OTP"}
+                  </CardTitle>
+                  <CardDescription>
+                    <Button
+                      className="w-full text-darkGrey"
+                      variant="outline"
+                      onClick={() => handleGoogleSignIn("company")}
+                    >
+                      <FcGoogle size={25} className="mr-2" /> Sign Up with Google
+                    </Button>
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-5">
+                  {message && (
+                    <p className={messageType === "success" ? "text-green-500" : "text-red-500"}>
+                      {message}
+                    </p>
+                  )}
+                  {step === "sendOTP" ? (
+                    <div className="space-y-1">
+                      <Label htmlFor="email" className="text-signininput text-base">
+                        Email Address
+                      </Label>
+                      <Input
+                        type="email"
+                        id="email"
+                        className="text-signininput3 text-base"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="Enter email address"
+                      />
+                    </div>
+                  ) : (
+                    <div className="space-y-1">
+                      <Label htmlFor="otp" className="text-signininput text-base">
+                        OTP
+                      </Label>
+                      <Input
+                        type="text"
+                        id="otp"
+                        className="text-signininput3 text-base"
+                        value={otp}
+                        onChange={(e) => setOtp(e.target.value)}
+                        placeholder="Enter OTP"
+                      />
+                    </div>
+                  )}
+                  <div>
+                    <Button
+                      variant="outline"
+                      size={"lg"}
+                      className="bg-signature w-full text-background"
+                      onClick={step === "sendOTP" ? handleSendOTP : handleVerifyOTP}
+                    >
+                      {step === "sendOTP" ? "Send OTP" : "Verify OTP"}
+                    </Button>
+                    {step === "verifyOTP" && (
+                      <div className="flex justify-between items-center mt-4">
+                        <span className="text-sm text-gray-600">
+                          {canResend
+                            ? "Didn't receive the code?"
+                            : `Resend code in ${timer}s`}
+                        </span>
+                        {canResend && (
+                          <Button
+                            variant="link"
+                            onClick={handleSendOTP}
+                            disabled={!canResend}
+                            className="text-signature"
+                          >
+                            Resend OTP
+                          </Button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  {auth.otpError && <p className="text-red-500">{auth.otpError}</p>}
+                  <div className="flex items-center">
+                    <h1 className="text-signinemail text-base">Already have an account?</h1>
+                    <Button asChild variant="link" className="text-signature">
+                      <Link href="/signin">Sign In</Link>
+                    </Button>
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <Button asChild variant="link" className="w-full text-signature">
+                    <Link href="/home">
+                      <FaArrowLeft size={20} className="mr-2" /> Back to Home
+                    </Link>
+                  </Button>
+                </CardFooter>
+              </Card>
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
-    </Suspense>
+    </div>
   );
 };
 

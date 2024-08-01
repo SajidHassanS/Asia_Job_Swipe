@@ -1,12 +1,10 @@
-"use client"
-import { useEffect, useState } from "react";
+"use client";
+
+import React, { useState, useEffect, Suspense } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../store";
-import { signInJobSeeker, signInCompany, clearErrors, loginCompanyRole ,User } from "../../store/slices/authSlice";
-import { AsyncThunk, ThunkDispatch } from "@reduxjs/toolkit"; // Import necessary types from Redux Toolkit
+import { signInJobSeeker, signInCompany, clearErrors, loginCompanyRole, User } from "../../store/slices/authSlice";
 import { Button } from "@/components/ui/button";
-import React, { Suspense } from "react";
-
 import {
   Card,
   CardContent,
@@ -23,11 +21,34 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FaArrowLeft, FaEye, FaEyeSlash } from "react-icons/fa6";
 import { FcGoogle } from "react-icons/fc";
+ 
+
+// Inside your component
+const router = useRouter();
+
+
 
 interface AuthError {
   path: string;
   message: string;
 }
+
+const HandleSearchParams = () => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    // This effect will run on the client-side only
+    const role = searchParams.get("role");
+    // Handle the role logic or any other logic based on URL parameters
+    if (role) {
+      // Example: redirect based on role
+      router.push(role === "company" ? "/dashboard" : "/");
+    }
+  }, [searchParams, router]);
+
+  return null;
+};
 
 const SignInPage = () => {
   const [userType, setUserType] = useState("jobSeeker");
@@ -37,8 +58,6 @@ const SignInPage = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  const router = useRouter();
-  const searchParams = useSearchParams();
   const [roleError, setRoleError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -60,7 +79,7 @@ const SignInPage = () => {
         router.push("/");
       }
     }
-  }, [auth?.user, router, auth.role, roleError]);
+  }, [auth?.user, auth.role, roleError]);
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -70,13 +89,13 @@ const SignInPage = () => {
     dispatch(clearErrors());
     setRoleError(null);
     try {
-      let action: AsyncThunk<User, { email: string; password: string }, { rejectValue: AuthError[] }> | undefined;
+      let action;
       if (userType === 'jobSeeker') {
         action = signInJobSeeker;
       } else if (userType === 'company') {
         action = signInCompany;
       } else if (userType === 'companyRole') {
-        action = loginCompanyRole; // Assuming this is already defined for company roles
+        action = loginCompanyRole;
       }
 
       if (action) {
@@ -111,7 +130,6 @@ const SignInPage = () => {
   };
 
   const handleGoogleSignIn = () => {
-    // Redirect to your backend endpoint that handles Google OAuth
     window.location.href = `https://ajs-server.hostdonor.com/api/v1/auth/google?role=${userType}`;
   };
 
@@ -121,8 +139,10 @@ const SignInPage = () => {
   };
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
     <div className="md:flex">
+      <Suspense fallback={<div>Loading...</div>}>
+        <HandleSearchParams />
+      </Suspense>
       <div
         className="hidden md:flex md:w-1/2 w-full min-h-screen bg-cover bg-center"
         style={{ backgroundImage: "url('/images/signupimage.png')" }}
@@ -599,7 +619,6 @@ const SignInPage = () => {
         </div>
       </div>
     </div>
-    </Suspense>
   );
 };
 
