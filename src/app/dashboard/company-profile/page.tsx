@@ -29,6 +29,7 @@ interface CompanyData {
   companyLogo: string;
 }
 
+
 const Profile = () => {
   const dispatch: AppDispatch = useDispatch();
   const { company } = useSelector((state: RootState) => state.companyProfile);

@@ -170,7 +170,7 @@ const AllCompaniesData = () => {
       </TableCell>
 
       <TableCell>
-        <div className="border rounded-full py-3 flex justify-center text-signature border-blue">
+        <div className="border rounded-full py-3 flex justify-center text-signature border-signature">
           {company.matched}
         </div>
       </TableCell>
@@ -195,7 +195,7 @@ const AllCompaniesData = () => {
               <RiDeleteBin5Line size={20} />
             </div>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className="sm:max-w-[425px] p-3">
             <DialogHeader>
               <DialogTitle>Delete Company</DialogTitle>
               <DialogDescription>

@@ -106,7 +106,7 @@ const JobListings: React.FC<JobListingsProps> = ({ jobs, totalJobs, origin, onAc
                         e.preventDefault();
                         handleAcceptClick(job._id);
                       }}
-                      className="text-white bg-signature md:px-10 md:py-5 py-3 px-4"
+                      className="text-background bg-signature md:px-10 md:py-5 py-3 px-4"
                     >
                       Accept
                     </Button>
@@ -115,7 +115,7 @@ const JobListings: React.FC<JobListingsProps> = ({ jobs, totalJobs, origin, onAc
                         e.preventDefault();
                         handleRejectClick(job._id);
                       }}
-                      className="text-white bg-red-500 md:px-10 md:py-5 py-3 px-4"
+                      className="text-background bg-red-500 md:px-10 md:py-5 py-3 px-4"
                     >
                       Reject
                     </Button>

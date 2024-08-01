@@ -9,7 +9,7 @@ interface UserInfo {
     email: string;
     role: string;
     createdAt: string;
-    updatedAt: string;
+    updatedAt: string; 
     __v: number;
 }
 

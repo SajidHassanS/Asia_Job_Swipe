@@ -11,7 +11,7 @@ const Discord = () => {
         <div className='md:flex items-center'>
             <div className=' w-full md:w-1/2'>
             <div className='flex items-center  gap-5'>
-            <div className='p-5 border rounded-full bg-discordbg'><BsDiscord size={60} color='white' /></div>
+            <div className='p-5 border rounded-full bg-discordbg text-background'><BsDiscord size={60}   /></div>
             <div className=''>
             <h1 className='text-3xl font-bold text-modaltext'>Discord</h1>
             <div className=' justify-start'>

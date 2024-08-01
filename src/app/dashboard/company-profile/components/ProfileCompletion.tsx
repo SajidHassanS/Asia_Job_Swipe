@@ -136,7 +136,7 @@ const ProfileCompletion: React.FC<ProfileCompletionProps> = ({ company, token, o
       <div className="flex gap-4 items-center rounded-tr-[20px] rounded-tl-[20px] bg-gradient-to-tr from-blue to-blue/20 p-5 relative">
         <div className="w-1/3 md:relative">
           <div
-            className="md:absolute border-8 rounded-full border-white md:left-[40px] md:top-[10px] w-24 h-24 md:w-36 md:h-36 overflow-hidden cursor-pointer bg-gray-300 flex items-center justify-center text-white text-2xl"
+            className="md:absolute border-8 rounded-full border-background md:left-[40px] md:top-[10px] w-24 h-24 md:w-36 md:h-36 overflow-hidden cursor-pointer bg-gray-300 flex items-center justify-center text-background text-2xl"
             onClick={handleImageClick}
           >
             {profileImage ? (

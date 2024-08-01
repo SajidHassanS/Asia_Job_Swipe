@@ -77,7 +77,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ isDialogOpen, setIsDialogOpen
             <DropdownMenuLabel>{jobSeeker?.email}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <Link href="/myprofile">
-              <DropdownMenuItem className="gap-2 hover:text-blue-500 transition-colors cursor-pointer">
+              <DropdownMenuItem className="gap-2 hover:text-signature transition-colors cursor-pointer">
                 Profile Settings
               </DropdownMenuItem>
             </Link>

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../../store';
-import { sendForgotPasswordOTP, verifyOTP, resetPassword, signIn } from '../../store/slices/authSlice';
+import { sendForgotPasswordOTP, verifyOTP, resetPassword } from '@/store/slices/authSlice'; // Removed signIn import
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -70,8 +70,10 @@ const ForgotPasswordPage: React.FC = () => {
     setMessage('');
     try {
       await dispatch(resetPassword({ email, otp, newPassword })).unwrap();
-      await dispatch(signIn({ email, password: newPassword, userType: 'jobSeeker' })).unwrap(); // Adjust userType as needed
-      router.push('/');
+      setMessage('Password updated successfully. Redirecting to sign-in...');
+      setTimeout(() => {
+        router.push('/signin'); // Redirect to sign-in page
+      }, 2000);
     } catch (error) {
       setMessage('Failed to reset password. Please try again.');
     }

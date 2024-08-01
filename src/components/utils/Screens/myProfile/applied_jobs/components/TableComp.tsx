@@ -68,7 +68,7 @@ const TableComp: React.FC = () => {
 
   const getRowClass = (index: number) => {
     if (selectedRow === index) {
-      return 'bg-signature border-blue text-background';
+      return 'bg-signature border-signature text-background';
     } else {
       return index % 2 === 0 ? 'bg-muted' : 'bg-background';
     }

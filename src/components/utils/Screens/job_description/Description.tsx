@@ -2,8 +2,8 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'next/navigation';
-import { AppDispatch, RootState } from '../../../../store';
-import { fetchJobById } from '../../../../store/slices/jobSlice';
+import { AppDispatch, RootState } from '@/store';
+import { fetchJobById } from '@/store/slices/jobSlice';
 import { Button } from '@/components/ui/button';
 import { CiCircleCheck } from 'react-icons/ci';
 import Image from 'next/image';
@@ -49,7 +49,6 @@ const JobDescription = () => {
       case "Full-Time":
         return "bg-signature text-background";
       case "Marketing":
-        return " ";
       case "Design":
         return " ";
       default:
@@ -65,7 +64,7 @@ const JobDescription = () => {
           <div className="bg-gray-100 py-3 md:py-10">
             <div className="mx-3 md:container">
               <div className="">
-                <Card className="my-5 bg-white p-4">
+                <Card className="my-5 bg-background p-4">
                   <div className="flex justify-between mb-5 md:mb-2">
                     <div className="flex items-center">
                       <Image
@@ -89,7 +88,7 @@ const JobDescription = () => {
                     </div>
                     <div className="md:mt-3">
                       <div className="md:hidden mb-2 flex justify-end">
-                        <IoShareSocialOutline className="text-blue-500" size={20} />
+                        <IoShareSocialOutline className="text-signature" size={20} />
                       </div>
                       <p className="md:text-xl text-md font-bold">${job.salary.from} - ${job.salary.to} USD / {job.jobType}</p>
                     </div>
@@ -154,7 +153,7 @@ const JobDescription = () => {
                 <div className="">
                   <h1 className="text-3xl font-bold text-modaltext pb-5">Categories</h1>
                   <div className="flex gap-3">
-                    <Button className="bg-yellowBg text-base text-yellow rounded-[20px]">{job.sector}</Button>
+                    <Button className="bg-yellowBg text-base text-yellow rounded-[20px]">{job.company.sector}</Button>
                   </div>
                   <hr className="border-hrline my-6" />
                 </div>

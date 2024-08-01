@@ -1,8 +1,9 @@
-"use client";
+"use client"
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../store";
-import { signIn, clearErrors, loginCompanyRole, googleSignIn } from "../../store/slices/authSlice";
+import { signInJobSeeker, signInCompany, clearErrors, loginCompanyRole ,User } from "../../store/slices/authSlice";
+import { AsyncThunk, ThunkDispatch } from "@reduxjs/toolkit"; // Import necessary types from Redux Toolkit
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -59,14 +60,6 @@ const SignInPage = () => {
     }
   }, [auth?.user, router, auth.role, roleError]);
 
-  useEffect(() => {
-    // Extract any session or status information from the URL if needed
-    // For example, if the backend redirects back with a session token or status
-
-    // You might want to clear any specific query parameters after processing them
-    // For example: router.replace(router.pathname);
-  }, [dispatch, searchParams, router]);
-
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
@@ -75,28 +68,40 @@ const SignInPage = () => {
     dispatch(clearErrors());
     setRoleError(null);
     try {
-      const action = userType === 'companyRole' ? loginCompanyRole : signIn;
-      const response = await dispatch(action({ email, password, userType })).unwrap();
-  
-      if (response.role !== userType && userType !== 'companyRole') {
-        setRoleError("Unauthorized: role mismatch");
-        return;
+      let action: AsyncThunk<User, { email: string; password: string }, { rejectValue: AuthError[] }> | undefined;
+      if (userType === 'jobSeeker') {
+        action = signInJobSeeker;
+      } else if (userType === 'company') {
+        action = signInCompany;
+      } else if (userType === 'companyRole') {
+        action = loginCompanyRole; // Assuming this is already defined for company roles
       }
-  
-      if (rememberMe) {
-        localStorage.setItem("rememberedEmail", email);
-        localStorage.setItem("rememberedPassword", password);
-      } else {
-        localStorage.removeItem("rememberedEmail");
-        localStorage.removeItem("rememberedPassword");
-      }
-  
-      if (response) {
-        if (userType === "company" || userType === "companyRole") {
-          router.push("/dashboard");
-        } else {
-          router.push("/");
+
+      if (action) {
+        const response = await dispatch(action({ email, password })).unwrap();
+
+        if (response.role !== userType && userType !== 'companyRole') {
+          setRoleError("Unauthorized: role mismatch");
+          return;
         }
+
+        if (rememberMe) {
+          localStorage.setItem("rememberedEmail", email);
+          localStorage.setItem("rememberedPassword", password);
+        } else {
+          localStorage.removeItem("rememberedEmail");
+          localStorage.removeItem("rememberedPassword");
+        }
+
+        if (response) {
+          if (userType === "company" || userType === "companyRole") {
+            router.push("/dashboard");
+          } else {
+            router.push("/");
+          }
+        }
+      } else {
+        console.error("Invalid userType or action is undefined");
       }
     } catch (error) {
       // Errors are already handled in the Redux slice

@@ -60,7 +60,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({ formData, setFormData
   };
 
   return (
-    <div className="border rounded-[20px] py-6 px-5 bg-white shadow-md">
+    <div className="border rounded-[20px] py-6 px-5 bg-background shadow-md">
       <div className="flex justify-between">
         <h1 className="text-modaltext text-2xl font-semibold">Personal Details</h1>
         <FaRegEdit className="text-signature border rounded-lg p-2 cursor-pointer" size={40} onClick={() => setIsEditing(true)} />

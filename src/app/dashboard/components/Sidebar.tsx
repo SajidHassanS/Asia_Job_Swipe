@@ -39,7 +39,7 @@ const Sidebar = () => {
             </Link>
           ))}
 
-          <div className="text-black border-t border-blue"></div>
+          <div className="text-black border-t border-signature"></div>
 
           <Link href={`${dashboardPath}/post-job`}>
             <Button variant="outline" className="flex gap-5 justify-start w-full rounded-xl text-background py-7 bg-darkGrey">

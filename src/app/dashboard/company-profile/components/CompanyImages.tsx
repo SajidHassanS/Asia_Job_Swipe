@@ -193,7 +193,7 @@ const CompanyImages: React.FC<CompanyImagesProps> = ({ companyImages, onUpdate }
                   <div key={index} className="relative" onClick={() => handleImageClick(image)}>
                     <Image src={image} alt="Company Image" width={150} height={150} className="rounded cursor-pointer" />
                     <Button
-                      className="absolute top-0 right-0 p-1 bg-blue-500 rounded-full text-red-600 font-bold"
+                      className="absolute top-0 right-0 p-1 bg-signature rounded-full text-red-600 font-bold"
                       onClick={(e) => { e.stopPropagation(); confirmRemoveImage(index); }}
                     >
                       ✕
@@ -218,7 +218,7 @@ const CompanyImages: React.FC<CompanyImagesProps> = ({ companyImages, onUpdate }
           <div key={index} className="relative" onClick={() => handleImageClick(image)}>
             <Image src={image} alt="Company Image" width={150} height={150} className="rounded cursor-pointer" />
             <Button
-              className="absolute top-0 right-0 p-1 bg-blue-500 rounded-full text-red-600 font-bold"
+              className="absolute top-0 right-0 p-1 bg-signature rounded-full text-red-600 font-bold"
               onClick={(e) => { e.stopPropagation(); confirmRemoveImage(index); }}
             >
               ✕

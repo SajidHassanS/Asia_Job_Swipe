@@ -97,7 +97,7 @@ const HeroSection = () => {
 
           <div className="">
             {jobs.map((job) => (
-              <Card className="my-5 bg-white p-4" key={job.id}>
+              <Card className="my-5 bg-background p-4" key={job.id}>
                 <div className="flex justify-between mb-5 md:mb-2">
                   <div className="flex items-center">
                     <Image
@@ -124,7 +124,7 @@ const HeroSection = () => {
                   <div className="md:mt-3">
                     <div className="md:hidden mb-2 flex justify-end">
                       <IoShareSocialOutline
-                        className="text-blue-500"
+                        className="text-signature"
                         size={20}
                       />
                     </div>
@@ -157,9 +157,9 @@ const HeroSection = () => {
                           Apply
                         </Button>
                       </DialogTrigger>
-                      <DialogContent className="bg-white overflow-y-auto w-full max-h-full pb-32 mb-16">
+                      <DialogContent className="bg-background overflow-y-auto w-full max-h-full pb-32 mb-16">
                         <DialogHeader className="bg-green-500 px-8 py-4 rounded-lg flex justify-center text-center">
-                          <DialogTitle className="text-white text-center text-3xl">
+                          <DialogTitle className="text-background text-center text-3xl">
                             Review your Information
                           </DialogTitle>
                         </DialogHeader>
@@ -211,7 +211,7 @@ const HeroSection = () => {
                                 By sending the request you confirm that you accept our <a href="#" className="text-green-500">Terms of Service</a> and <a href="#" className="text-green-500">Privacy Policy</a>.
                               </label>
                             </div>
-                            <button type="submit" className="w-full py-2 px-4 bg-green-500 text-white rounded hover:bg-green-600">
+                            <button type="submit" className="w-full py-2 px-4 bg-green-500 text-background rounded hover:bg-green-600">
                               Submit Application
                             </button>
                           </form>

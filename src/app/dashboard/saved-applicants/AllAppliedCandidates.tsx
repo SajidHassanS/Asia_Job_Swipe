@@ -102,7 +102,7 @@ const AllShortlistedApplications = () => {
               <RiDeleteBin5Line size={20} />
             </div>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className="sm:max-w-[425px] p-3">
             <DialogHeader>
               <DialogTitle>Delete Application</DialogTitle>
               <DialogDescription>

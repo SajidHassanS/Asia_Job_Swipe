@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import Image from "next/image";
 import MessageListener from "@/services/MessageListener";
+import { Chat, User } from "@/store/slices/messageSlice"; // Import types
 
 const MessageList = () => {
   const dispatch: AppDispatch = useDispatch();
@@ -25,7 +26,7 @@ const MessageList = () => {
 
   const accessToken = typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
   const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
-  const userId = userInfo._id;
+  const userId: string = userInfo._id;
 
   useEffect(() => {
     if (accessToken) {
@@ -37,9 +38,9 @@ const MessageList = () => {
 
   useEffect(() => {
     if (selectedChat && accessToken) {
-      const chat = chats.find((chat) => chat._id === selectedChat);
+      const chat = chats.find((chat: Chat) => chat._id === selectedChat);
       if (chat) {
-        const receiver = chat.users.find((user) => user._id !== userId);
+        const receiver = chat.users?.find((user: User) => user._id !== userId);
         if (receiver) {
           console.log("Dispatching fetchMessages action for receiverId:", receiver._id);
           dispatch(fetchMessages({ receiverId: receiver._id, token: accessToken }))
@@ -69,8 +70,8 @@ const MessageList = () => {
 
   const handleSendMessage = () => {
     if (selectedChat && newMessage.trim() !== "" && accessToken) {
-      const chat = chats.find((chat) => chat._id === selectedChat);
-      const receiver = chat?.users.find((user) => user._id !== userId);
+      const chat = chats.find((chat: Chat) => chat._id === selectedChat);
+      const receiver = chat?.users?.find((user: User) => user._id !== userId);
 
       if (!receiver) {
         console.error("Receiver not found for the selected chat.");
@@ -84,7 +85,7 @@ const MessageList = () => {
       };
 
       console.log("Sending message to:", messageToSend.receiverId);
-      dispatch(sendMessage(messageToSend) as any)
+      dispatch(sendMessage(messageToSend))
         .unwrap()
         .then(() => {
           setNewMessage("");
@@ -105,7 +106,7 @@ const MessageList = () => {
     }
   };
 
-  const getUserProfilePicture = (user) => {
+  const getUserProfilePicture = (user: User | undefined) => {
     console.log("getUserProfilePicture called with user:", user);
     if (!user) return '/images/profilepics.png';
     const profilePicture = user.profilePicture || user.companyLogo || '/images/profilepics.png';
@@ -113,22 +114,22 @@ const MessageList = () => {
     return profilePicture;
   };
 
-  const getUserName = (user) => {
+  const getUserName = (user: User | undefined) => {
     if (!user) return '';
     return user.firstName || user.companyName || '';
   };
 
-  const filteredChats = (chats || []).filter((chat) =>
-    chat.users.some(
-      (user) =>
+  const filteredChats = (chats || []).filter((chat: Chat) =>
+    chat.users?.some(
+      (user: User) =>
         user.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.companyName?.toLowerCase().includes(searchTerm.toLowerCase())
     )
   );
 
-  const getMessageUser = (chatUsers, userId) => {
-    return chatUsers.find((user) => user._id === userId);
+  const getMessageUser = (chatUsers: User[] | undefined, userId: string) => {
+    return chatUsers?.find((user: User) => user._id === userId);
   };
 
   return (
@@ -154,8 +155,8 @@ const MessageList = () => {
               <p className="text-lg text-signature opacity-70">Loading Chats...</p>
             </div>
           ) : filteredChats.length > 0 ? (
-            filteredChats.map((chat) => {
-              const user = chat.users.find((user) => user._id !== userId);
+            filteredChats.map((chat: Chat) => {
+              const user = chat.users?.find((user: User) => user._id !== userId);
               console.log("Chat User: ", user); // Debugging log to check user data
               return (
                 <li
@@ -218,8 +219,8 @@ const MessageList = () => {
                       src={
                         getUserProfilePicture(
                           chats
-                            .find((chat) => chat._id === selectedChat)
-                            ?.users.find((user) => user._id !== userId)
+                            .find((chat: Chat) => chat._id === selectedChat)
+                            ?.users?.find((user: User) => user._id !== userId)
                         )
                       }
                       alt="avatar"
@@ -237,8 +238,8 @@ const MessageList = () => {
                           src={
                             getUserProfilePicture(
                               chats
-                                .find((chat) => chat._id === selectedChat)
-                                ?.users.find((user) => user._id !== userId)
+                                .find((chat: Chat) => chat._id === selectedChat)
+                                ?.users?.find((user: User) => user._id !== userId)
                             )
                           }
                           alt="Profile Picture"
@@ -260,11 +261,11 @@ const MessageList = () => {
                 </Dialog>
                 <p className="font-semibold text-base">
                   {getUserName(
-                    chats.find((chat) => chat._id === selectedChat)
-                      ?.users.find((user) => user._id !== userId)
+                    chats.find((chat: Chat) => chat._id === selectedChat)
+                      ?.users?.find((user: User) => user._id !== userId)
                   )}{" "}
-                  {chats.find((chat) => chat._id === selectedChat)
-                    ?.users.find((user) => user._id !== userId)?.lastName || ""}
+                  {chats.find((chat: Chat) => chat._id === selectedChat)
+                    ?.users?.find((user: User) => user._id !== userId)?.lastName || ""}
                 </p>
               </div>
               <div>
@@ -337,7 +338,7 @@ const MessageList = () => {
                 <ul>
                   {messages.map((msg) => {
                     const isSender = msg.sender === userId;
-                    const chat = chats.find((chat) => chat._id === selectedChat);
+                    const chat = chats.find((chat: Chat) => chat._id === selectedChat);
                     const sender = getMessageUser(chat?.users, msg.sender);
                     const receiver = getMessageUser(chat?.users, msg.receiver);
 
@@ -360,7 +361,7 @@ const MessageList = () => {
                             className={`h-10 w-10 rounded-full ${isSender ? 'ml-2' : 'mr-2'}`}
                             onError={(e) => (e.currentTarget.src = '/images/profilepics.png')}
                           />
-                          <div className={`p-2 rounded-lg ${isSender ? 'bg-blue text-white' : 'bg-gray-200 text-black'}`}>
+                          <div className={`p-2 rounded-lg ${isSender ? 'bg-signature text-background' : 'bg-gray-200 text-black'}`}>
                             <p>{msg.message}</p>
                             <span className="text-xs text-gray-500">{new Date(msg.createdAt).toLocaleTimeString()}</span>
                           </div>
@@ -391,7 +392,7 @@ const MessageList = () => {
                 />
                 <button
                   onClick={handleSendMessage}
-                  className="ml-2 px-4 py-2 bg-blue text-white rounded"
+                  className="ml-2 px-4 py-2 bg-blue text-background rounded"
                 >
                   Send
                 </button>

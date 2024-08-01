@@ -379,7 +379,7 @@ const SignUpForm: React.FC = () => {
 
       {showCompletionModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-8 rounded-lg shadow-lg">
+          <div className="bg-background p-8 rounded-lg shadow-lg">
             <h2 className="text-2xl mb-4">Complete Your Profile</h2>
             <p className="mb-4">Would you like to complete your profile now or skip for later?</p>
             <div className="flex justify-between">

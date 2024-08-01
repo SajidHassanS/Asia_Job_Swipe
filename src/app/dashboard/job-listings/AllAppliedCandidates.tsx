@@ -71,11 +71,11 @@ const AllCompaniesData = () => {
       <TableCell className="flex items-center gap-2">
         <Dialog>
           <DialogTrigger asChild>
-            <div className="cursor-pointer p-3 rounded-xl text-blue-500 hover:text-blue-700 transition-colors">
+            <div className="cursor-pointer p-3 rounded-xl text-signature hover:text-blue-700 transition-colors">
               <FaEdit size={20} />
             </div>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className="sm:max-w-[425px] p-3">
             <DialogHeader>
               <DialogTitle>Edit Job</DialogTitle>
               <DialogDescription>
@@ -96,7 +96,7 @@ const AllCompaniesData = () => {
               <RiDeleteBin5Line size={20} />
             </div>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className="sm:max-w-[425px] p-3">
             <DialogHeader>
               <DialogTitle>Delete Job</DialogTitle>
               <DialogDescription>

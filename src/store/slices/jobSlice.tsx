@@ -5,7 +5,7 @@ import { Job, JobState, SavedJob } from './types';
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://ajs-server.hostdonor.com/api/v1';
 
 const getAuthData = () => {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+  const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null; 
   return token;
 };
 

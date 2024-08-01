@@ -98,7 +98,7 @@ const ProfileCompletion: React.FC<ProfileCompletionProps> = ({ formData, setForm
       <div className="flex gap-4 items-center rounded-tr-[20px] rounded-tl-[20px] p-5 bg-darkGrey relative">
         <div className="w-1/3 md:relative">
           <div
-            className="md:absolute border-8 rounded-full border-white md:left-[40px] md:top-[10px] w-24 h-24 md:w-36 md:h-36 overflow-hidden cursor-pointer"
+            className="md:absolute border-8 rounded-full border-background md:left-[40px] md:top-[10px] w-24 h-24 md:w-36 md:h-36 overflow-hidden cursor-pointer"
             onClick={handleImageClick}
           >
             <Image
@@ -118,7 +118,7 @@ const ProfileCompletion: React.FC<ProfileCompletionProps> = ({ formData, setForm
           </div>
         </div>
         <div className="md:w-2/3 w-full md:py-10">
-          <div className="flex text-white justify-between">
+          <div className="flex text-background justify-between">
             <div>
               <h1>Profile Completion</h1>
             </div>
@@ -158,7 +158,7 @@ const ProfileCompletion: React.FC<ProfileCompletionProps> = ({ formData, setForm
             <div>
               <Dialog open={isEditing} onOpenChange={setIsEditing}>
                 <DialogTrigger asChild>
-                  <Button className="text-blue" variant="outline" onClick={() => setIsEditing(true)}>
+                  <Button className="text-signature" variant="outline" onClick={() => setIsEditing(true)}>
                     Edit Profile
                   </Button>
                 </DialogTrigger>

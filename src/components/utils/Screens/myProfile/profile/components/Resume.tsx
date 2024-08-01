@@ -68,7 +68,7 @@ const Resume = () => {
   };
 
   return (
-    <div className="border rounded-[20px] py-6 px-5 bg-white shadow-md">
+    <div className="border rounded-[20px] py-6 px-5 bg-background shadow-md">
       <div className="flex justify-between">
         <h1 className="text-modaltext text-2xl font-semibold">Resume/CV</h1>
         <CiSquarePlus

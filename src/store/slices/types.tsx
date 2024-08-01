@@ -4,7 +4,7 @@ export interface Company {
   city: string;
   province: string;
   country: string;
-  sector: string;
+  sector: string; 
 }
 
 export interface Salary {

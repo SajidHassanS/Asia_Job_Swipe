@@ -236,7 +236,7 @@ const JobListings: React.FC<JobListingsProps> = ({ jobs, totalJobs, origin }) =>
                               handleApplyClick(job._id);
                             }}
                             disabled={hasAppliedForJob(job._id)}
-                            className={`text-white md:px-10 md:py-5 py-3 px-4 ${hasAppliedForJob(job._id) ? "bg-sky-200" : "bg-signature"
+                            className={`text-background md:px-10 md:py-5 py-3 px-4 ${hasAppliedForJob(job._id) ? "bg-sky-200" : "bg-signature"
                               }`}
                           >
                             {hasAppliedForJob(job._id) ? "Applied" : "Apply Now"}

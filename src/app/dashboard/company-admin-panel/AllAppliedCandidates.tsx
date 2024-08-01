@@ -135,7 +135,7 @@ const AllCompaniesData = () => {
         </TableCell>
 
         <TableCell>
-          <div className="border rounded-full py-3 flex justify-center text-signature border-blue">
+          <div className="border rounded-full py-3 flex justify-center text-signature border-signature">
             {/* Add the matched percentage or other info if available */}
           </div>
         </TableCell>
@@ -182,7 +182,7 @@ const AllCompaniesData = () => {
       <PaginationComponent page={page} pagination={pagination} changePage={setPage} />
 
       <Dialog open={isShortlistDialogOpen} onOpenChange={setIsShortlistDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px] p-3">
           <DialogHeader>
             <DialogTitle>Shortlist Application</DialogTitle>
             <DialogDescription>
@@ -201,7 +201,7 @@ const AllCompaniesData = () => {
       </Dialog>
 
       <Dialog open={isRejectDialogOpen} onOpenChange={setIsRejectDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px] p-3">
           <DialogHeader>
             <DialogTitle>Reject Application</DialogTitle>
             <DialogDescription>

@@ -144,7 +144,7 @@ const Projects = () => {
   };
 
   return (
-    <div className="border rounded-[20px] py-6 px-5 bg-white shadow-md">
+    <div className="border rounded-[20px] py-6 px-5 bg-background shadow-md">
       <div className="flex justify-between mb-5">
         <h1 className="text-modaltext text-2xl font-semibold">Projects</h1>
         <CiSquarePlus className="text-signature border rounded-lg p-2 cursor-pointer" size={40} onClick={handleAddClick} />

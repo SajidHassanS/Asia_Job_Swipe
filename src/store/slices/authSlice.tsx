@@ -1,12 +1,13 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-interface User {
+export interface User {
   _id: string;
   email: string;
   firstName: string;
   lastName: string;
   role?: string;
+  [key: string]: any;
 }
 
 interface AuthState {
@@ -152,16 +153,41 @@ export const logout = createAsyncThunk<void, void, { rejectValue: AuthError[] }>
   }
 );
 
-export const signIn = createAsyncThunk<User, { email: string; password: string; userType: string }, { rejectValue: AuthError[] }>(
-  'auth/login',
-  async ({ email, password, userType }, { rejectWithValue }) => {
+export const signInJobSeeker = createAsyncThunk<User, { email: string; password: string }, { rejectValue: AuthError[] }>(
+  'auth/loginJobSeeker',
+  async ({ email, password }, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${API_URL}/auth/login`, { email, password });
+      const response = await axios.post(`${API_URL}/auth/login/job-seeker`, { email, password });
       const user = response.data.user;
 
-      if (user.userInfo.role !== userType) {
-        return rejectWithValue([{ path: 'userType', message: 'Unauthorized: role mismatch' }]);
+      localStorage.setItem('accessToken', response.data.accessToken);
+      localStorage.setItem('refreshToken', response.data.refreshToken);
+      localStorage.setItem('role', user.userInfo.role);
+      localStorage.setItem('_id', user._id);
+      localStorage.setItem('userInfo', JSON.stringify({ ...user.userInfo, firstName: user.firstName, lastName: user.lastName }));
+
+      return { ...user.userInfo, _id: user._id, firstName: user.firstName, lastName: user.lastName };
+    } catch (error: any) {
+      if (axios.isAxiosError(error) && error.response) {
+        if (error.response.data.errors) {
+          return rejectWithValue(error.response.data.errors);
+        }
+        if (error.response.data.message) {
+          return rejectWithValue([{ path: 'unknown', message: error.response.data.message }]);
+        }
       }
+      return rejectWithValue([{ path: 'unknown', message: 'An unknown error occurred' }]);
+    }
+  }
+);
+
+// For Companies
+export const signInCompany = createAsyncThunk<User, { email: string; password: string }, { rejectValue: AuthError[] }>(
+  'auth/loginCompany',
+  async ({ email, password }, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(`${API_URL}/auth/login/company`, { email, password });
+      const user = response.data.user;
 
       localStorage.setItem('accessToken', response.data.accessToken);
       localStorage.setItem('refreshToken', response.data.refreshToken);
@@ -382,17 +408,31 @@ const authSlice = createSlice({
         state.status = 'failed';
         state.errors = action.payload || [{ path: 'unknown', message: 'An unknown error occurred' }];
       })
-      .addCase(signIn.pending, (state: AuthState) => {
+      .addCase(signInJobSeeker.pending, (state: AuthState) => {
         state.status = 'loading';
       })
-      .addCase(signIn.fulfilled, (state: AuthState, action: PayloadAction<User>) => {
+      .addCase(signInJobSeeker.fulfilled, (state: AuthState, action: PayloadAction<User>) => {
         state.status = 'succeeded';
         state.user = action.payload;
         state.role = action.payload.role || null;
         state.errors = [];
         state.jobSeekerId = action.payload.role === 'jobseeker' ? action.payload._id : null;
       })
-      .addCase(signIn.rejected, (state: AuthState, action: PayloadAction<AuthError[] | undefined>) => {
+      .addCase(signInJobSeeker.rejected, (state: AuthState, action: PayloadAction<AuthError[] | undefined>) => {
+        state.status = 'failed';
+        state.errors = action.payload || [{ path: 'unknown', message: 'An unknown error occurred' }];
+      })
+      .addCase(signInCompany.pending, (state: AuthState) => {
+        state.status = 'loading';
+      })
+      .addCase(signInCompany.fulfilled, (state: AuthState, action: PayloadAction<User>) => {
+        state.status = 'succeeded';
+        state.user = action.payload;
+        state.role = action.payload.role || null;
+        state.errors = [];
+        state.jobSeekerId = null; // No jobSeekerId for companies
+      })
+      .addCase(signInCompany.rejected, (state: AuthState, action: PayloadAction<AuthError[] | undefined>) => {
         state.status = 'failed';
         state.errors = action.payload || [{ path: 'unknown', message: 'An unknown error occurred' }];
       })

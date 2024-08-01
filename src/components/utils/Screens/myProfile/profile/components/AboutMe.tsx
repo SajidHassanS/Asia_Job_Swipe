@@ -40,7 +40,7 @@ const AboutMe: React.FC<AboutMeProps> = ({ formData, setFormData, handleSave }) 
           <DialogTrigger asChild>
             <FaRegEdit className="text-signature border rounded-lg p-2 cursor-pointer" size={40} onClick={() => setIsEditing(true)} />
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px] p-6">
+          <DialogContent className="sm:max-w-[425px] p-4">
             <DialogHeader>
               <DialogTitle className="text-3xl font-bold">Edit About Me</DialogTitle>
               <DialogDescription className="text-md text-gray-500">

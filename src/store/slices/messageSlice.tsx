@@ -291,7 +291,7 @@ interface JobApplication {
   jobSeeker: JobSeeker;
 }
 
-interface User {
+export interface User {
   _id: string;
   role: string;
   companyName?: string;
@@ -301,7 +301,7 @@ interface User {
   profilePicture?: string;
 }
 
-interface Chat {
+ export interface Chat {
   _id: string;
   participants: JobSeeker[];
   messages: Message[];
