@@ -3,7 +3,8 @@ import MessageList from './components/MessageList'
 
 const index = () => {
   return (
-   <MessageList/>
+  //  <MessageList/>
+  <h2>hello message</h2>
   )
 }
  
