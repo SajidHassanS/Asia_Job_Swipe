@@ -63,8 +63,8 @@ const AllCompaniesData = () => {
   const [isShortlistDialogOpen, setIsShortlistDialogOpen] = useState(false);
   const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false);
 
-  const token = localStorage.getItem("accessToken");
-  const companyId = localStorage.getItem("_id");
+  const token = typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
+  const companyId = typeof window !== "undefined" ? localStorage.getItem("_id") : null;
 
   const { applications = [], pagination, status, error } = useSelector((state: RootState) => state.appliedApplicant);
 
@@ -118,7 +118,7 @@ const AllCompaniesData = () => {
     const totalExperience = calculateTotalExperience(application.jobSeeker.experience);
 
     return (
-      <>
+      <TableRow key={application._id}>
         <TableCell>
           <div className="flex items-center space-x-2">
             <Checkbox id="terms" />
@@ -126,7 +126,7 @@ const AllCompaniesData = () => {
         </TableCell>
         
         <TableCell className="flex gap-5 items-center">
-        <Link href={`/applicant-profile/${application._id}`} className="flex gap-5 items-center">
+          <Link href={`/applicant-profile/${application._id}`} className="flex gap-5 items-center">
             <div className="w-10 h-10 overflow-hidden rounded-full">
               <Image src={application.jobSeeker.profilePicture} alt={`${application.jobSeeker.firstName} ${application.jobSeeker.lastName}`} width={40} height={40} className="object-cover w-full h-full"/>
             </div>
@@ -165,7 +165,7 @@ const AllCompaniesData = () => {
             <RiDeleteBin5Line size={20} />
           </button>
         </TableCell>
-      </>
+      </TableRow>
     );
   };
 
