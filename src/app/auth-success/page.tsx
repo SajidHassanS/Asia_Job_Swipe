@@ -2,20 +2,21 @@
 
 import React, { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
 const SuccessGoogleContent: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   useEffect(() => {
+    // Ensure this block only runs on the client side
     if (typeof window !== "undefined") {
-      // Get tokens and role from URL
       const accessToken = searchParams.get("accessToken");
       const refreshToken = searchParams.get("refreshToken");
       const role = searchParams.get("role");
 
       if (accessToken && refreshToken && role) {
-        // Set tokens and role in localStorage
+        // Store tokens and role in localStorage
         localStorage.setItem("accessToken", accessToken);
         localStorage.setItem("refreshToken", refreshToken);
         localStorage.setItem("role", role);
@@ -26,11 +27,9 @@ const SuccessGoogleContent: React.FC = () => {
         } else if (role === "jobSeeker") {
           router.push("/");
         } else {
-          // Fallback if role is neither 'company' nor 'jobSeeker'
           router.push("/signin");
         }
       } else {
-        // Handle error or redirect to an error page if tokens or role are missing
         router.push("/signin");
       }
     }
@@ -41,7 +40,9 @@ const SuccessGoogleContent: React.FC = () => {
 
 const SuccessGoogle: React.FC = () => {
   return (
-    <SuccessGoogleContent />
+    <Suspense fallback={<div>Loading...</div>}>
+      <SuccessGoogleContent />
+    </Suspense>
   );
 };
 
