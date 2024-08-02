@@ -25,7 +25,8 @@ const MessageList = () => {
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const accessToken = typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
-  const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
+  const userInfo = typeof window !== "undefined" ? JSON.parse(localStorage.getItem("userInfo") || "{}") : {};
+ 
   const userId: string = userInfo._id;
 
   useEffect(() => {
