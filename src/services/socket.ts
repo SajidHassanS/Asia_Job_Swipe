@@ -1,6 +1,6 @@
 "use client";
 
-import socket from "@/utils/constants"; // Ensure socket is correctly initialized
+import { socket } from "@/utils/constants";  
 import { useEffect } from "react";
 
 const Socket = () => {

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { receiveMessage } from "@/store/slices/messageSlice";
-import socket from "@/utils/constants";
+import {socket} from "@/utils/constants";
 
 const MessageListener = () => {
   const dispatch = useDispatch();

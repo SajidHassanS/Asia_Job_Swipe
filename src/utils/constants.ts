@@ -2,7 +2,9 @@ import { FaSearchMinus } from "react-icons/fa";
 import { IoMdNotificationsOutline } from "react-icons/io";
 import { IoBriefcaseOutline, IoSettingsOutline } from "react-icons/io5";
 import { MdDashboard } from "react-icons/md";
-import { io, Socket } from 'socket.io-client';
+
+import { io } from 'socket.io-client';
+
 import { PiBuildingsFill } from "react-icons/pi";
 import { PiPuzzlePiece } from "react-icons/pi";
 import { FaBriefcase, FaUser, FaBuilding, FaDollarSign } from "react-icons/fa";
@@ -104,20 +106,28 @@ export const statsData: StatsData[] = [
   },
 ];
 
+// socket
 
-let socket: Socket | null = null;
+let userId = null;
 
 if (typeof window !== "undefined") {
   const userInfoStr = localStorage.getItem('userInfo');
   const userInfo = userInfoStr ? JSON.parse(userInfoStr) : {};
-  const userId = userInfo._id || null;
-
-  socket = io(baseUrl, {
-    autoConnect: false,
-    query: { userId: userId || '' },
-  });
-
-  console.log("Socket initialized with user ID:", userId);
+ userId = userInfo._id || null;
 }
+const createSocket = () => {
+  return io(baseUrl, {
+    autoConnect: false,
+    query: { userId: userId || "" },
+    transports: ["websocket", "polling"],
+  });
+};
+export const socket: any = userId ? createSocket() : null;
 
-export default socket;
+
+ 
+
+
+
+  
+
