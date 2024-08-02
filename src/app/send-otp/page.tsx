@@ -13,7 +13,7 @@ import Link from "next/link";
 import { FcGoogle } from "react-icons/fc";
 import { FaArrowLeft } from "react-icons/fa6";
 import { useRouter, useSearchParams } from "next/navigation";
-
+import { useToast } from "@/components/ui/use-toast";
 const SendOTPPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const auth = useSelector((state: RootState) => state.auth);
@@ -25,7 +25,23 @@ const SendOTPPage: React.FC = () => {
   const [messageType, setMessageType] = useState<string>(""); // 'success' or 'error'
   const [timer, setTimer] = useState<number>(0);
   const [canResend, setCanResend] = useState<boolean>(false);
+  const [urlError, setUrlError] = useState<string | null>(null); // Add this line
+  const { toast } = useToast();
   const router = useRouter();
+  const searchParams = useSearchParams(); // Add this line
+
+
+  useEffect(() => {
+    const error = searchParams.get("error");
+    if (error) {
+      const decodedError = decodeURIComponent(error);
+      toast({
+        description: decodedError,
+        duration: 3000, // Duration in milliseconds (3 seconds)
+      });
+    }
+  }, [searchParams, toast]);
+  
 
   const ClientComponent = () => {
     const searchParams = useSearchParams();

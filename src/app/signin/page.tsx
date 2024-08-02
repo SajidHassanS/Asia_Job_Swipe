@@ -21,7 +21,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FaArrowLeft, FaEye, FaEyeSlash } from "react-icons/fa6";
 import { FcGoogle } from "react-icons/fc";
-
+import { useToast } from "@/components/ui/use-toast";
 interface AuthError {
   path: string;
   message: string;
@@ -41,8 +41,12 @@ const HandleSearchParams = () => {
     }
   }, [searchParams, router]);
 
+
+
   return null;
 };
+
+
 
 const SignInPage = () => {
   const [userType, setUserType] = useState("jobSeeker");
@@ -53,7 +57,48 @@ const SignInPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [roleError, setRoleError] = useState<string | null>(null);
+  const [urlError, setUrlError] = useState<string | null>(null); // Add this line
+  const searchParams = useSearchParams();
   const router = useRouter();
+  const { toast } = useToast();
+
+  // useEffect(() => {
+  //   const error = searchParams.get("error");
+  //   if (error) {
+  //     const decodedError = decodeURIComponent(error); 
+  //     toast({
+  //       description: decodedError,
+  //       duration: 10000, // Duration in milliseconds (3 seconds)
+  //       className: "bg-red-500 text-white"
+  //     });
+  //   }
+  // }, [searchParams, toast]);
+  useEffect(() => {
+    // Define a function to show the toast and clear localStorage
+    const showToast = () => {
+      const storedError = localStorage.getItem("authError");
+      if (storedError) {
+        toast({
+          description: storedError,
+          duration: 10000,
+          className: "bg-red-500 text-white",
+        });
+        // Clear the error message from local storage
+        localStorage.removeItem("authError");
+      }
+    };
+  
+    // Show the toast after a slight delay to ensure `toast` is ready
+    setTimeout(showToast, 2000); // You can adjust the delay if necessary
+  
+    // Store error message from URL query params to localStorage
+    const error = searchParams.get("error");
+    if (error) {
+      const decodedError = decodeURIComponent(error);
+      localStorage.setItem("authError", decodedError);
+    }
+  }, [searchParams, toast]);
+  
 
   useEffect(() => {
     const savedEmail = localStorage.getItem("rememberedEmail");
@@ -175,6 +220,9 @@ const SignInPage = () => {
                       <FcGoogle size={25} className="mr-2" /> Sign In with
                       Google
                     </Button>
+                    {/* {urlError && (
+                      <p className="text-center mt-4 text-red-500">{urlError}</p>
+                    )} */}
                   </CardDescription>
                   <CardDescription>
                     <div className="flex items-center justify-center">
@@ -325,6 +373,9 @@ const SignInPage = () => {
                       <FcGoogle size={25} className="mr-2" /> Sign In with
                       Google
                     </Button>
+                    {urlError && (
+                      <p className="text-center mt-4 text-red-500">{urlError}</p>
+                    )}
                   </CardDescription>
                   <CardDescription>
                     <div className="flex items-center justify-center">
