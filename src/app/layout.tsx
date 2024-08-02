@@ -16,8 +16,7 @@ export const metadata: Metadata = {
 import { Toaster } from "@/components/ui/toaster"
 // import Socket from '@/services/socket';
 // import MessageListener from '@/services/MessageListener';
-import Socket from '@/services/socket';
-import MessageListener from '@/services/MessageListener';
+
 
 export default function RootLayout({
   children,
@@ -32,8 +31,8 @@ export default function RootLayout({
           <ReduxProvider>
 
           <AppInitializer />
-          <Socket/>
-      <MessageListener/>
+          {/* <Socket/>
+      <MessageListener/> */}
           <AppDataProvider>
           <ThemeProvider
             attribute="class"
