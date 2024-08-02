@@ -2,7 +2,7 @@ import { FaSearchMinus } from "react-icons/fa";
 import { IoMdNotificationsOutline } from "react-icons/io";
 import { IoBriefcaseOutline, IoSettingsOutline } from "react-icons/io5";
 import { MdDashboard } from "react-icons/md";
-// import { io, Socket } from 'socket.io-client';
+import { io, Socket } from 'socket.io-client';
 import { PiBuildingsFill } from "react-icons/pi";
 import { PiPuzzlePiece } from "react-icons/pi";
 import { FaBriefcase, FaUser, FaBuilding, FaDollarSign } from "react-icons/fa";
@@ -105,19 +105,19 @@ export const statsData: StatsData[] = [
 ];
 
 
-// let socket: Socket | null = null;
+let socket: Socket | null = null;
 
-// if (typeof window !== "undefined") {
-//   const userInfoStr = localStorage.getItem('userInfo');
-//   const userInfo = userInfoStr ? JSON.parse(userInfoStr) : {};
-//   const userId = userInfo._id || null;
+if (typeof window !== "undefined") {
+  const userInfoStr = localStorage.getItem('userInfo');
+  const userInfo = userInfoStr ? JSON.parse(userInfoStr) : {};
+  const userId = userInfo._id || null;
 
-//   socket = io(baseUrl, {
-//     autoConnect: false,
-//     query: { userId: userId || '' },
-//   });
+  socket = io(baseUrl, {
+    autoConnect: false,
+    query: { userId: userId || '' },
+  });
 
-//   console.log("Socket initialized with user ID:", userId);
-// }
+  console.log("Socket initialized with user ID:", userId);
+}
 
-// export default socket;
+export default socket;
