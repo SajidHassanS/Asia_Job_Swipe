@@ -1,6 +1,6 @@
 import Title from "@/components/Title";
 import { Metadata } from "next";
-// import MessageList from './components/MessageList'
+import MessageList from './components/MessageList'
 // import DashboardLayout from "../dashboard/layout";
 export const metadata: Metadata = {
   title: "Messages",
@@ -15,8 +15,7 @@ const MessagesPage = () => {
   title="Messages"
   className="w-full min-h-screen flex flex-col bg-background p-4"
 >
-  <h1>hello</h1>
-{/* <MessageList/>; */}
+<MessageList/>;
 </Title>
   // </DashboardLayout>
   )

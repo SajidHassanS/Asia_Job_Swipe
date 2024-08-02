@@ -34,8 +34,8 @@ const AllJobsData = () => {
       ? "Applicant Profile"
       : activeTab === "resume"
       ? "Resume"
-      // : activeTab === "message"
-      // ? "Message"
+      : activeTab === "message"
+      ? "Message"
       : ""
   }`;
 
@@ -48,7 +48,7 @@ const AllJobsData = () => {
             <main className="my-4 px-4 flex-1">
               {activeTab === "applicant-profile" && <ApplicantProfile />}
               {activeTab === "resume" && <Resume />}
-              {/* {activeTab === "message" && <Message />} */}
+              {activeTab === "message" && <Message />}
             </main>
           </div>
 
