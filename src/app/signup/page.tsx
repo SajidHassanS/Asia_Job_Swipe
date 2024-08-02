@@ -190,46 +190,60 @@ const SignUpForm: React.FC = () => {
                       <span className="text-red-500">{getErrorMessage('email')}</span>
                     )}
                   </div>
-                  <div className="space-y-1 relative">
-                    <Label htmlFor="password" className="text-signininput text-base">Password</Label>
-                    <Input
-                      id="password"
-                      type={showPassword ? 'text' : 'password'}
-                      className="text-signininput3 text-base"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Enter Password"
-                    />
-                    <div
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center top-3 cursor-pointer"
-                      onClick={togglePasswordVisibility}
-                    >
-                      {showPassword ? <FaEye /> : <FaEyeSlash />}
-                    </div>
-                    {getErrorMessage('password') && (
-                      <span className="text-red-500">{getErrorMessage('password')}</span>
-                    )}
-                  </div>
-                  <div className="space-y-1 relative">
-                    <Label htmlFor="confirmPassword" className="text-signininput text-base">Confirm Password</Label>
-                    <Input
-                      id="confirmPassword"
-                      type={showPassword ? 'text' : 'password'}
-                      className="text-signininput3 text-base"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      placeholder="Confirm Password"
-                    />
-                    <div
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center top-5 cursor-pointer"
-                      onClick={togglePasswordVisibility}
-                    >
-                      {showPassword ? <FaEye /> : <FaEyeSlash />}
-                    </div>
-                    {getErrorMessage('confirmPassword') && (
-                      <span className="text-red-500">{getErrorMessage('confirmPassword')}</span>
-                    )}
-                  </div>
+
+{/* eye start */}
+
+
+<div className="space-y-1 relative">
+  <Label htmlFor="password" className="text-signininput text-base">Password</Label>
+  <div className="relative">
+    <Input
+      id="password"
+      type={showPassword ? 'text' : 'password'}
+      className="text-signininput3 text-base w-full pr-10" // Ensure full width and padding
+      value={password}
+      onChange={(e) => setPassword(e.target.value)}
+      placeholder="Enter Password"
+    />
+    <div
+      className="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer"
+      onClick={togglePasswordVisibility}
+    >
+      {showPassword ? <FaEye size={20} /> : <FaEyeSlash size={20} />}
+    </div>
+  </div>
+  {getErrorMessage('password') && (
+    <span className="text-red-500 text-sm mt-1">{getErrorMessage('password')}</span>
+  )}
+</div>
+
+<div className="space-y-1 relative">
+  <Label htmlFor="confirmPassword" className="text-signininput text-base">Confirm Password</Label>
+  <div className="relative">
+    <Input
+      id="confirmPassword"
+      type={showPassword ? 'text' : 'password'}
+      className="text-signininput3 text-base w-full pr-10" // Ensure full width and padding
+      value={confirmPassword}
+      onChange={(e) => setConfirmPassword(e.target.value)}
+      placeholder="Confirm Password"
+    />
+    <div
+      className="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer"
+      onClick={togglePasswordVisibility}
+    >
+      {showPassword ? <FaEye size={20} /> : <FaEyeSlash size={20} />}
+    </div>
+  </div>
+  {getErrorMessage('confirmPassword') && (
+    <span className="text-red-500 text-sm mt-1">{getErrorMessage('confirmPassword')}</span>
+  )}
+</div>
+
+
+
+{/* eyee end */}
+
                   <div>
                     <Button
                       variant="outline"
@@ -299,45 +313,51 @@ const SignUpForm: React.FC = () => {
                     )}
                   </div>
                   <div className="space-y-1 relative">
-                    <Label htmlFor="password" className="text-signininput text-base">Password</Label>
-                    <Input
-                      id="password"
-                      type={showPassword ? 'text' : 'password'}
-                      className="text-signininput3 text-base"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Enter Password"
-                    />
-                    <div
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center top-5 cursor-pointer"
-                      onClick={togglePasswordVisibility}
-                    >
-                      {showPassword ? <FaEye /> : <FaEyeSlash />}
-                    </div>
-                    {getErrorMessage('password') && (
-                      <span className="text-red-500">{getErrorMessage('password')}</span>
-                    )}
-                  </div>
-                  <div className="space-y-1 relative">
-                    <Label htmlFor="confirmPassword" className="text-signininput text-base">Confirm Password</Label>
-                    <Input
-                      id="confirmPassword"
-                      type={showPassword ? 'text' : 'password'}
-                      className="text-signininput3 text-base"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      placeholder="Confirm Password"
-                    />
-                    <div
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
-                      onClick={togglePasswordVisibility}
-                    >
-                      {showPassword ? <FaEye /> : <FaEyeSlash />}
-                    </div>
-                    {getErrorMessage('confirmPassword') && (
-                      <span className="text-red-500">{getErrorMessage('confirmPassword')}</span>
-                    )}
-                  </div>
+  <Label htmlFor="password" className="text-signininput text-base">Password</Label>
+  <div className="relative">
+    <Input
+      id="password"
+      type={showPassword ? 'text' : 'password'}
+      className="text-signininput3 text-base w-full pr-10" // Ensure full width and padding
+      value={password}
+      onChange={(e) => setPassword(e.target.value)}
+      placeholder="Enter Password"
+    />
+    <div
+      className="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer"
+      onClick={togglePasswordVisibility}
+    >
+      {showPassword ? <FaEye size={20} /> : <FaEyeSlash size={20} />}
+    </div>
+  </div>
+  {getErrorMessage('password') && (
+    <span className="text-red-500 text-sm mt-1">{getErrorMessage('password')}</span>
+  )}
+</div>
+
+<div className="space-y-1 relative">
+  <Label htmlFor="confirmPassword" className="text-signininput text-base">Confirm Password</Label>
+  <div className="relative">
+    <Input
+      id="confirmPassword"
+      type={showPassword ? 'text' : 'password'}
+      className="text-signininput3 text-base w-full pr-10" // Ensure full width and padding
+      value={confirmPassword}
+      onChange={(e) => setConfirmPassword(e.target.value)}
+      placeholder="Confirm Password"
+    />
+    <div
+      className="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer"
+      onClick={togglePasswordVisibility}
+    >
+      {showPassword ? <FaEye size={20} /> : <FaEyeSlash size={20} />}
+    </div>
+  </div>
+  {getErrorMessage('confirmPassword') && (
+    <span className="text-red-500 text-sm mt-1">{getErrorMessage('confirmPassword')}</span>
+  )}
+</div>
+
                   <div>
                     <Button
                       variant="outline"

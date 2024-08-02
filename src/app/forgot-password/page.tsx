@@ -2,11 +2,12 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../../store';
-import { sendForgotPasswordOTP, verifyOTP, resetPassword } from '@/store/slices/authSlice'; // Removed signIn import
+import { sendForgotPasswordOTP, verifyOTP, resetPassword } from '@/store/slices/authSlice';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { FaEye, FaEyeSlash } from 'react-icons/fa'; // Import icons
 import { useRouter } from 'next/navigation';
 
 const ForgotPasswordPage: React.FC = () => {
@@ -18,6 +19,8 @@ const ForgotPasswordPage: React.FC = () => {
   const [message, setMessage] = useState<string>('');
   const [timer, setTimer] = useState<number>(60);
   const [resendEnabled, setResendEnabled] = useState<boolean>(false);
+  const [showNewPassword, setShowNewPassword] = useState<boolean>(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
 
@@ -162,27 +165,39 @@ const ForgotPasswordPage: React.FC = () => {
               )}
               {step === 3 && (
                 <>
-                  <div className="space-y-1">
+                  <div className="space-y-1 relative">
                     <Label htmlFor="newPassword" className="text-signininput text-base">New Password</Label>
                     <Input
-                      type="password"
+                      type={showNewPassword ? 'text' : 'password'}
                       id="newPassword"
-                      className="text-signininput3 text-base"
+                      className="text-signininput3 text-base w-full pr-10"
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       placeholder="Enter new password"
                     />
+                    <div
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
+                      onClick={() => setShowNewPassword((prev) => !prev)}
+                    >
+                      {showNewPassword ? <FaEye size={20} /> : <FaEyeSlash size={20} />}
+                    </div>
                   </div>
-                  <div className="space-y-1">
+                  <div className="space-y-1 relative">
                     <Label htmlFor="confirmPassword" className="text-signininput text-base">Confirm Password</Label>
                     <Input
-                      type="password"
+                      type={showConfirmPassword ? 'text' : 'password'}
                       id="confirmPassword"
-                      className="text-signininput3 text-base"
+                      className="text-signininput3 text-base w-full pr-10"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="Confirm new password"
                     />
+                    <div
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
+                      onClick={() => setShowConfirmPassword((prev) => !prev)}
+                    >
+                      {showConfirmPassword ? <FaEye size={20} /> : <FaEyeSlash size={20} />}
+                    </div>
                   </div>
                   <div>
                     <Button

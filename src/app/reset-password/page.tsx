@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { FaEye, FaEyeSlash } from 'react-icons/fa'; // Import eye icons
 
 const ResetPasswordPage: React.FC = () => {
   const [email, setEmail] = useState<string>('');
@@ -15,6 +16,9 @@ const ResetPasswordPage: React.FC = () => {
   const [newPassword, setNewPassword] = useState<string>('');
   const [confirmPassword, setConfirmPassword] = useState<string>('');
   const [message, setMessage] = useState<string>('');
+  const [showNewPassword, setShowNewPassword] = useState<boolean>(false); // State for new password visibility
+  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false); // State for confirm password visibility
+
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
 
@@ -64,28 +68,46 @@ const ResetPasswordPage: React.FC = () => {
                 placeholder="Enter OTP"
               />
             </div>
-            <div className="space-y-1">
-              <Label htmlFor="newPassword" className="text-signininput text-base">New Password</Label>
-              <Input
-                type="password"
-                id="newPassword"
-                className="text-signininput3 text-base"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="Enter new password"
-              />
-            </div>
-            <div className="space-y-1">
-              <Label htmlFor="confirmPassword" className="text-signininput text-base">Confirm Password</Label>
-              <Input
-                type="password"
-                id="confirmPassword"
-                className="text-signininput3 text-base"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Confirm new password"
-              />
-            </div>
+            <div className="space-y-1 relative">
+  <Label htmlFor="newPassword" className="text-signininput text-base">New Password</Label>
+  <div className="relative">
+    <Input
+      type={showNewPassword ? 'text' : 'password'}
+      id="newPassword"
+      className="text-signininput3 text-base w-full pr-10"
+      value={newPassword}
+      onChange={(e) => setNewPassword(e.target.value)}
+      placeholder="Enter new password"
+    />
+    <div
+      className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
+      onClick={() => setShowNewPassword((prev) => !prev)}
+    >
+      {showNewPassword ? <FaEye size={20} /> : <FaEyeSlash size={20} />}
+    </div>
+  </div>
+</div>
+
+<div className="space-y-1 relative">
+  <Label htmlFor="confirmPassword" className="text-signininput text-base">Confirm Password</Label>
+  <div className="relative">
+    <Input
+      type={showConfirmPassword ? 'text' : 'password'}
+      id="confirmPassword"
+      className="text-signininput3 text-base w-full pr-10"
+      value={confirmPassword}
+      onChange={(e) => setConfirmPassword(e.target.value)}
+      placeholder="Confirm new password"
+    />
+    <div
+      className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
+      onClick={() => setShowConfirmPassword((prev) => !prev)}
+    >
+      {showConfirmPassword ? <FaEye size={20} /> : <FaEyeSlash size={20} />}
+    </div>
+  </div>
+</div>
+
             <div>
               <Button
                 variant="outline"

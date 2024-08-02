@@ -3,7 +3,7 @@
 import React, { useState, useEffect, Suspense } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../store";
-import { signInJobSeeker, signInCompany, clearErrors, loginCompanyRole, User } from "../../store/slices/authSlice";
+import { signInJobSeeker, signInCompany, clearErrors /*, loginCompanyRole*/ } from "../../store/slices/authSlice";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -53,7 +53,7 @@ const SignInPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [roleError, setRoleError] = useState<string | null>(null);
-  const router = useRouter(); // Correct placement of useRouter
+  const router = useRouter();
 
   useEffect(() => {
     const savedEmail = localStorage.getItem("rememberedEmail");
@@ -89,14 +89,14 @@ const SignInPage = () => {
         action = signInJobSeeker;
       } else if (userType === 'company') {
         action = signInCompany;
-      } else if (userType === 'companyRole') {
+      } /* else if (userType === 'companyRole') {
         action = loginCompanyRole;
-      }
+      } */
 
       if (action) {
         const response = await dispatch(action({ email, password })).unwrap();
 
-        if (response.role !== userType && userType !== 'companyRole') {
+        if (response.role !== userType /* && userType !== 'companyRole' */) {
           setRoleError("Unauthorized: role mismatch");
           return;
         }
@@ -110,7 +110,7 @@ const SignInPage = () => {
         }
 
         if (response) {
-          if (userType === "company" || userType === "companyRole") {
+          if (userType === "company" /* || userType === "companyRole" */) {
             router.push("/dashboard");
           } else {
             router.push("/");
@@ -156,9 +156,9 @@ const SignInPage = () => {
               <TabsTrigger value="company" className="w-1/3">
                 Employer
               </TabsTrigger>
-              <TabsTrigger value="companyRole" className="w-1/3">
+              {/* <TabsTrigger value="companyRole" className="w-1/3">
                 Company Role
-              </TabsTrigger>
+              </TabsTrigger> */}
             </TabsList>
             <TabsContent value="jobSeeker">
               <Card className="border-none shadow-none">
@@ -460,7 +460,7 @@ const SignInPage = () => {
                 </CardFooter>
               </Card>
             </TabsContent>
-            <TabsContent value="companyRole">
+            {/* <TabsContent value="companyRole">
               <Card className="border-none shadow-none">
                 <CardHeader>
                   <CardTitle className="flex mb-5 justify-center text-darkGrey md:text-3xl">
@@ -609,7 +609,7 @@ const SignInPage = () => {
                   </Button>
                 </CardFooter>
               </Card>
-            </TabsContent>
+            </TabsContent> */}
           </Tabs>
         </div>
       </div>
