@@ -15,6 +15,36 @@ import { FaArrowLeft } from "react-icons/fa6";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 
+// ClientComponent handles the client-side logic for handling URL parameters and routing
+const ClientComponent = () => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      // Check for tokens and role in the URL after Google signup
+      const accessToken = searchParams.get("accessToken");
+      const refreshToken = searchParams.get("refreshToken");
+      const userRole = searchParams.get("role");
+
+      if (accessToken && refreshToken && userRole) {
+        localStorage.setItem("accessToken", accessToken);
+        localStorage.setItem("refreshToken", refreshToken);
+        localStorage.setItem("role", userRole);
+
+        // Redirect based on role
+        if (userRole === "company") {
+          router.push("/dashboard");
+        } else if (userRole === "jobSeeker") {
+          router.push("/");
+        }
+      }
+    }
+  }, [router, searchParams]);
+
+  return null; // This component is only for side effects, no need to render anything
+};
+
 const SendOTPPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const auth = useSelector((state: RootState) => state.auth);
@@ -27,7 +57,7 @@ const SendOTPPage: React.FC = () => {
   const [timer, setTimer] = useState<number>(0);
   const [canResend, setCanResend] = useState<boolean>(false);
   const { toast } = useToast();
-  const router = useRouter(); // Ensure useRouter is used here
+  const router = useRouter();
   const searchParams = useSearchParams();
 
   useEffect(() => {
@@ -67,7 +97,10 @@ const SendOTPPage: React.FC = () => {
       setStep("verifyOTP");
       setMessage("OTP has been sent to your email.");
       setMessageType("success");
-    } else if (Array.isArray(response.payload) && response.payload.some(error => error.message === "User already exists with this email")) {
+    } else if (
+      Array.isArray(response.payload) &&
+      response.payload.some((error) => error.message === "User already exists with this email")
+    ) {
       setMessage("User already exists with this email.");
       setMessageType("error");
     } else {
@@ -102,7 +135,7 @@ const SendOTPPage: React.FC = () => {
       <div className="md:w-1/2 w-full flex items-center justify-center min-h-screen py-8">
         <div className="w-[550px]">
           <Suspense fallback={<div>Loading...</div>}>
-            {/* Place any components that use hooks requiring Suspense here */}
+            <ClientComponent />
           </Suspense>
           <Tabs defaultValue="jobSeeker" className="w-full">
             <TabsList className="flex justify-center w-full mb-4">
