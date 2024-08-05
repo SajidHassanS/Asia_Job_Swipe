@@ -12,6 +12,7 @@ import { MdGridView } from "react-icons/md";
 import Image from "next/image";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toggleSaveJob, fetchJobById, getSavedJobs, applyForJob } from "../../../../store/slices/jobSeekerSlice";
+import { declineJob } from "../../../../store/slices/rejectedSlice";
 import { useToast } from "@/components/ui/use-toast";
 import { Job } from "../../../../store/slices/types";
 
@@ -103,6 +104,34 @@ const JobListings: React.FC<JobListingsProps> = ({ jobs, totalJobs, origin }) =>
             variant: "destructive",
           });
         }
+      }
+    } else {
+      console.error('Missing jobSeekerId or accessToken');
+      toast({
+        title: "Missing Information",
+        description: "Missing jobSeekerId or accessToken",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeclineClick = async (jobId: string) => {
+    const jobSeekerId = getJobSeekerId();
+
+    if (jobSeekerId) {
+      try {
+        await dispatch(declineJob({ jobId, jobSeekerId })).unwrap();
+        toast({
+          title: "Job Declined",
+          description: "You have declined the job successfully.",
+        });
+      } catch (error) {
+        console.error('Failed to decline job:', error);
+        toast({
+          title: "Decline Failed",
+          description: "There was an error declining the job.",
+          variant: "destructive",
+        });
       }
     } else {
       console.error('Missing jobSeekerId or accessToken');
@@ -227,7 +256,7 @@ const JobListings: React.FC<JobListingsProps> = ({ jobs, totalJobs, origin }) =>
                         )}
                       </div>
                     </div>
-                    <div className="flex items-center justify-center">
+                    <div className="flex flex-col gap-3 items-center justify-center">
                       <Dialog>
                         <DialogTrigger asChild>
                           <Button
@@ -251,6 +280,16 @@ const JobListings: React.FC<JobListingsProps> = ({ jobs, totalJobs, origin }) =>
                           </DialogHeader>
                         </DialogContent>
                       </Dialog>
+                      {/* Decline Button */}
+                      <Button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleDeclineClick(job._id);
+                        }}
+                        className="text-background bg-red-500 md:px-10 md:py-5 py-3 px-4 ml-2"
+                      >
+                        Decline
+                      </Button>
                     </div>
                   </div>
                 </div>

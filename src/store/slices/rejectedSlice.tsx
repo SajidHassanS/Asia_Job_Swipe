@@ -74,7 +74,7 @@ export const rejectJobApplication = createAsyncThunk<void, RejectApplicationArgs
     }
   }
 );
-
+ 
 // Async Thunk for fetching declined jobs
 export const getDeclinedJobs = createAsyncThunk<Job[], GetDeclinedJobsArgs>(
   'jobs/getDeclinedJobs',

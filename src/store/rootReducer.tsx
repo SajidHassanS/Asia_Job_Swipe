@@ -19,6 +19,8 @@ import appliedApplicantReducer from './slices/appliedApplicantSlice/appliedAppli
 import messageSliceReducer from './slices/messageSlice'
 import jobOfferReducer from './slices/jobOfferSlice'
 import searchReducer from './slices/searchSlice'
+import rejectedReducer from './slices/rejectedSlice'
+import notificationReducer from './slices/notificationSlice'
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -40,6 +42,8 @@ const rootReducer = combineReducers({
   messageSlice: messageSliceReducer,
   jobOffer: jobOfferReducer,
   search:searchReducer,
+  rejectedSlice:rejectedReducer,
+  notificationSlice:notificationReducer,
 
 });
 

@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 import { Toaster } from "@/components/ui/toaster"
 import Socket from '@/services/socket';
 import MessageListener from '@/services/MessageListener';
-
+import { NotificationProvider } from '@/services/NotificationProvider';
 
 export default function RootLayout({
   children,
@@ -27,23 +27,23 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className} style={{ fontFamily: "'SfUi', sans-serif" }}>
         <SessionProviderWrapper>
-   
           <ReduxProvider>
-
-          <AppInitializer />
-          <Socket/>
-      <MessageListener/>
-          <AppDataProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="light"
-            enableSystem
-            disableTransitionOnChange
-          >
-              {children}
-              <Toaster />
-              </ThemeProvider>
+            <NotificationProvider>
+              <AppInitializer />
+              <Socket />
+              <MessageListener />
+              <AppDataProvider>
+                <ThemeProvider
+                  attribute="class"
+                  defaultTheme="light"
+                  enableSystem
+                  disableTransitionOnChange
+                >
+                  {children}
+                  <Toaster />
+                </ThemeProvider>
               </AppDataProvider>
+            </NotificationProvider>
           </ReduxProvider>
         </SessionProviderWrapper>
       </body>

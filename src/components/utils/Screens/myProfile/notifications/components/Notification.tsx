@@ -1,5 +1,5 @@
-"use client";
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { IoSearch } from "react-icons/io5";
 import { BsDot } from "react-icons/bs";
 import Image from 'next/image';
@@ -8,30 +8,46 @@ import {
   Dialog,
   DialogTrigger,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
 } from "@/components/ui/dialog";
 import { FaRegBellSlash } from "react-icons/fa6";
+import { AppDispatch, RootState } from '@/store';
+import {
+  fetchNotifications,
+  markNotificationAsRead,
+  deleteNotification,
+} from '@/store/slices/notificationSlice';
 
 const Notification = () => {
-  const [messages, setMessages] = useState([
-    { id: 1, name: 'Jan Mayer', time: '12 mins ago', text: 'We want to invite you for a qui...', avatar: '/images/messages/4.png', details: "Here are the details of the notification." },
-    { id: 2, name: 'Joe Bartmann', time: '3:40 PM', text: 'Hey thanks for your interview...', avatar: '/images/messages/2.png', details: "Here are the details of the notification." },
-    // Add more messages here
-  ]);
+  const dispatch = useDispatch<AppDispatch>();
+  const notifications = useSelector((state: RootState) => state.notificationSlice.notifications);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedMessage, setSelectedMessage] = useState<number | null>(null);
+  const [selectedMessage, setSelectedMessage] = useState<string | null>(null);
   const [isProfilePicDialogOpen, setIsProfilePicDialogOpen] = useState(false);
 
-  const handleSelectMessage = (id: number) => {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : '';
+
+  useEffect(() => {
+    if (token) {
+      dispatch(fetchNotifications({ token }));
+    }
+  }, [dispatch, token]);
+
+  const handleSelectMessage = (id: string) => {
     setSelectedMessage(id);
+    if (token) {
+      dispatch(markNotificationAsRead({ id, token }));
+    }
   };
 
-  const filteredMessages = messages.filter(message =>
-    message.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    message.text.toLowerCase().includes(searchTerm.toLowerCase())
+  const handleDeleteNotification = (id: string) => {
+    if (token) {
+      dispatch(deleteNotification({ id, token }));
+    }
+  };
+
+  const filteredMessages = notifications.filter(notification =>
+    notification.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    notification.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -52,22 +68,22 @@ const Notification = () => {
         <ul className="overflow-y-auto h-[calc(100vh-60px)]">
           {filteredMessages.map((message) => (
             <li
-              key={message.id}
-              className={`mb-4 pb-4 border-b flex items-center cursor-pointer ${selectedMessage === message.id ? 'bg-gray-200' : ''}`}
-              onClick={() => handleSelectMessage(message.id)}
+              key={message._id}
+              className={`mb-4 pb-4 border-b flex items-center cursor-pointer ${selectedMessage === message._id ? 'bg-gray-200' : ''}`}
+              onClick={() => handleSelectMessage(message._id)}
             >
-              <img src={message.avatar} alt="avatar" className="mr-2 h-10 w-10 rounded-full cursor-pointer" onClick={() => setIsProfilePicDialogOpen(true)} />
+              <img src={message?.avatar} alt="avatar" className="mr-2 h-10 w-10 rounded-full cursor-pointer" onClick={() => setIsProfilePicDialogOpen(true)} />
               <div>
                 <div className='flex justify-between'>
                   <div className='flex items-center'>
-                    <p className="font-semibold text-base">{message.name}</p>
+                    <p className="font-semibold text-base">{message.title}</p>
                     <BsDot color='blue' />
                   </div>
                   <div>
-                    <span className=" text-sm text-gray-500">{message.time}</span>
+                    <span className=" text-sm text-gray-500">{new Date(message.createdAt).toLocaleString()}</span>
                   </div>
                 </div>
-                <p className="text-base text-gray-500">{message.text}</p>
+                <p className="text-base text-gray-500">{message.description}</p>
               </div>
               <Dialog open={isProfilePicDialogOpen} onOpenChange={setIsProfilePicDialogOpen}>
                 <DialogTrigger asChild>
@@ -86,14 +102,14 @@ const Notification = () => {
         </ul>
       </div>
       <div className="hidden md:flex md:w-2/3 flex-col h-full">
-        {selectedMessage !== null ? (
+        {selectedMessage ? (
           <div className="flex flex-col h-full">
             <div className="flex items-center justify-between p-4 border-b">
               <div className="flex items-center gap-4">
                 <Dialog open={isProfilePicDialogOpen} onOpenChange={setIsProfilePicDialogOpen}>
                   <DialogTrigger asChild>
                     <img
-                      src={messages.find((message) => message.id === selectedMessage)?.avatar}
+                      src={notifications.find((notification) => notification._id === selectedMessage)?.avatar}
                       alt="avatar"
                       className="h-10 w-10 rounded-full cursor-pointer"
                       onClick={() => setIsProfilePicDialogOpen(true)}
@@ -101,17 +117,18 @@ const Notification = () => {
                   </DialogTrigger>
                   <DialogContent className="p-6">
                     <img
-                      src={messages.find((message) => message.id === selectedMessage)?.avatar}
+                      src={notifications.find((notification) => notification._id === selectedMessage)?.avatar}
                       alt="avatar"
                       className="w-full h-full object-cover rounded-lg"
                     />
                   </DialogContent>
                 </Dialog>
-                <p className="font-semibold text-lg">{messages.find((message) => message.id === selectedMessage)?.name}</p>
+                <p className="font-semibold text-lg">{notifications.find((notification) => notification._id === selectedMessage)?.title}</p>
               </div>
+              <Button variant="destructive" onClick={() => handleDeleteNotification(selectedMessage)}>Delete</Button>
             </div>
             <div className="flex-1 p-4 overflow-auto">
-              <p className="text-base text-gray-500">{messages.find((message) => message.id === selectedMessage)?.details}</p>
+              <p className="text-base text-gray-500">{notifications.find((notification) => notification._id === selectedMessage)?.description}</p>
             </div>
           </div>
         ) : (
