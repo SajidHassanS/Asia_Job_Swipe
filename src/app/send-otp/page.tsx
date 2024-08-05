@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState, AppDispatch } from "../../store";
+import { AppDispatch, RootState } from "../../store";
 import { sendOTP, verifyOTP, clearErrors } from "../../store/slices/authSlice";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,36 +14,6 @@ import { FcGoogle } from "react-icons/fc";
 import { FaArrowLeft } from "react-icons/fa6";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
-
-// ClientComponent handles the client-side logic for handling URL parameters and routing
-const ClientComponent = () => {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      // Check for tokens and role in the URL after Google signup
-      const accessToken = searchParams.get("accessToken");
-      const refreshToken = searchParams.get("refreshToken");
-      const userRole = searchParams.get("role");
-
-      if (accessToken && refreshToken && userRole) {
-        localStorage.setItem("accessToken", accessToken);
-        localStorage.setItem("refreshToken", refreshToken);
-        localStorage.setItem("role", userRole);
-
-        // Redirect based on role
-        if (userRole === "company") {
-          router.push("/dashboard");
-        } else if (userRole === "jobSeeker") {
-          router.push("/");
-        }
-      }
-    }
-  }, [router, searchParams]);
-
-  return null; // This component is only for side effects, no need to render anything
-};
 
 const SendOTPPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -134,9 +104,6 @@ const SendOTPPage: React.FC = () => {
       ></div>
       <div className="md:w-1/2 w-full flex items-center justify-center min-h-screen py-8">
         <div className="w-[550px]">
-          <Suspense fallback={<div>Loading...</div>}>
-            <ClientComponent />
-          </Suspense>
           <Tabs defaultValue="jobSeeker" className="w-full">
             <TabsList className="flex justify-center w-full mb-4">
               <TabsTrigger value="jobSeeker" className="w-1/3" onClick={() => setRole("jobSeeker")}>
