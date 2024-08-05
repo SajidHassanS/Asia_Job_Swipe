@@ -198,10 +198,10 @@ const ProfileCompletion: React.FC<ProfileCompletionProps> = ({ formData, setForm
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="w-full max-w-lg p-6">
-                  <DialogHeader>
+                  <DialogHeader>     
                     <DialogTitle className="text-2xl font-bold">Edit Profile</DialogTitle>
                     <DialogDescription className="text-md text-gray-500">
-                      Make changes to your profile here. Click save when you're done.
+                      Make changes to your profile here. Click save when you are done.
                     </DialogDescription>
                   </DialogHeader>
                   <div className="grid gap-4 py-4">
