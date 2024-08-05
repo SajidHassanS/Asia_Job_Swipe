@@ -673,7 +673,7 @@
 
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../store";
 import { signInJobSeeker, signInCompany, clearErrors } from "../../store/slices/authSlice";
@@ -694,23 +694,6 @@ interface AuthError {
   message: string;
 }
 
-const HandleSearchParams: React.FC = () => {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-
-  useEffect(() => {
-    // This effect will run on the client-side only
-    const role = searchParams.get("role");
-    // Handle the role logic or any other logic based on URL parameters
-    if (role) {
-      // Example: redirect based on role
-      router.push(role === "company" ? "/dashboard" : "/");
-    }
-  }, [searchParams, router]);
-
-  return null;
-};
-
 const SignInPage: React.FC = () => {
   const [userType, setUserType] = useState("jobSeeker");
   const dispatch = useDispatch<AppDispatch>();
@@ -720,12 +703,11 @@ const SignInPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [roleError, setRoleError] = useState<string | null>(null);
-  const searchParams = useSearchParams();
   const router = useRouter();
   const { toast } = useToast();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
-    // Show the toast for errors from URL query params
     const showToast = () => {
       const storedError = localStorage.getItem("authError");
       if (storedError) {
@@ -825,9 +807,6 @@ const SignInPage: React.FC = () => {
 
   return (
     <div className="md:flex">
-      <Suspense fallback={<div>Loading...</div>}>
-        <HandleSearchParams />
-      </Suspense>
       <div
         className="hidden md:flex md:w-1/2 w-full min-h-screen bg-cover bg-center"
         style={{ backgroundImage: "url('/images/signupimage.png')" }}
