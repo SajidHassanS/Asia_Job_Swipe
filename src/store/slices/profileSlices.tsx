@@ -35,6 +35,9 @@ interface JobSeeker {
   profilePicture?: string;
   resume?: string;
   resumeUrl : string;
+  resumeUploadDate : string;
+  resumeFileSize : number;
+  company:string;
 }
 
 interface ProfileState {
@@ -167,7 +170,7 @@ export const toggleOpenToOffers = createAsyncThunk<
     const response = await axios.patch(
       `${API_URL}/job-seeker/toggle-open-to-offers/${id}`,
       {},
-      {
+      { 
         headers: {
           Authorization: `Bearer ${token}`,
         },

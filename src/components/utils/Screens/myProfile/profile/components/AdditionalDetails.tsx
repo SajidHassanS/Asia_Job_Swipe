@@ -27,21 +27,21 @@ const AdditionalDetails: React.FC<AdditionalDetailsProps> = ({ formData, setForm
   const [isEditing, setIsEditing] = useState(false);
   const [inputValues, setInputValues] = useState({
     email: formData.email,
-    phone: formData.phone,
+    // phone: formData.phone,
     languages: formData.languages.join(', '),
   });
 
   useEffect(() => {
     setInputValues({
       email: formData.email,
-      phone: formData.phone,
+      // phone: formData.phone,
       languages: formData.languages.join(', '),
     });
   }, [formData]);
 
   const handleSaveClick = () => {
     handleSave({
-      phone: inputValues.phone,
+      // phone: inputValues.phone,
       languages: inputValues.languages.split(',').map(lang => lang.trim()),
     });
     setIsEditing(false);
@@ -70,7 +70,8 @@ const AdditionalDetails: React.FC<AdditionalDetailsProps> = ({ formData, setForm
           </div>
         </div>
       </div>
-      {formData.phone && (
+      {/* Commented out phone section */}
+      {/* {formData.phone && (
         <div className="py-8">
           <div className="flex gap-5">
             <MdPhoneAndroid className="text-signininput4" size={30} />
@@ -80,7 +81,7 @@ const AdditionalDetails: React.FC<AdditionalDetailsProps> = ({ formData, setForm
             </div>
           </div>
         </div>
-      )}
+      )} */}
       <div>
         <div className="flex gap-5">
           <TbLanguage className="text-signininput4" size={30} />
@@ -116,7 +117,8 @@ const AdditionalDetails: React.FC<AdditionalDetailsProps> = ({ formData, setForm
                   disabled
                 />
               </div>
-              <div>
+              {/* Commented out phone input */}
+              {/* <div>
                 <Label htmlFor="phone">Phone</Label>
                 <Input
                   id="phone"
@@ -126,7 +128,7 @@ const AdditionalDetails: React.FC<AdditionalDetailsProps> = ({ formData, setForm
                   placeholder="Phone"
                   className="w-full mt-2"
                 />
-              </div>
+              </div> */}
               <div>
                 <Label htmlFor="languages">Languages</Label>
                 <Input

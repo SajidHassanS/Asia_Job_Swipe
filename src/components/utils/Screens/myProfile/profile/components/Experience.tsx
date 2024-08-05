@@ -154,7 +154,7 @@ const Experience = () => {
               </div>
             </div>
             <div>
-              <FaRegEdit className="text-signature border rounded-lg p-2 cursor-pointer" size={40} onClick={() => handleEditClick(experience)} />
+              <FaRegEdit className="text-signature border rounded-lg p-2 mb-3 cursor-pointer" size={40} onClick={() => handleEditClick(experience)} />
               <RiDeleteBin5Line className="text-red-500 cursor-pointer" size={30} onClick={() => handleDeleteClick(experience)} />
             </div>
           </div>
@@ -251,7 +251,7 @@ const Experience = () => {
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsDeleting(false)}>Cancel</Button>
-            <Button type="submit" onClick={handleDeleteConfirm}>Delete</Button>
+            <Button variant="destructive" onClick={handleDeleteConfirm}>Delete</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

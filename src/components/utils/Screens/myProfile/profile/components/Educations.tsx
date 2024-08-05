@@ -5,7 +5,6 @@ import { CiSquarePlus } from "react-icons/ci";
 import { RiDeleteBin5Line } from "react-icons/ri";
 import {
   Dialog,
-  DialogTrigger,
   DialogContent,
   DialogHeader,
   DialogTitle,
@@ -93,7 +92,6 @@ const Educations = () => {
     } else {
       const resultAction = await dispatch(addEducation(educationData));
       if (addEducation.fulfilled.match(resultAction)) {
-        const newEducation = resultAction.payload;
         dispatch(fetchEducations()); // Fetch the latest educations
       }
     }
@@ -132,19 +130,24 @@ const Educations = () => {
           education ? (
             <div key={education._id ? education._id : `temp-${index}`} className={`pb-5 mb-5 ${index !== educations.length - 1 ? 'border-b' : ''}`}>
               <div className="flex justify-between gap-5">
-                <div>
-                  <h1 className="text-lg font-semibold">{education.levelOfEducation}</h1>
-                  <div className="flex text-base text-signininput">
-                    <h1 className="text-modaltext font-medium">{education.institution}</h1>
-                    <h1>{education.fieldOfStudy}</h1>
-                    <h1>
+                <div className="">
+              
+                 <div >
+                 <h1 className="text-modaltext mb-3 font-medium text-lg">{education.institution}</h1>
+                 </div>
+                  <div className="flex text-lg font-semibold text-signininput">
+                  <h1  >{education.levelOfEducation} ,</h1>
+                    <h1> { education.fieldOfStudy}</h1>
+                   
+                  </div>
+                  <div className="flex gap-5 text-base mb-3 text-signininput" >
+                  <h1>
                       {education.from ? format(new Date(education.from), "PPP") : "N/A"} - 
                       {education.onGoing ? 'Present' : education.to ? format(new Date(education.to), "PPP") : 'N/A'}
-                    </h1>
+                   , </h1>
+                    <h1 className="text-lg text-signininput"> {education.score} {education.scoreUnit}</h1>
                   </div>
-                  <div>
-                    <h1 className="text-lg text-signininput">{education.score} {education.scoreUnit}</h1>
-                  </div>
+                   
                   <div>
                     <p className="text-modaltext">{education.description}</p>
                   </div>
@@ -169,7 +172,7 @@ const Educations = () => {
           setIsEditing(false);
         }
       }}>
-        <DialogContent className="sm:max-w-[600px] p-6">
+        <DialogContent className="sm:max-w-[600px] p-6 max-h-[80vh] overflow-auto">
           <DialogHeader>
             <DialogTitle className="text-3xl font-bold">{isAdding ? 'Add Education' : 'Edit Education'}</DialogTitle>
             <DialogDescription className="text-md text-gray-500">
@@ -211,6 +214,12 @@ const Educations = () => {
                 onChange={(date) => setFrom(date)}
                 className="w-full border rounded-lg p-2"
                 placeholderText="Pick a date"
+                showMonthDropdown
+                showYearDropdown
+                dropdownMode="select"
+                dateFormat="MM/yyyy"
+                minDate={new Date(new Date().getFullYear() - 30, 0, 1)}
+                maxDate={new Date(new Date().getFullYear() + 30, 11, 31)}
               />
             </div>
             <div>
@@ -220,6 +229,12 @@ const Educations = () => {
                 onChange={(date) => setTo(date)}
                 className="w-full border rounded-lg p-2"
                 placeholderText="Pick a date"
+                showMonthDropdown
+                showYearDropdown
+                dropdownMode="select"
+                dateFormat="MM/yyyy"
+                minDate={new Date(new Date().getFullYear() - 30, 0, 1)}
+                maxDate={new Date(new Date().getFullYear() + 30, 11, 31)}
                 disabled={onGoing}
               />
             </div>

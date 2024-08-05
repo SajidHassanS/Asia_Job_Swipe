@@ -11,6 +11,9 @@ import Resume from "./components/Resume";
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../../../../../store';
 import { fetchProfile, updateProfile } from '../../../../../store/slices/profileSlices';
+import { fetchExperiences } from '../../../../../store/slices/experienceSlice';
+import { fetchEducations } from '../../../../../store/slices/educationslice';
+import { fetchProjects } from '../../../../../store/slices/projectSlice';
 
 export interface ProfileFormData {
   firstName: string;
@@ -29,11 +32,21 @@ export interface ProfileFormData {
   email: string;
   phone: string;
   profilePicture: string;
+  company: string;
+  openToOffers: boolean;
+  experience: any[]; // Array of experiences
+  education: any[]; // Array of educations
+  projects: any[]; // Array of projects
+  resume: string; // Resume URL
 }
 
 const Profile = () => {
   const dispatch: AppDispatch = useDispatch();
   const { jobSeeker } = useSelector((state: RootState) => state.profile);
+  const experiences = useSelector((state: RootState) => state.experience.experiences);
+  const educations = useSelector((state: RootState) => state.education.educations);
+  const projects = useSelector((state: RootState) => state.project.projects);
+
   const [formData, setFormData] = useState<ProfileFormData>({
     firstName: '',
     lastName: '',
@@ -51,6 +64,12 @@ const Profile = () => {
     email: '',
     phone: '',
     profilePicture: '',
+    company: '',
+    openToOffers: false,
+    experience: [],
+    education: [],
+    projects: [],
+    resume: '',
   });
 
   useEffect(() => {
@@ -58,12 +77,20 @@ const Profile = () => {
     const storedAccessToken = localStorage.getItem('accessToken');
     if (storedId && storedAccessToken) {
       dispatch(fetchProfile({ id: storedId, token: storedAccessToken }));
+      dispatch(fetchExperiences());
+      dispatch(fetchEducations());
+      dispatch(fetchProjects());
     }
   }, [dispatch]);
 
   useEffect(() => {
     if (jobSeeker) {
-      setFormData({
+      const latestExperience = jobSeeker.experience?.reduce((latest, current) => {
+        return new Date(latest.to) > new Date(current.to) ? latest : current;
+      }, jobSeeker.experience[0]);
+
+      setFormData((prevFormData) => ({
+        ...prevFormData,
         firstName: jobSeeker.firstName || '',
         lastName: jobSeeker.lastName || '',
         gender: jobSeeker.gender || 'notSpecified',
@@ -80,9 +107,33 @@ const Profile = () => {
         email: jobSeeker.userInfo?.email || '',
         phone: jobSeeker.phone || '',
         profilePicture: jobSeeker.profilePicture || '',
-      });
+        company: latestExperience?.companyName || '',
+        openToOffers: jobSeeker.openToOffers || false,
+        resume: jobSeeker.resume || '',
+      }));
     }
   }, [jobSeeker]);
+
+  useEffect(() => {
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      experience: experiences,
+    }));
+  }, [experiences]);
+
+  useEffect(() => {
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      education: educations,
+    }));
+  }, [educations]);
+
+  useEffect(() => {
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      projects: projects,
+    }));
+  }, [projects]);
 
   const handleSave = (updates: Partial<ProfileFormData>) => {
     setFormData(prevFormData => ({
@@ -106,13 +157,13 @@ const Profile = () => {
             <AboutMe formData={formData} setFormData={setFormData} handleSave={handleSave} />
           </div>
           <div className="my-10">
-            <Experience />
+            <Experience experiences={formData.experience} setFormData={setFormData} handleSave={handleSave} />
           </div>
           <div className="my-10">
-            <Educations />
+            <Educations educations={formData.education} setFormData={setFormData} handleSave={handleSave} />
           </div>
           <div className="my-10">
-            <Projects />
+            <Projects projects={formData.projects} setFormData={setFormData} handleSave={handleSave} />
           </div>
           <div className="my-10">
             <Skills formData={formData} setFormData={setFormData} handleSave={handleSave} />
@@ -124,7 +175,7 @@ const Profile = () => {
             <PersonalDetails formData={formData} setFormData={setFormData} handleSave={handleSave} />
           </div>
           <div className="my-10">
-            <Resume />
+            <Resume resume={formData.resume} setFormData={setFormData} handleSave={handleSave} />
           </div>
         </div>
       </div>
