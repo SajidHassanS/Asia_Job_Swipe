@@ -251,25 +251,30 @@ export const addOrUpdateResume = createAsyncThunk<
   }
 });
 
+// Thunk to delete resume
 export const deleteResume = createAsyncThunk<
   { success: boolean },
   { filename: string; token: string },
   { rejectValue: string }
 >('profile/deleteResume', async ({ filename, token }, { rejectWithValue }) => {
   try {
+    if (!filename) {
+      throw new Error("Filename is required");
+    }
+
     const response = await axios.delete(
-      `${FILE_URL}/files/job-seeker/resume/${filename}`,
+      `${API_URL}/job-seeker/resume?filename=${encodeURIComponent(filename)}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       }
     );
-    
+
     if (response.status !== 200) {
       throw new Error('Failed to delete resume');
     }
-    
+
     return { success: true };
   } catch (error: any) {
     if (axios.isAxiosError(error) && error.response) {
@@ -281,6 +286,8 @@ export const deleteResume = createAsyncThunk<
     }
   }
 });
+
+
 // Thunk to add education
 export const addEducation = createAsyncThunk<
   JobSeeker,

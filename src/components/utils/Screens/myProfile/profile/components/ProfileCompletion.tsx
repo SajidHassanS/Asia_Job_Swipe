@@ -29,60 +29,37 @@ const ProfileCompletion: React.FC<ProfileCompletionProps> = ({ formData, setForm
   const [isChecked, setIsChecked] = useState(jobSeeker?.openToOffers || false);
 
   // Define mandatory fields
-  const mandatoryFields = [
-    'firstName',
-    'lastName',
-    'gender',
-    'dateOfBirth',
-    'introduction',
-    'profession',
-    'skills',
-    'languages',
-    'city',
-    'province',
-    'country',
-    'nationality',
-    'postalCode',
-    'email',
-    'phone',
-    'profilePicture',
-    'company',
-    'resume',
-    'education',
-    'experience',
-    'projects'
+  const mandatoryFields: (keyof ProfileFormData)[] = [
+    'firstName', 'lastName', 'gender', 'dateOfBirth', 'introduction', 'profession', 
+    'skills', 'languages', 'city', 'province', 'country', 'nationality', 'postalCode', 
+    'email', 'phone', 'profilePicture', 'company' 
   ];
 
-  // Calculate profile completion progress
   const calculateProgress = () => {
     let completedFields = 0;
-  
-    mandatoryFields.forEach(field => {
-      const value = formData[field as keyof ProfileFormData];
-      console.log(`Field: ${field}, Value: ${value}`);
-  
+
+    mandatoryFields.forEach((field) => {
+      const value = formData[field];
+
       if (Array.isArray(value)) {
         if (value.length > 0) {
           completedFields++;
-          console.log(`Array field ${field} is completed`);
         }
       } else if (value !== undefined && value !== null && value !== '') {
         completedFields++;
-        console.log(`Field ${field} is completed`);
       }
     });
-  
-    console.log(`Completed Fields: ${completedFields}, Total Fields: ${mandatoryFields.length}`);
-    const progressValue = Math.round((completedFields / mandatoryFields.length) * 100);
-    setProgress(progressValue);
+
+    setProgress(Math.round((completedFields / mandatoryFields.length) * 100));
   };
-  
-  
 
   useEffect(() => {
     calculateProgress();
-    setProfileImagePreview(formData.profilePicture || '/images/profile.png');
   }, [formData]);
+  
+  useEffect(() => {
+    setProfileImagePreview(formData.profilePicture || '/images/profile.png');
+  }, [formData.profilePicture]);
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -141,9 +118,9 @@ const ProfileCompletion: React.FC<ProfileCompletionProps> = ({ formData, setForm
       console.error('Failed to toggle open to offers:', error);
     }
   };
+
   useEffect(() => {
     console.log("Current formData:", formData);
-    calculateProgress();
   }, [formData]);
   
   return (

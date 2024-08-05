@@ -31,10 +31,10 @@ export interface ProfileFormData {
   profilePicture: string;
   company: string;
   openToOffers: boolean;
-  experience: any[]; // Array of experiences
-  education: any[]; // Array of educations
-  projects: any[]; // Array of projects
-  resume: string; // Resume URL
+  // experience: any[]; // Array of experiences
+  // education: any[]; // Array of educations
+  // projects: any[]; // Array of projects
+  // resume: string; // Resume URL
 }
 
 
@@ -60,10 +60,11 @@ const Profile = () => {
     profilePicture: '',
     company: '',
     openToOffers: false,
-    experience: [], // Add this line
-    education: [], // Add this line
-    projects: [], // Add this line
-    resume: '',
+    // experience: [], // Add this line
+    // education: [], // Add this line
+    // projects: [], // Add this line
+    // resume: '',
+    
   });
 
   useEffect(() => {
@@ -100,10 +101,10 @@ const Profile = () => {
         profilePicture: jobSeeker.profilePicture || '',
         company: latestExperience?.companyName || '',
         openToOffers: jobSeeker.openToOffers || false,
-        experience: jobSeeker.experience || [], // Include experiences
-        education: jobSeeker.education || [], // Include education
-        projects: jobSeeker.projects || [], // Include projects
-        resume: jobSeeker.resume || '', // Include resume
+        // experience: jobSeeker.experience || [], // Include experiences
+        // education: jobSeeker.education || [], // Include education
+        // projects: jobSeeker.projects || [], // Include projects
+        // resume: jobSeeker.resume || '', // Include resume
       });
     }
   }, [jobSeeker]);
