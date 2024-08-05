@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "../../store";
+import { RootState, AppDispatch } from "../../store";
 import { sendOTP, verifyOTP, clearErrors } from "../../store/slices/authSlice";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -28,18 +28,45 @@ const SendOTPPage: React.FC = () => {
   const [canResend, setCanResend] = useState<boolean>(false);
   const { toast } = useToast();
   const router = useRouter();
-  const searchParams = useSearchParams();
 
-  useEffect(() => {
-    const error = searchParams.get("error");
-    if (error) {
-      const decodedError = decodeURIComponent(error);
-      toast({
-        description: decodedError,
-        duration: 3000,
-      });
-    }
-  }, [searchParams, toast]);
+  const SearchParamsComponent = () => {
+    const searchParams = useSearchParams();
+
+    useEffect(() => {
+      const error = searchParams.get("error");
+      if (error) {
+        const decodedError = decodeURIComponent(error);
+        toast({
+          description: decodedError,
+          duration: 3000, // Duration in milliseconds (3 seconds)
+        });
+      }
+    }, [searchParams, toast]);
+
+    useEffect(() => {
+      if (typeof window !== "undefined") {
+        // Check for tokens and role in the URL after Google signup
+        const accessToken = searchParams.get("accessToken");
+        const refreshToken = searchParams.get("refreshToken");
+        const userRole = searchParams.get("role");
+
+        if (accessToken && refreshToken && userRole) {
+          localStorage.setItem("accessToken", accessToken);
+          localStorage.setItem("refreshToken", refreshToken);
+          localStorage.setItem("role", userRole);
+
+          // Redirect based on role
+          if (userRole === "company") {
+            router.push("/dashboard");
+          } else if (userRole === "jobSeeker") {
+            router.push("/");
+          }
+        }
+      }
+    }, [router, searchParams]);
+
+    return null;
+  };
 
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
@@ -67,10 +94,7 @@ const SendOTPPage: React.FC = () => {
       setStep("verifyOTP");
       setMessage("OTP has been sent to your email.");
       setMessageType("success");
-    } else if (
-      Array.isArray(response.payload) &&
-      response.payload.some((error) => error.message === "User already exists with this email")
-    ) {
+    } else if (Array.isArray(response.payload) && response.payload.some(error => error.message === "User already exists with this email")) {
       setMessage("User already exists with this email.");
       setMessageType("error");
     } else {
@@ -104,6 +128,9 @@ const SendOTPPage: React.FC = () => {
       ></div>
       <div className="md:w-1/2 w-full flex items-center justify-center min-h-screen py-8">
         <div className="w-[550px]">
+          <Suspense fallback={<div>Loading...</div>}>
+            <SearchParamsComponent />
+          </Suspense>
           <Tabs defaultValue="jobSeeker" className="w-full">
             <TabsList className="flex justify-center w-full mb-4">
               <TabsTrigger value="jobSeeker" className="w-1/3" onClick={() => setRole("jobSeeker")}>
@@ -176,7 +203,9 @@ const SendOTPPage: React.FC = () => {
                     {step === "verifyOTP" && (
                       <div className="flex justify-between items-center mt-4">
                         <span className="text-sm text-gray-600">
-                          {canResend ? "Didn't receive the code?" : `Resend code in ${timer}s`}
+                          {canResend
+                            ? "Didn't receive the code?"
+                            : `Resend code in ${timer}s`}
                         </span>
                         {canResend && (
                           <Button
@@ -271,7 +300,9 @@ const SendOTPPage: React.FC = () => {
                     {step === "verifyOTP" && (
                       <div className="flex justify-between items-center mt-4">
                         <span className="text-sm text-gray-600">
-                          {canResend ? "Didn't receive the code?" : `Resend code in ${timer}s`}
+                          {canResend
+                            ? "Didn't receive the code?"
+                            : `Resend code in ${timer}s`}
                         </span>
                         {canResend && (
                           <Button

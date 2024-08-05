@@ -32,18 +32,19 @@
 //   const searchParams = useSearchParams();
 
 //   useEffect(() => {
-//     if (typeof window !== "undefined") {
-//       const role = searchParams.get("role");
-//       if (role) {
-//         router.push(role === "company" ? "/dashboard" : "/");
-//       }
+//     // This effect will run on the client-side only
+//     const role = searchParams.get("role");
+//     // Handle the role logic or any other logic based on URL parameters
+//     if (role) {
+//       // Example: redirect based on role
+//       router.push(role === "company" ? "/dashboard" : "/");
 //     }
 //   }, [searchParams, router]);
 
+
+
 //   return null;
 // };
-
-
 
 
 
@@ -73,33 +74,30 @@
 //   //   }
 //   // }, [searchParams, toast]);
 //   useEffect(() => {
-//     if (typeof window !== "undefined") {
-//       // Define a function to show the toast and clear localStorage
-//       const showToast = () => {
-//         const storedError = localStorage.getItem("authError");
-//         if (storedError) {
-//           toast({
-//             description: storedError,
-//             duration: 10000,
-//             className: "bg-red-500 text-white",
-//           });
-//           // Clear the error message from local storage
-//           localStorage.removeItem("authError");
-//         }
-//       };
-  
-//       // Show the toast after a slight delay to ensure `toast` is ready
-//       setTimeout(showToast, 2000);
-  
-//       // Store error message from URL query params to localStorage
-//       const error = searchParams.get("error");
-//       if (error) {
-//         const decodedError = decodeURIComponent(error);
-//         localStorage.setItem("authError", decodedError);
+//     // Define a function to show the toast and clear localStorage
+//     const showToast = () => {
+//       const storedError = localStorage.getItem("authError");
+//       if (storedError) {
+//         toast({
+//           description: storedError,
+//           duration: 10000,
+//           className: "bg-red-500 text-white",
+//         });
+//         // Clear the error message from local storage
+//         localStorage.removeItem("authError");
 //       }
+//     };
+  
+//     // Show the toast after a slight delay to ensure `toast` is ready
+//     setTimeout(showToast, 2000); // You can adjust the delay if necessary
+  
+//     // Store error message from URL query params to localStorage
+//     const error = searchParams.get("error");
+//     if (error) {
+//       const decodedError = decodeURIComponent(error);
+//       localStorage.setItem("authError", decodedError);
 //     }
 //   }, [searchParams, toast]);
-  
   
 
 //   useEffect(() => {
@@ -678,16 +676,9 @@
 import React, { useState, useEffect, Suspense } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../store";
-import { signInJobSeeker, signInCompany, clearErrors /*, loginCompanyRole*/ } from "../../store/slices/authSlice";
+import { signInJobSeeker, signInCompany, clearErrors } from "../../store/slices/authSlice";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -703,23 +694,24 @@ interface AuthError {
   message: string;
 }
 
-const HandleSearchParams = () => {
+const HandleSearchParams: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const role = searchParams.get("role");
-      if (role) {
-        router.push(role === "company" ? "/dashboard" : "/");
-      }
+    // This effect will run on the client-side only
+    const role = searchParams.get("role");
+    // Handle the role logic or any other logic based on URL parameters
+    if (role) {
+      // Example: redirect based on role
+      router.push(role === "company" ? "/dashboard" : "/");
     }
   }, [searchParams, router]);
 
   return null;
 };
 
-const SignInPage = () => {
+const SignInPage: React.FC = () => {
   const [userType, setUserType] = useState("jobSeeker");
   const dispatch = useDispatch<AppDispatch>();
   const auth = useSelector((state: RootState) => state.auth);
@@ -728,32 +720,30 @@ const SignInPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [roleError, setRoleError] = useState<string | null>(null);
-  const [urlError, setUrlError] = useState<string | null>(null);
   const searchParams = useSearchParams();
   const router = useRouter();
   const { toast } = useToast();
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const showToast = () => {
-        const storedError = localStorage.getItem("authError");
-        if (storedError) {
-          toast({
-            description: storedError,
-            duration: 10000,
-            className: "bg-red-500 text-white",
-          });
-          localStorage.removeItem("authError");
-        }
-      };
-
-      setTimeout(showToast, 2000);
-
-      const error = searchParams.get("error");
-      if (error) {
-        const decodedError = decodeURIComponent(error);
-        localStorage.setItem("authError", decodedError);
+    // Show the toast for errors from URL query params
+    const showToast = () => {
+      const storedError = localStorage.getItem("authError");
+      if (storedError) {
+        toast({
+          description: storedError,
+          duration: 10000,
+          className: "bg-red-500 text-white",
+        });
+        localStorage.removeItem("authError");
       }
+    };
+
+    setTimeout(showToast, 2000);
+
+    const error = searchParams.get("error");
+    if (error) {
+      const decodedError = decodeURIComponent(error);
+      localStorage.setItem("authError", decodedError);
     }
   }, [searchParams, toast]);
 
@@ -825,7 +815,7 @@ const SignInPage = () => {
   };
 
   const handleGoogleSignIn = () => {
-    window.location.href = `https://ajs-server.hostdonor.com/api/v1/auth/google?role=${userType}`;
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google?role=${userType}`;
   };
 
   const getErrorMessage = (field: string): string | null => {
@@ -844,11 +834,7 @@ const SignInPage = () => {
       ></div>
       <div className="md:w-1/2 w-full flex items-center justify-center min-h-screen py-8">
         <div className="w-[550px]">
-          <Tabs
-            defaultValue="jobSeeker"
-            className="w-full"
-            onValueChange={setUserType}
-          >
+          <Tabs defaultValue="jobSeeker" className="w-full" onValueChange={setUserType}>
             <TabsList className="flex justify-center w-full mb-4">
               <TabsTrigger value="jobSeeker" className="w-1/3">
                 Job Seeker
@@ -864,22 +850,14 @@ const SignInPage = () => {
                     Get more opportunities
                   </CardTitle>
                   <CardDescription>
-                    <Button
-                      className="w-full text-darkGrey"
-                      variant="outline"
-                      onClick={handleGoogleSignIn}
-                    >
+                    <Button className="w-full text-darkGrey" variant="outline" onClick={handleGoogleSignIn}>
                       <FcGoogle size={25} className="mr-2" /> Sign In with Google
                     </Button>
                   </CardDescription>
                   <CardDescription>
                     <div className="flex items-center justify-center">
                       <div className="flex-grow border-t border-gray-300"></div>
-                      <Button
-                        asChild
-                        variant="link"
-                        className="mx-4 text-signinemail"
-                      >
+                      <Button asChild variant="link" className="mx-4 text-signinemail">
                         <Link href="/send-otp">Or Sign In with email</Link>
                       </Button>
                       <div className="flex-grow border-t border-gray-300"></div>
@@ -888,10 +866,7 @@ const SignInPage = () => {
                 </CardHeader>
                 <CardContent className="space-y-5">
                   <div className="space-y-1">
-                    <Label
-                      htmlFor="email"
-                      className="text-signininput text-base"
-                    >
+                    <Label htmlFor="email" className="text-signininput text-base">
                       Email Address
                     </Label>
                     <Input
@@ -902,15 +877,10 @@ const SignInPage = () => {
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="Enter email address"
                     />
-                    {getErrorMessage("email") && (
-                      <span className="text-red-500">{getErrorMessage("email")}</span>
-                    )}
+                    {getErrorMessage("email") && <span className="text-red-500">{getErrorMessage("email")}</span>}
                   </div>
                   <div className="space-y-1 relative">
-                    <Label
-                      htmlFor="password"
-                      className="text-signininput text-base"
-                    >
+                    <Label htmlFor="password" className="text-signininput text-base">
                       Password
                     </Label>
                     <Input
@@ -921,29 +891,19 @@ const SignInPage = () => {
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Enter Password"
                     />
-                    <div
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center top-5 cursor-pointer"
-                      onClick={togglePasswordVisibility}
-                    >
+                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center top-5 cursor-pointer" onClick={togglePasswordVisibility}>
                       {showPassword ? <FaEye /> : <FaEyeSlash />}
                     </div>
-                    {getErrorMessage("password") && (
-                      <span className="text-red-500">{getErrorMessage("password")}</span>
-                    )}
+                    {getErrorMessage("password") && <span className="text-red-500">{getErrorMessage("password")}</span>}
                   </div>
                   <div className="flex justify-between">
                     <div className="flex items-center space-x-2">
                       <Checkbox
                         id="terms"
                         checked={rememberMe}
-                        onCheckedChange={(checked) =>
-                          setRememberMe(checked as boolean)
-                        }
+                        onCheckedChange={(checked) => setRememberMe(checked as boolean)}
                       />
-                      <label
-                        htmlFor="terms"
-                        className="text-sm signininput font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
+                      <label htmlFor="terms" className="text-sm signininput font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                         Remember me
                       </label>
                     </div>
@@ -981,20 +941,14 @@ const SignInPage = () => {
                     </div>
                   )}
                   <div className="flex items-center">
-                    <h1 className="text-signinemail text-base">
-                      Don’t have an account?
-                    </h1>
+                    <h1 className="text-signinemail text-base">Don’t have an account?</h1>
                     <Button asChild variant="link" className="text-signature">
                       <Link href="/send-otp">Sign Up</Link>
                     </Button>
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button
-                    asChild
-                    variant="link"
-                    className="w-full text-signature"
-                  >
+                  <Button asChild variant="link" className="w-full text-signature">
                     <Link href="/home">
                       <FaArrowLeft size={20} className="mr-2" /> Back to Home
                     </Link>
@@ -1009,25 +963,15 @@ const SignInPage = () => {
                     Find the best talent
                   </CardTitle>
                   <CardDescription>
-                    <Button
-                      className="w-full text-darkGrey"
-                      variant="outline"
-                      onClick={handleGoogleSignIn}
-                    >
+                    <Button className="w-full text-darkGrey" variant="outline" onClick={handleGoogleSignIn}>
                       <FcGoogle size={25} className="mr-2" /> Sign In with Google
                     </Button>
-                    {urlError && (
-                      <p className="text-center mt-4 text-red-500">{urlError}</p>
-                    )}
+                    {roleError && <p className="text-center mt-4 text-red-500">{roleError}</p>}
                   </CardDescription>
                   <CardDescription>
                     <div className="flex items-center justify-center">
                       <div className="flex-grow border-t border-gray-300"></div>
-                      <Button
-                        asChild
-                        variant="link"
-                        className="mx-4 text-signinemail"
-                      >
+                      <Button asChild variant="link" className="mx-4 text-signinemail">
                         <Link href="/send-otp">Or Sign In with email</Link>
                       </Button>
                       <div className="flex-grow border-t border-gray-300"></div>
@@ -1036,10 +980,7 @@ const SignInPage = () => {
                 </CardHeader>
                 <CardContent className="space-y-5">
                   <div className="space-y-1">
-                    <Label
-                      htmlFor="email"
-                      className="text-signininput text-base"
-                    >
+                    <Label htmlFor="email" className="text-signininput text-base">
                       Email Address
                     </Label>
                     <Input
@@ -1050,15 +991,10 @@ const SignInPage = () => {
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="Enter email address"
                     />
-                    {getErrorMessage("email") && (
-                      <span className="text-red-500">{getErrorMessage("email")}</span>
-                    )}
+                    {getErrorMessage("email") && <span className="text-red-500">{getErrorMessage("email")}</span>}
                   </div>
                   <div className="space-y-1 relative">
-                    <Label
-                      htmlFor="password"
-                      className="text-signininput text-base"
-                    >
+                    <Label htmlFor="password" className="text-signininput text-base">
                       Password
                     </Label>
                     <Input
@@ -1069,29 +1005,19 @@ const SignInPage = () => {
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Enter Password"
                     />
-                    <div
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center top-5 cursor-pointer"
-                      onClick={togglePasswordVisibility}
-                    >
+                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center top-5 cursor-pointer" onClick={togglePasswordVisibility}>
                       {showPassword ? <FaEye /> : <FaEyeSlash />}
                     </div>
-                    {getErrorMessage("password") && (
-                      <span className="text-red-500">{getErrorMessage("password")}</span>
-                    )}
+                    {getErrorMessage("password") && <span className="text-red-500">{getErrorMessage("password")}</span>}
                   </div>
                   <div className="flex justify-between">
                     <div className="flex items-center space-x-2">
                       <Checkbox
                         id="terms"
                         checked={rememberMe}
-                        onCheckedChange={(checked) =>
-                          setRememberMe(checked as boolean)
-                        }
+                        onCheckedChange={(checked) => setRememberMe(checked as boolean)}
                       />
-                      <label
-                        htmlFor="terms"
-                        className="text-sm signininput font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
+                      <label htmlFor="terms" className="text-sm signininput font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                         Remember me
                       </label>
                     </div>
@@ -1129,20 +1055,14 @@ const SignInPage = () => {
                     </div>
                   )}
                   <div className="flex items-center">
-                    <h1 className="text-signinemail text-base">
-                      Don’t have an account?
-                    </h1>
+                    <h1 className="text-signinemail text-base">Don’t have an account?</h1>
                     <Button asChild variant="link" className="text-signature">
                       <Link href="/send-otp">Sign Up</Link>
                     </Button>
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button
-                    asChild
-                    variant="link"
-                    className="w-full text-signature"
-                  >
+                  <Button asChild variant="link" className="w-full text-signature">
                     <Link href="/home">
                       <FaArrowLeft size={20} className="mr-2" /> Back to Home
                     </Link>
