@@ -99,7 +99,11 @@ const ForgotPasswordPage: React.FC = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-5">
-              {message && <p className="text-center text-red-500">{message}</p>}
+              {message && (
+                <p className={`text-center ${message.includes('successfully') ? 'text-greenprogress' : 'text-red-500'}`}>
+                  {message}
+                </p>
+              )}
               {step === 1 && (
                 <>
                   <div className="space-y-1">
@@ -167,36 +171,40 @@ const ForgotPasswordPage: React.FC = () => {
                 <>
                   <div className="space-y-1 relative">
                     <Label htmlFor="newPassword" className="text-signininput text-base">New Password</Label>
-                    <Input
-                      type={showNewPassword ? 'text' : 'password'}
-                      id="newPassword"
-                      className="text-signininput3 text-base w-full pr-10"
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                      placeholder="Enter new password"
-                    />
-                    <div
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
-                      onClick={() => setShowNewPassword((prev) => !prev)}
-                    >
-                      {showNewPassword ? <FaEye size={20} /> : <FaEyeSlash size={20} />}
+                    <div className="relative">
+                      <Input
+                        type={showNewPassword ? 'text' : 'password'}
+                        id="newPassword"
+                        className="text-signininput3 text-base w-full pr-10"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        placeholder="Enter new password"
+                      />
+                      <div
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
+                        onClick={() => setShowNewPassword((prev) => !prev)}
+                      >
+                        {showNewPassword ? <FaEye size={20} /> : <FaEyeSlash size={20} />}
+                      </div>
                     </div>
                   </div>
                   <div className="space-y-1 relative">
                     <Label htmlFor="confirmPassword" className="text-signininput text-base">Confirm Password</Label>
-                    <Input
-                      type={showConfirmPassword ? 'text' : 'password'}
-                      id="confirmPassword"
-                      className="text-signininput3 text-base w-full pr-10"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      placeholder="Confirm new password"
-                    />
-                    <div
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
-                      onClick={() => setShowConfirmPassword((prev) => !prev)}
-                    >
-                      {showConfirmPassword ? <FaEye size={20} /> : <FaEyeSlash size={20} />}
+                    <div className="relative">
+                      <Input
+                        type={showConfirmPassword ? 'text' : 'password'}
+                        id="confirmPassword"
+                        className="text-signininput3 text-base w-full pr-10"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        placeholder="Confirm new password"
+                      />
+                      <div
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
+                        onClick={() => setShowConfirmPassword((prev) => !prev)}
+                      >
+                        {showConfirmPassword ? <FaEye size={20} /> : <FaEyeSlash size={20} />}
+                      </div>
                     </div>
                   </div>
                   <div>

@@ -238,6 +238,7 @@ export const addOrUpdateResume = createAsyncThunk<
         },
       }
     );
+    // Store the actual URL returned from the backend
     return { resumeUrl: response.data.resumeUrl };
   } catch (error: any) {
     if (axios.isAxiosError(error) && error.response) {
@@ -251,7 +252,6 @@ export const addOrUpdateResume = createAsyncThunk<
   }
 });
 
-// Thunk to delete resume
 export const deleteResume = createAsyncThunk<
   { success: boolean },
   { filename: string; token: string },
@@ -262,8 +262,17 @@ export const deleteResume = createAsyncThunk<
       throw new Error("Filename is required");
     }
 
+    // Debugging
+    console.log("Attempting to delete resume with filename:", filename);
+
+    // Ensure the filename is properly encoded
+    const encodedFilename = encodeURIComponent(filename);
+
+    // Debugging
+    console.log("Encoded filename:", encodedFilename);
+
     const response = await axios.delete(
-      `${API_URL}/job-seeker/resume?filename=${encodeURIComponent(filename)}`,
+      `${API_URL}/job-seeker/resume?filename=${encodedFilename}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -277,6 +286,7 @@ export const deleteResume = createAsyncThunk<
 
     return { success: true };
   } catch (error: any) {
+    console.error("Error deleting resume:", error);
     if (axios.isAxiosError(error) && error.response) {
       return rejectWithValue(
         error.response.data.message || 'An error occurred while deleting the resume.'
@@ -286,6 +296,7 @@ export const deleteResume = createAsyncThunk<
     }
   }
 });
+
 
 
 // Thunk to add education
