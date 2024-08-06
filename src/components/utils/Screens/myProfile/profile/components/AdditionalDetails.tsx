@@ -1,8 +1,9 @@
-// AdditionalDetails.tsx
 import React, { useState, useEffect } from 'react';
 import { FaRegEdit } from "react-icons/fa";
-import { MdOutlineMailOutline, MdPhoneAndroid } from "react-icons/md";
+import { MdOutlineMailOutline } from "react-icons/md";
 import { TbLanguage } from "react-icons/tb";
+import CreatableSelect from 'react-select/creatable';
+import ISO6391 from 'iso-639-1';
 import {
   Dialog,
   DialogTrigger,
@@ -26,23 +27,24 @@ interface AdditionalDetailsProps {
 const AdditionalDetails: React.FC<AdditionalDetailsProps> = ({ formData, setFormData, handleSave }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [inputValues, setInputValues] = useState({
-    email: formData.email,
-    // phone: formData.phone,
-    languages: formData.languages.join(', '),
+    email: '',
+    languages: formData.languages,
   });
 
   useEffect(() => {
-    setInputValues({
-      email: formData.email,
-      // phone: formData.phone,
-      languages: formData.languages.join(', '),
-    });
-  }, [formData]);
+    // Check if window and localStorage are available
+    if (typeof window !== 'undefined') {
+      const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+      setInputValues((prevValues) => ({
+        ...prevValues,
+        email: userInfo.email || '',
+      }));
+    }
+  }, []);
 
   const handleSaveClick = () => {
     handleSave({
-      // phone: inputValues.phone,
-      languages: inputValues.languages.split(',').map(lang => lang.trim()),
+      languages: inputValues.languages,
     });
     setIsEditing(false);
   };
@@ -53,6 +55,18 @@ const AdditionalDetails: React.FC<AdditionalDetailsProps> = ({ formData, setForm
       [e.target.name]: e.target.value,
     });
   };
+
+  const handleLanguageChange = (selectedOptions: any) => {
+    setInputValues({
+      ...inputValues,
+      languages: selectedOptions ? selectedOptions.map((option: any) => option.value) : [],
+    });
+  };
+
+  const languageOptions = ISO6391.getAllNames().map(name => ({
+    label: name,
+    value: name,
+  }));
 
   return (
     <div className="border rounded-[20px] py-6 px-5 bg-background shadow-md">
@@ -66,22 +80,10 @@ const AdditionalDetails: React.FC<AdditionalDetailsProps> = ({ formData, setForm
           <MdOutlineMailOutline className="text-signininput4" size={30} />
           <div>
             <h1 className="text-lg text-signininput4">Email</h1>
-            <p className="text-lg text-modaltext">{formData.email}</p>
+            <p className="text-lg text-modaltext">{inputValues.email}</p>
           </div>
         </div>
       </div>
-      {/* Commented out phone section */}
-      {/* {formData.phone && (
-        <div className="py-8">
-          <div className="flex gap-5">
-            <MdPhoneAndroid className="text-signininput4" size={30} />
-            <div>
-              <h1 className="text-lg text-signininput4">Phone</h1>
-              <p className="text-lg text-modaltext">{formData.phone}</p>
-            </div>
-          </div>
-        </div>
-      )} */}
       <div>
         <div className="flex gap-5">
           <TbLanguage className="text-signininput4" size={30} />
@@ -117,27 +119,19 @@ const AdditionalDetails: React.FC<AdditionalDetailsProps> = ({ formData, setForm
                   disabled
                 />
               </div>
-              {/* Commented out phone input */}
-              {/* <div>
-                <Label htmlFor="phone">Phone</Label>
-                <Input
-                  id="phone"
-                  name="phone"
-                  value={inputValues.phone}
-                  onChange={handleChange}
-                  placeholder="Phone"
-                  className="w-full mt-2"
-                />
-              </div> */}
               <div>
                 <Label htmlFor="languages">Languages</Label>
-                <Input
+                <CreatableSelect
                   id="languages"
-                  name="languages"
-                  value={inputValues.languages}
-                  onChange={handleChange}
-                  placeholder="Languages"
+                  isMulti
+                  options={languageOptions}
+                  value={inputValues.languages.map((lang: string) => ({
+                    label: lang,
+                    value: lang,
+                  }))}
+                  onChange={handleLanguageChange}
                   className="w-full mt-2"
+                  placeholder="Type and press enter to add new language"
                 />
               </div>
             </div>
