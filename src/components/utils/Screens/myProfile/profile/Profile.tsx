@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from 'react-redux';
 import ProfileCompletion from "./components/ProfileCompletion";
 import AdditionalDetails from "./components/AdditionalDetails";
 import AboutMe from "./components/AboutMe";
@@ -8,7 +9,6 @@ import Projects from "./components/Projects";
 import Skills from "./components/Skills";
 import PersonalDetails from "./components/PersonalDetails";
 import Resume from "./components/Resume";
-import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../../../../../store';
 import { fetchProfile, updateProfile } from '../../../../../store/slices/profileSlices';
 
@@ -26,17 +26,11 @@ export interface ProfileFormData {
   country: string;
   nationality: string;
   postalCode: string;
-  email: string;
   phone: string;
   profilePicture: string;
   company: string;
   openToOffers: boolean;
-  // experience: any[]; // Array of experiences
-  // education: any[]; // Array of educations
-  // projects: any[]; // Array of projects
-  // resume: string; // Resume URL
 }
-
 
 const Profile = () => {
   const dispatch: AppDispatch = useDispatch();
@@ -44,26 +38,21 @@ const Profile = () => {
   const [formData, setFormData] = useState<ProfileFormData>({
     firstName: '',
     lastName: '',
-    gender: 'notSpecified',
+    gender: 'not-specified',
     dateOfBirth: '',
-    introduction: '',
+    introduction: 'Some Lorem Ipsum Text',
     profession: '',
     skills: [],
     languages: [],
     city: '',
     province: '',
     country: '',
-    nationality: '',
-    postalCode: '',
-    email: '',
+    nationality: 'not-specified',
+    postalCode: '0000',
     phone: '',
     profilePicture: '',
     company: '',
     openToOffers: false,
-    // experience: [], // Add this line if needed
-    // education: [], // Add this line if needed
-    // projects: [], // Add this line if needed
-    // resume: '', // Add this line if needed
   });
 
   useEffect(() => {
@@ -80,55 +69,67 @@ const Profile = () => {
         return new Date(latest.to) > new Date(current.to) ? latest : current;
       }, jobSeeker.experience[0]);
 
-      setFormData((prevData) => ({
-        ...prevData,
+      setFormData({
         firstName: jobSeeker.firstName || '',
         lastName: jobSeeker.lastName || '',
-        gender: jobSeeker.gender || 'notSpecified',
+        gender: jobSeeker.gender || 'not-specified',
         dateOfBirth: jobSeeker.dateOfBirth || '',
-        introduction: jobSeeker.introduction || '',
+        introduction: jobSeeker.introduction || 'Some Lorem Ipsum Text',
         profession: jobSeeker.profession || '',
         skills: jobSeeker.skills || [],
         languages: jobSeeker.languages || [],
         city: jobSeeker.city || '',
         province: jobSeeker.province || '',
         country: jobSeeker.country || '',
-        nationality: jobSeeker.nationality || '',
-        postalCode: jobSeeker.postalCode || '',
-        email: jobSeeker.userInfo?.email || '',
+        nationality: jobSeeker.nationality || 'not-specified',
+        postalCode: jobSeeker.postalCode || '0000',
         phone: jobSeeker.phone || '',
         profilePicture: jobSeeker.profilePicture || '',
         company: latestExperience?.companyName || '',
         openToOffers: jobSeeker.openToOffers || false,
-        // experience: jobSeeker.experience || [], // Include experiences
-        // education: jobSeeker.education || [], // Include education
-        // projects: jobSeeker.projects || [], // Include projects
-        // resume: jobSeeker.resume || '', // Include resume
-      }));
+      });
     }
   }, [jobSeeker]);
 
   const handleSave = (updates: Partial<ProfileFormData>) => {
-    // Merge updates with the existing formData
     const updatedData = { ...formData, ...updates };
 
-    // Validate required fields
-    // You can add more validation logic here
-    if (!updatedData.firstName || !updatedData.lastName) {
-      alert("First Name and Last Name are required.");
+    // Set defaults for fields if they are empty
+    const finalData = {
+      ...updatedData,
+      introduction: updatedData.introduction || 'Default introduction',
+      nationality: updatedData.nationality || 'Not specified',
+      postalCode: updatedData.postalCode || '0000',
+      gender: updatedData.gender || 'not-specified', // Correct value
+    };
+
+    // Client-side validation
+    const errors = [];
+    if (!finalData.firstName || !finalData.lastName) {
+      errors.push("First Name and Last Name are required.");
+    }
+    if (finalData.introduction.length < 10) {
+      errors.push("Introduction should be at least 10 characters long.");
+    }
+    if (!finalData.nationality) {
+      errors.push("Nationality should be at least 1 character long.");
+    }
+    if (!finalData.postalCode) {
+      errors.push("Postal Code should be at least 1 character long.");
+    }
+
+    if (errors.length > 0) {
+      alert(errors.join("\n"));
       return;
     }
 
-    // Set the updated formData
-    setFormData(updatedData);
+    setFormData(finalData);
 
-    // Get stored ID and access token
     const storedId = localStorage.getItem('_id');
     const storedAccessToken = localStorage.getItem('accessToken');
 
     if (storedId && storedAccessToken) {
-      // Dispatch the updateProfile action with the full data
-      dispatch(updateProfile({ id: storedId, updates: updatedData, token: storedAccessToken }));
+      dispatch(updateProfile({ id: storedId, updates: finalData, token: storedAccessToken }));
     }
   };
 

@@ -70,7 +70,7 @@ const ProfileCompletion: React.FC<ProfileCompletionProps> = ({ formData, setForm
   };
 
   const calculateProgress = () => {
-    // Calculation logic remains the same
+    // Calculation logic for progress
   };
 
   useEffect(() => {
@@ -201,8 +201,9 @@ const ProfileCompletion: React.FC<ProfileCompletionProps> = ({ formData, setForm
                 {formData.firstName} {formData.lastName}
               </h1>
               <p className="md:text-xl text-md text-signininput4 py-7">
-                {formData.profession} at {formData.company}
-              </p>
+  {formData.profession}
+  {formData.company && ` at ${formData.company}`}
+</p>
               <div className="flex items-center text-signininput4 gap-3">
                 <FiMapPin />
                 <p className="md:text-xl text-md text-signininput4">

@@ -55,13 +55,14 @@ const UserProfile: React.FC<UserProfileProps> = ({ isDialogOpen, setIsDialogOpen
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <div className="flex items-center gap-2 cursor-pointer">
-        <div className="  ">
-          
-             
-            <Image src={avatarSrc} alt="avatar" className=' rounded-full' width={30} height={30} />
-           
-           
-        </div>
+      <div className="w-10 h-10 relative">
+        <Image
+          src={avatarSrc}
+          alt="avatar"
+          className="rounded-full "
+          layout="fill" // This makes the image fill the container
+        />
+      </div>
         <div className="">
           <p className="font-semibold truncate overflow-hidden">
             {jobSeekerData?.firstName ?? 'Guest'}
@@ -74,7 +75,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ isDialogOpen, setIsDialogOpen
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-48 truncate">
-            <DropdownMenuLabel>{jobSeeker?.email}</DropdownMenuLabel>
+            <DropdownMenuLabel>{jobSeeker?.userInfo.email}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <Link href="/myprofile">
               <DropdownMenuItem className="gap-2 hover:text-signature transition-colors cursor-pointer">

@@ -38,10 +38,11 @@ const Resume = () => {
 
   useEffect(() => {
     if (jobSeeker && jobSeeker.resume) {
-      setResumeUrl(jobSeeker.resume);
-      setResumeFileName(jobSeeker.resume);
-      setUploadDate(jobSeeker.resumeUploadDate);
-      setFileSize(jobSeeker.resumeFileSize);
+      const resumeFileName = jobSeeker.resume.split('/').pop() || null; // Extract the file name from the URL or set to null
+      setResumeUrl(jobSeeker.resume || null);
+      setResumeFileName(resumeFileName);
+      setUploadDate(jobSeeker.resumeUploadDate || null);
+      setFileSize(jobSeeker.resumeFileSize || null);
     }
   }, [jobSeeker]);
 
@@ -102,10 +103,11 @@ const Resume = () => {
         } catch (error: any) {
           console.error('Failed to delete resume:', error);
           if (jobSeeker && jobSeeker.resume) {
-            setResumeUrl(jobSeeker.resume);
-            setResumeFileName(jobSeeker.resume);
-            setUploadDate(jobSeeker.resumeUploadDate);
-            setFileSize(jobSeeker.resumeFileSize);
+            const resumeFileName = jobSeeker.resume.split('/').pop() || null; // Extract the file name from the URL or set to null
+            setResumeUrl(jobSeeker.resume || null);
+            setResumeFileName(resumeFileName);
+            setUploadDate(jobSeeker.resumeUploadDate || null);
+            setFileSize(jobSeeker.resumeFileSize || null);
           }
         }
       } else {

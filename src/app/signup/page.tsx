@@ -152,10 +152,10 @@ const SignUpForm: React.FC = () => {
       router.push(choice === "complete" ? "/steps" : "/dashboard");
     } else {
       router.push(
-        choice === "complete" ? "/job-seeker-profile-completion" : "/"
+        choice === "complete" ? "/myprofile" : "/"
       );
     }
-  };
+  }; 
 
   const getErrorMessage = (field: string): string | null => {
     const error = auth.errors.find((error: AuthError) => error.path === field);

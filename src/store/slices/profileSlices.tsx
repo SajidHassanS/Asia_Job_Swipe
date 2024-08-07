@@ -40,8 +40,17 @@ interface JobSeeker {
   company:string;
 }
 
+
+interface Skill {
+  _id: string;
+  name: string;
+  category: string;
+  value: string;
+}
+
 interface ProfileState {
   jobSeeker: JobSeeker | null;
+  skills: Skill[];
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
 }
@@ -49,6 +58,7 @@ interface ProfileState {
 const initialState: ProfileState = {
   jobSeeker: null,
   status: "idle",
+  skills: [],
   error: null,
 };
 interface UpdateProfilePictureArgs {
@@ -592,6 +602,25 @@ export const deleteProject = createAsyncThunk<
   }
 });
 
+export const fetchSkills = createAsyncThunk<
+  Skill[], // Define the expected response type
+  void,
+  { rejectValue: string }
+>("profile/fetchSkills", async (_, { rejectWithValue }) => {
+  try {
+    const response = await axios.get(`${API_URL}/app/skills`);
+    return response.data;
+  } catch (error: any) {
+    if (axios.isAxiosError(error) && error.response) {
+      return rejectWithValue(
+        error.response.data.message || "An error occurred while fetching skills."
+      );
+    } else {
+      return rejectWithValue("An unknown error occurred");
+    }
+  }
+});
+
 const profileSlice = createSlice({
   name: "profile",
   initialState,
@@ -879,9 +908,22 @@ const profileSlice = createSlice({
           state.status = "failed";
           state.error = action.payload || "An unknown error occurred";
         }
-      );
+      )
+      .addCase(fetchSkills.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchSkills.fulfilled, (state, action: PayloadAction<Skill[]>) => {
+        state.status = 'succeeded';
+        state.skills = action.payload;
+        state.error = null;
+      })
+      .addCase(fetchSkills.rejected, (state, action: PayloadAction<string | undefined>) => {
+        state.status = 'failed';
+        state.error = action.payload || 'An unknown error occurred';
+      })
+      ;
   },
 });
 
 export default profileSlice.reducer;
-export type { JobSeeker };
+export type { JobSeeker , Skill };

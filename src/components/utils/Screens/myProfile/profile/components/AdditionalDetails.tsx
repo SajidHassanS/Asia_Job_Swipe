@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { FaRegEdit } from "react-icons/fa";
 import { MdOutlineMailOutline } from "react-icons/md";
 import { TbLanguage } from "react-icons/tb";
@@ -17,6 +18,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ProfileFormData } from '../Profile';
+import { RootState, AppDispatch } from '@/store';
+import { fetchProfile } from '@/store/slices/profileSlices';
 
 interface AdditionalDetailsProps {
   formData: ProfileFormData;
@@ -25,42 +28,40 @@ interface AdditionalDetailsProps {
 }
 
 const AdditionalDetails: React.FC<AdditionalDetailsProps> = ({ formData, setFormData, handleSave }) => {
+  const dispatch: AppDispatch = useDispatch();
+  const jobSeeker = useSelector((state: RootState) => state.profile.jobSeeker);
+
   const [isEditing, setIsEditing] = useState(false);
-  const [inputValues, setInputValues] = useState({
-    email: '',
-    languages: formData.languages,
-  });
+  const [email, setEmail] = useState('');
+  const [languages, setLanguages] = useState(formData.languages);
 
   useEffect(() => {
-    // Check if window and localStorage are available
-    if (typeof window !== 'undefined') {
-      const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
-      setInputValues((prevValues) => ({
-        ...prevValues,
-        email: userInfo.email || '',
-      }));
+    const storedId = localStorage.getItem('_id');
+    const storedAccessToken = localStorage.getItem('accessToken');
+    if (storedId && storedAccessToken) {
+      dispatch(fetchProfile({ id: storedId, token: storedAccessToken }));
     }
-  }, []);
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (jobSeeker?.userInfo && jobSeeker.userInfo.email) {
+      setEmail(jobSeeker.userInfo.email);
+    }
+  }, [jobSeeker]);
+
+  useEffect(() => {
+    setLanguages(formData.languages);
+  }, [formData.languages]);
 
   const handleSaveClick = () => {
     handleSave({
-      languages: inputValues.languages,
+      languages,
     });
     setIsEditing(false);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValues({
-      ...inputValues,
-      [e.target.name]: e.target.value,
-    });
-  };
-
   const handleLanguageChange = (selectedOptions: any) => {
-    setInputValues({
-      ...inputValues,
-      languages: selectedOptions ? selectedOptions.map((option: any) => option.value) : [],
-    });
+    setLanguages(selectedOptions ? selectedOptions.map((option: any) => option.value) : []);
   };
 
   const languageOptions = ISO6391.getAllNames().map(name => ({
@@ -80,7 +81,7 @@ const AdditionalDetails: React.FC<AdditionalDetailsProps> = ({ formData, setForm
           <MdOutlineMailOutline className="text-signininput4" size={30} />
           <div>
             <h1 className="text-lg text-signininput4">Email</h1>
-            <p className="text-lg text-modaltext">{inputValues.email}</p>
+            <p className="text-lg text-modaltext">{email}</p>
           </div>
         </div>
       </div>
@@ -89,7 +90,7 @@ const AdditionalDetails: React.FC<AdditionalDetailsProps> = ({ formData, setForm
           <TbLanguage className="text-signininput4" size={30} />
           <div>
             <h1 className="text-lg text-signininput4">Languages</h1>
-            <p className="text-lg text-modaltext">{formData.languages.join(', ')}</p>
+            <p className="text-lg text-modaltext">{languages.join(', ')}</p>
           </div>
         </div>
       </div>
@@ -112,8 +113,7 @@ const AdditionalDetails: React.FC<AdditionalDetailsProps> = ({ formData, setForm
                 <Input
                   id="email"
                   name="email"
-                  value={inputValues.email}
-                  onChange={handleChange}
+                  value={email}
                   placeholder="Email"
                   className="w-full mt-2"
                   disabled
@@ -125,7 +125,7 @@ const AdditionalDetails: React.FC<AdditionalDetailsProps> = ({ formData, setForm
                   id="languages"
                   isMulti
                   options={languageOptions}
-                  value={inputValues.languages.map((lang: string) => ({
+                  value={languages.map((lang: string) => ({
                     label: lang,
                     value: lang,
                   }))}

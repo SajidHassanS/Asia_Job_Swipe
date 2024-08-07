@@ -1,4 +1,3 @@
-// PersonalDetails.tsx
 import React, { useState, useEffect } from "react";
 import { FaRegEdit } from "react-icons/fa";
 import {
@@ -24,7 +23,7 @@ interface PersonalDetailsProps {
 const PersonalDetails: React.FC<PersonalDetailsProps> = ({ formData, setFormData, handleSave }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [inputValues, setInputValues] = useState({
-    dateOfBirth: formData.dateOfBirth,
+    dateOfBirth: formData.dateOfBirth ? formData.dateOfBirth.split('T')[0] : '',
     nationality: formData.nationality,
     postalCode: formData.postalCode,
     gender: formData.gender,
@@ -32,7 +31,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({ formData, setFormData
 
   useEffect(() => {
     setInputValues({
-      dateOfBirth: formData.dateOfBirth,
+      dateOfBirth: formData.dateOfBirth ? formData.dateOfBirth.split('T')[0] : '',
       nationality: formData.nationality,
       postalCode: formData.postalCode,
       gender: formData.gender,
@@ -70,19 +69,19 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({ formData, setFormData
         <div className="grid gap-5">
           <div className="flex gap-5">
             <h1 className="text-lg text-signininput4">Date of Birth</h1>
-            <p className="text-lg text-signature">{formData.dateOfBirth}</p>
+            <p className="text-lg text-modaltext">{inputValues.dateOfBirth}</p>
           </div>
           <div className="flex gap-5">
             <h1 className="text-lg text-signininput4">Nationality</h1>
-            <p className="text-lg text-signature">{formData.nationality}</p>
+            <p className="text-lg text-modaltext">{formData.nationality}</p>
           </div>
           <div className="flex gap-5">
             <h1 className="text-lg text-signininput4">Postal Code</h1>
-            <p className="text-lg text-signature">{formData.postalCode}</p>
+            <p className="text-lg text-modaltext">{formData.postalCode}</p>
           </div>
           <div className="flex gap-5">
             <h1 className="text-lg text-signininput4">Gender</h1>
-            <p className="text-lg text-signature">{formData.gender}</p>
+            <p className="text-lg text-modaltext">{formData.gender}</p>
           </div>
         </div>
       </div>
@@ -144,9 +143,9 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({ formData, setFormData
                   className="w-full mt-2 p-2 border border-gray-300 rounded"
                 >
                   <option value="">Select Gender</option>
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                  <option value="Other">Other</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="not-specified">Other</option>
                 </select>
               </div>
             </div>
