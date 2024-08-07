@@ -60,11 +60,10 @@ const Profile = () => {
     profilePicture: '',
     company: '',
     openToOffers: false,
-    // experience: [], // Add this line
-    // education: [], // Add this line
-    // projects: [], // Add this line
-    // resume: '',
-    
+    // experience: [], // Add this line if needed
+    // education: [], // Add this line if needed
+    // projects: [], // Add this line if needed
+    // resume: '', // Add this line if needed
   });
 
   useEffect(() => {
@@ -80,9 +79,9 @@ const Profile = () => {
       const latestExperience = jobSeeker.experience?.reduce((latest, current) => {
         return new Date(latest.to) > new Date(current.to) ? latest : current;
       }, jobSeeker.experience[0]);
-  
-      setFormData({
-        ...formData,
+
+      setFormData((prevData) => ({
+        ...prevData,
         firstName: jobSeeker.firstName || '',
         lastName: jobSeeker.lastName || '',
         gender: jobSeeker.gender || 'notSpecified',
@@ -105,21 +104,31 @@ const Profile = () => {
         // education: jobSeeker.education || [], // Include education
         // projects: jobSeeker.projects || [], // Include projects
         // resume: jobSeeker.resume || '', // Include resume
-      });
+      }));
     }
   }, [jobSeeker]);
-  
 
   const handleSave = (updates: Partial<ProfileFormData>) => {
-    setFormData(prevFormData => ({
-      ...prevFormData,
-      ...updates,
-    }));
+    // Merge updates with the existing formData
+    const updatedData = { ...formData, ...updates };
 
+    // Validate required fields
+    // You can add more validation logic here
+    if (!updatedData.firstName || !updatedData.lastName) {
+      alert("First Name and Last Name are required.");
+      return;
+    }
+
+    // Set the updated formData
+    setFormData(updatedData);
+
+    // Get stored ID and access token
     const storedId = localStorage.getItem('_id');
     const storedAccessToken = localStorage.getItem('accessToken');
+
     if (storedId && storedAccessToken) {
-      dispatch(updateProfile({ id: storedId, updates: { ...formData, ...updates }, token: storedAccessToken }));
+      // Dispatch the updateProfile action with the full data
+      dispatch(updateProfile({ id: storedId, updates: updatedData, token: storedAccessToken }));
     }
   };
 
