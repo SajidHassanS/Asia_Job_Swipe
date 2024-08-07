@@ -65,9 +65,19 @@ const companyEmail = selectedCompany?.userInfo?.email || 'company@company.com';
 
   return (
     <div className="flex items-center gap-2 cursor-pointer">
-      <div>
-        <Image src={companyLogo} alt="avatar" className="rounded-full" width={30} height={30} />
+
+
+<div className="w-10 h-10 relative">
+        <Image
+         src={companyLogo}
+          alt="avatar"
+          className="rounded-full "
+          layout="fill" // This makes the image fill the container
+        />
       </div>
+
+
+      
       <div className="">
        
         <p className="text-sm">{companyName || 'Company Name'}</p>

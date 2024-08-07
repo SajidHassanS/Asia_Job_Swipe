@@ -20,7 +20,7 @@ const Navbar = () => {
       <div className=" flex justify-between items-center gap-4">
         <ThemeBtn />
 
-        <Link href="/messages">
+        <Link href="/dashboard/messages">
           <PiChatCircleText
             className={`${isActive("/messages")} h-[1.4rem] w-[1.4rem]`}
           />

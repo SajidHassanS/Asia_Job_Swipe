@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useState } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../../../store';
@@ -44,13 +43,11 @@ const PostJob: React.FC = () => {
     careerLevel: "",
     jobType: "",
     candidateType: "",
-    workPermitNeeded: false,
+    workPermitNeeded: true,
   });
 
   const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value, type } = e.target;
     if (type === "checkbox") {
@@ -71,20 +68,19 @@ const PostJob: React.FC = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
     field: keyof FormData
   ) => {
-    if (e.target instanceof HTMLSelectElement) {
-      const { selectedOptions } = e.target;
-      const values = Array.from(selectedOptions, option => option.value);
-      setFormData((prevData) => ({
-        ...prevData,
-        [field]: values
-      }));
-    } else if (e.target instanceof HTMLInputElement) {
+    if (e.target instanceof HTMLInputElement) {
       const { value, checked } = e.target;
       setFormData((prevData) => ({
         ...prevData,
         [field]: checked
           ? [...(prevData[field] as string[]), value]
           : (prevData[field] as string[]).filter((item) => item !== value),
+      }));
+    } else if (e.target instanceof HTMLSelectElement) {
+      const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
+      setFormData((prevData) => ({
+        ...prevData,
+        [field]: selectedOptions
       }));
     }
   };

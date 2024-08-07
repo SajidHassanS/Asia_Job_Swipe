@@ -1,6 +1,20 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { fetchSkills, Skill } from "@/store/slices/profileSlices";
+import { RootState, AppDispatch } from "@/store";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { RiArrowDropDownLine, RiCloseLine } from "react-icons/ri";
+import { Country, State, City, ICountry, IState, ICity } from 'country-state-city';
 
 interface FormData {
   jobTitle: string;
@@ -20,17 +34,99 @@ interface FormData {
   workPermitNeeded: boolean;
 }
 
-type FormDataKey = keyof FormData;
-
 interface FormLeftSideProps {
   formData: FormData;
-  handleChange: (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => void;
-  handleMultiSelectChange: (e: React.ChangeEvent<HTMLSelectElement>, field: FormDataKey) => void;
+  handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
+  handleMultiSelectChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>, field: keyof FormData) => void;
 }
 
 const FormLeftSide: React.FC<FormLeftSideProps> = ({ formData, handleChange, handleMultiSelectChange }) => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { skills } = useSelector((state: RootState) => state.profile);
+  const [selectedSkills, setSelectedSkills] = useState<Skill[]>([]);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  // States for country, province (state), and city
+  const [countries] = useState<ICountry[]>(Country.getAllCountries());
+  const [states, setStates] = useState<IState[]>([]);
+  const [cities, setCities] = useState<ICity[]>([]);
+
+  useEffect(() => {
+    dispatch(fetchSkills());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (skills.length > 0) {
+      const initialSelectedSkills = formData.skillsRequired
+        .map((skillName) => skills.find((skill) => skill.name === skillName))
+        .filter((skill): skill is Skill => skill !== undefined);
+      setSelectedSkills(initialSelectedSkills);
+    }
+  }, [skills, formData.skillsRequired]);
+
+  const handleSkillToggle = (skill: Skill) => {
+    const updatedSelectedSkills = selectedSkills.some((s) => s._id === skill._id)
+      ? selectedSkills.filter((s) => s._id !== skill._id)
+      : [...selectedSkills, skill];
+
+    setSelectedSkills(updatedSelectedSkills);
+    handleMultiSelectChange(
+      { 
+        target: { name: 'skillsRequired', value: updatedSelectedSkills.map((s) => s.name) } as unknown as HTMLSelectElement, 
+        currentTarget: {} as HTMLSelectElement 
+      } as React.ChangeEvent<HTMLSelectElement>, 
+      'skillsRequired'
+    );
+  };
+
+  const handleDelete = (skillName: string) => {
+    const updatedSkills = selectedSkills.filter((s) => s.name !== skillName);
+    setSelectedSkills(updatedSkills);
+    handleMultiSelectChange(
+      { 
+        target: { name: 'skillsRequired', value: updatedSkills.map((s) => s.name) } as unknown as HTMLSelectElement, 
+        currentTarget: {} as HTMLSelectElement 
+      } as React.ChangeEvent<HTMLSelectElement>, 
+      'skillsRequired'
+    );
+  };
+
+  const handleCountryChange = (countryCode: string) => {
+    setStates(State.getStatesOfCountry(countryCode));
+    setCities([]);
+    handleChange({
+      target: { name: 'country', value: countryCode } as HTMLSelectElement,
+      currentTarget: {} as HTMLSelectElement,
+    } as React.ChangeEvent<HTMLSelectElement>);
+    handleChange({
+      target: { name: 'province', value: '' } as HTMLSelectElement,
+      currentTarget: {} as HTMLSelectElement,
+    } as React.ChangeEvent<HTMLSelectElement>);
+    handleChange({
+      target: { name: 'city', value: '' } as HTMLSelectElement,
+      currentTarget: {} as HTMLSelectElement,
+    } as React.ChangeEvent<HTMLSelectElement>);
+  };
+
+  const handleStateChange = (stateCode: string) => {
+    setCities(City.getCitiesOfState(formData.country, stateCode));
+    handleChange({
+      target: { name: 'province', value: stateCode } as HTMLSelectElement,
+      currentTarget: {} as HTMLSelectElement,
+    } as React.ChangeEvent<HTMLSelectElement>);
+    handleChange({
+      target: { name: 'city', value: '' } as HTMLSelectElement,
+      currentTarget: {} as HTMLSelectElement,
+    } as React.ChangeEvent<HTMLSelectElement>);
+  };
+
+  const handleCityChange = (cityName: string) => {
+    handleChange({
+      target: { name: 'city', value: cityName } as HTMLSelectElement,
+      currentTarget: {} as HTMLSelectElement,
+    } as React.ChangeEvent<HTMLSelectElement>);
+  };
+
   return (
     <div>
       <div className="mb-8">
@@ -64,25 +160,47 @@ const FormLeftSide: React.FC<FormLeftSideProps> = ({ formData, handleChange, han
 
       <div className="mb-8">
         <Label htmlFor="skillsRequired">Skills Required</Label>
-        <select
-          id="skillsRequired"
-          name="skillsRequired"
-          value={formData.skillsRequired}
-          onChange={(e) => handleMultiSelectChange(e, "skillsRequired")}
-          className="w-full border mb-2 rounded p-2"
-          multiple
-        >
-          <option value="Communication">Communication</option>
-          <option value="Analytics">Analytics</option>
-          <option value="Facebook Ads">Facebook Ads</option>
-        </select>
-        <div className="flex gap-2 flex-wrap">
-          {Array.isArray(formData.skillsRequired) &&
-            formData.skillsRequired.map((skill) => (
-              <div key={skill} className="rounded-lg mt-2 bg-background text-signature p-1">
-                {skill}
-              </div>
-            ))}
+        <div className="relative">
+          <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="w-full justify-between"
+              >
+                Select Skills
+                <RiArrowDropDownLine size={25} className="absolute right-0" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-full max-h-80 overflow-y-auto">
+              <DropdownMenuLabel>Skills</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {skills.map((skill) => (
+                <DropdownMenuCheckboxItem
+                  key={skill._id}
+                  checked={selectedSkills.some((s) => s._id === skill._id)}
+                  onCheckedChange={() => handleSkillToggle(skill)}
+                >
+                  {skill.name}
+                </DropdownMenuCheckboxItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+        <div className="flex gap-2 flex-wrap mt-2">
+          {selectedSkills.map((skill) => (
+            <div
+              key={skill._id}
+              className="flex items-center gap-2 bg-gray-200 rounded p-1"
+            >
+              <span>{skill.name}</span>
+              <RiCloseLine
+                className="text-red-500 cursor-pointer"
+                size={16}
+                onClick={() => handleDelete(skill.name)}
+              />
+            </div>
+          ))}
         </div>
       </div>
 
@@ -92,13 +210,34 @@ const FormLeftSide: React.FC<FormLeftSideProps> = ({ formData, handleChange, han
           id="country"
           name="country"
           value={formData.country}
-          onChange={handleChange}
+          onChange={(e) => handleCountryChange(e.target.value)}
           className="w-full border rounded p-2"
         >
           <option value="">Select</option>
-          <option value="USA">USA</option>
-          <option value="Canada">Canada</option>
-          <option value="UK">UK</option>
+          {countries.map((country) => (
+            <option key={country.isoCode} value={country.isoCode}>
+              {country.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="mb-8">
+        <Label htmlFor="province">State/Province</Label>
+        <select
+          id="province"
+          name="province"
+          value={formData.province}
+          onChange={(e) => handleStateChange(e.target.value)}
+          className="w-full border rounded p-2"
+          disabled={!states.length}
+        >
+          <option value="">Select</option>
+          {states.map((state) => (
+            <option key={state.isoCode} value={state.isoCode}>
+              {state.name}
+            </option>
+          ))}
         </select>
       </div>
 
@@ -108,29 +247,16 @@ const FormLeftSide: React.FC<FormLeftSideProps> = ({ formData, handleChange, han
           id="city"
           name="city"
           value={formData.city}
-          onChange={handleChange}
+          onChange={(e) => handleCityChange(e.target.value)}
           className="w-full border rounded p-2"
+          disabled={!cities.length}
         >
           <option value="">Select</option>
-          <option value="New York">New York</option>
-          <option value="Toronto">Toronto</option>
-          <option value="London">London</option>
-        </select>
-      </div>
-
-      <div className="mb-8">
-        <Label htmlFor="province">Province</Label>
-        <select
-          id="province"
-          name="province"
-          value={formData.province}
-          onChange={handleChange}
-          className="w-full border rounded p-2"
-        >
-          <option value="">Select</option>
-          <option value="California">California</option>
-          <option value="Ontario">Ontario</option>
-          <option value="England">England</option>
+          {cities.map((city) => (
+            <option key={city.name} value={city.name}>
+              {city.name}
+            </option>
+          ))}
         </select>
       </div>
 

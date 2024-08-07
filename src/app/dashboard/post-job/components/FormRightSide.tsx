@@ -1,10 +1,19 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { RiArrowDropDownLine, RiCloseLine } from "react-icons/ri";
 
 interface FormData {
   jobTitle: string;
@@ -41,30 +50,80 @@ const FormRightSide: React.FC<FormRightSideProps> = ({
   handleMultiSelectChange,
   handleSubmit,
 }) => {
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const benefitsOptions = ["Dental", "Car", "Flat", "Overtimepay"];
+  const [selectedBenefits, setSelectedBenefits] = useState<string[]>(formData.benefits);
+
+  const handleBenefitToggle = (benefit: string) => {
+    const updatedBenefits = selectedBenefits.includes(benefit)
+      ? selectedBenefits.filter((b) => b !== benefit)
+      : [...selectedBenefits, benefit];
+
+    setSelectedBenefits(updatedBenefits);
+    handleMultiSelectChange(
+      {
+        target: { name: "benefits", value: updatedBenefits } as unknown as HTMLSelectElement,
+        currentTarget: {} as HTMLSelectElement,
+      } as React.ChangeEvent<HTMLSelectElement>,
+      "benefits"
+    );
+  };
+
+  const handleDeleteBenefit = (benefit: string) => {
+    const updatedBenefits = selectedBenefits.filter((b) => b !== benefit);
+    setSelectedBenefits(updatedBenefits);
+    handleMultiSelectChange(
+      {
+        target: { name: "benefits", value: updatedBenefits } as unknown as HTMLSelectElement,
+        currentTarget: {} as HTMLSelectElement,
+      } as React.ChangeEvent<HTMLSelectElement>,
+      "benefits"
+    );
+  };
+
   return (
     <div>
       <div className="mb-8">
         <Label htmlFor="benefits">Benefits (Optional)</Label>
-        <select
-          id="benefits"
-          name="benefits"
-          value={formData.benefits}
-          onChange={(e) => handleMultiSelectChange(e, "benefits")}
-          className="w-full border rounded p-2"
-          multiple
-        >
-          <option value="Dental">Dental</option>
-          <option value="Car">Car</option>
-          <option value="Flat">Flat</option>
-          <option value="Overtimepay">Overtimepay</option>
-        </select>
-        <div className="flex gap-2 flex-wrap">
-          {formData.benefits.map((benefit) => (
+        <div className="relative">
+          <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="w-full justify-between"
+              >
+                Select Benefits
+                <RiArrowDropDownLine size={25} className="absolute right-0" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-full max-h-80 overflow-y-auto">
+              <DropdownMenuLabel>Benefits</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {benefitsOptions.map((benefit) => (
+                <DropdownMenuCheckboxItem
+                  key={benefit}
+                  checked={selectedBenefits.includes(benefit)}
+                  onCheckedChange={() => handleBenefitToggle(benefit)}
+                >
+                  {benefit}
+                </DropdownMenuCheckboxItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+        <div className="flex gap-2 flex-wrap mt-2">
+          {selectedBenefits.map((benefit) => (
             <div
               key={benefit}
-              className="rounded-lg mt-2 bg-background text-signature p-1"
+              className="flex items-center gap-2 bg-gray-200 rounded p-1"
             >
-              {benefit}
+              <span>{benefit}</span>
+              <RiCloseLine
+                className="text-red-500 cursor-pointer"
+                size={16}
+                onClick={() => handleDeleteBenefit(benefit)}
+              />
             </div>
           ))}
         </div>
