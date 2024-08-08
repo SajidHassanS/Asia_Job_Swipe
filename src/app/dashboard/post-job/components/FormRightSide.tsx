@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -23,7 +23,7 @@ interface FormData {
   city: string;
   province: string;
   description: string;
-  benefits: string[];
+  benefits: string[]; // Changed to array
   salaryFrom: string;
   salaryTo: string;
   urgency: string;
@@ -42,6 +42,7 @@ interface FormRightSideProps {
   ) => void;
   handleMultiSelectChange: (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>, field: FormDataKey) => void;
   handleSubmit: (e: React.FormEvent) => void;
+  setFormData: React.Dispatch<React.SetStateAction<FormData>>;
 }
 
 const FormRightSide: React.FC<FormRightSideProps> = ({
@@ -49,10 +50,19 @@ const FormRightSide: React.FC<FormRightSideProps> = ({
   handleChange,
   handleMultiSelectChange,
   handleSubmit,
+  setFormData
 }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const benefitsOptions = ["Dental", "Car", "Flat", "Overtimepay"];
   const [selectedBenefits, setSelectedBenefits] = useState<string[]>(formData.benefits);
+
+  useEffect(() => {
+    // Update the formData.benefits string whenever selectedBenefits changes
+    setFormData((prevData) => ({
+      ...prevData,
+      benefits: selectedBenefits,
+    }));
+  }, [selectedBenefits, setFormData]);
 
   const handleBenefitToggle = (benefit: string) => {
     const updatedBenefits = selectedBenefits.includes(benefit)
@@ -60,25 +70,11 @@ const FormRightSide: React.FC<FormRightSideProps> = ({
       : [...selectedBenefits, benefit];
 
     setSelectedBenefits(updatedBenefits);
-    handleMultiSelectChange(
-      {
-        target: { name: "benefits", value: updatedBenefits } as unknown as HTMLSelectElement,
-        currentTarget: {} as HTMLSelectElement,
-      } as React.ChangeEvent<HTMLSelectElement>,
-      "benefits"
-    );
   };
 
   const handleDeleteBenefit = (benefit: string) => {
     const updatedBenefits = selectedBenefits.filter((b) => b !== benefit);
     setSelectedBenefits(updatedBenefits);
-    handleMultiSelectChange(
-      {
-        target: { name: "benefits", value: updatedBenefits } as unknown as HTMLSelectElement,
-        currentTarget: {} as HTMLSelectElement,
-      } as React.ChangeEvent<HTMLSelectElement>,
-      "benefits"
-    );
   };
 
   return (

@@ -5,8 +5,10 @@ import { RootState, AppDispatch } from '../../../store';
 import { postJob } from '../../../store/slices/postJobSlice';
 import FormLeftSide from "./components/FormLeftSide";
 import FormRightSide from "./components/FormRightSide";
+import { useToast } from "@/components/ui/use-toast";
 
-interface FormData {
+// Define the type for form state and API payload
+interface FormStateData {
   jobTitle: string;
   sector: string;
   skillsRequired: string[];
@@ -24,11 +26,31 @@ interface FormData {
   workPermitNeeded: boolean;
 }
 
+interface ApiFormData {
+  title: string;
+  sector: string;
+  skills: string[];
+  benefits: string[];
+  salary: {
+    from: number;
+    to: number;
+  };
+  availability: string;
+  careerLevel: string;
+  jobType: string;
+  candidateType: string;
+  city: string;
+  province: string;
+  country: string;
+  description: string;
+}
+
 const PostJob: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { status, error } = useSelector((state: RootState) => state.postJob);
+  const { toast } = useToast();
 
-  const [formData, setFormData] = useState<FormData>({
+  const [formData, setFormData] = useState<FormStateData>({
     jobTitle: "",
     sector: "",
     skillsRequired: [],
@@ -66,15 +88,16 @@ const PostJob: React.FC = () => {
 
   const handleMultiSelectChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-    field: keyof FormData
+    field: keyof FormStateData
   ) => {
     if (e.target instanceof HTMLInputElement) {
       const { value, checked } = e.target;
+      const updatedValues = checked
+        ? [...(formData[field] as string[]), value]
+        : (formData[field] as string[]).filter((item) => item !== value);
       setFormData((prevData) => ({
         ...prevData,
-        [field]: checked
-          ? [...(prevData[field] as string[]), value]
-          : (prevData[field] as string[]).filter((item) => item !== value),
+        [field]: updatedValues,
       }));
     } else if (e.target instanceof HTMLSelectElement) {
       const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
@@ -87,7 +110,8 @@ const PostJob: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const jobData = {
+
+    const jobData: ApiFormData = {
       title: formData.jobTitle,
       sector: formData.sector,
       skills: formData.skillsRequired,
@@ -105,14 +129,40 @@ const PostJob: React.FC = () => {
       country: formData.country,
       description: formData.description,
     };
+
     console.log("Submitting job data:", jobData); // Debug logging
+
     dispatch(postJob(jobData))
       .unwrap()
       .then((response) => {
         console.log("Dispatch response:", response); // Debug logging
+        toast({
+          description: "Job posted successfully.",
+        });
+        // Reset form data
+        setFormData({
+          jobTitle: "",
+          sector: "",
+          skillsRequired: [],
+          country: "",
+          city: "",
+          province: "",
+          description: "",
+          benefits: [],
+          salaryFrom: "",
+          salaryTo: "",
+          urgency: "",
+          careerLevel: "",
+          jobType: "",
+          candidateType: "",
+          workPermitNeeded: true,
+        });
       })
       .catch((error) => {
         console.error("Dispatch error:", error);
+        toast({
+          description: "An error occurred while posting the job.",
+        });
       });
   };
 
@@ -120,7 +170,7 @@ const PostJob: React.FC = () => {
     <div className="w-full max-w-7xl mx-auto p-8 rounded-lg">
       <h2 className="text-3xl font-bold text-center mb-10">Post a New Job</h2>
       {status === 'loading' && <p>Loading...</p>}
-      {status === 'failed' && <p className="text-red-500">{error}</p>}
+      {status === 'failed' && <p className="text-red-500">An error occurred while posting the job: {error}</p>}
       {status === 'succeeded' && <p className="text-green-500">Job posted successfully!</p>}
       <form onSubmit={handleSubmit} className="flex flex-wrap -mx-4">
         <div className="w-full md:w-1/2 px-4 mb-4">
@@ -128,6 +178,7 @@ const PostJob: React.FC = () => {
             formData={formData}
             handleChange={handleChange}
             handleMultiSelectChange={handleMultiSelectChange}
+            setFormData={setFormData}
           />
         </div>
         <div className="w-full md:w-1/2 px-4 mb-4">
@@ -136,6 +187,7 @@ const PostJob: React.FC = () => {
             handleChange={handleChange}
             handleMultiSelectChange={handleMultiSelectChange}
             handleSubmit={handleSubmit}
+            setFormData={setFormData}
           />
         </div>
       </form>

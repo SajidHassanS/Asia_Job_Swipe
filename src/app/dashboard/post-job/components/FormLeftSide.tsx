@@ -1,3 +1,4 @@
+"use client";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Input } from "@/components/ui/input";
@@ -16,7 +17,7 @@ import {
 import { RiArrowDropDownLine, RiCloseLine } from "react-icons/ri";
 import { Country, State, City, ICountry, IState, ICity } from 'country-state-city';
 
-interface FormData {
+interface FormStateData {
   jobTitle: string;
   sector: string;
   skillsRequired: string[];
@@ -35,12 +36,13 @@ interface FormData {
 }
 
 interface FormLeftSideProps {
-  formData: FormData;
+  formData: FormStateData;
   handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
-  handleMultiSelectChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>, field: keyof FormData) => void;
+  handleMultiSelectChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>, field: keyof FormStateData) => void;
+  setFormData: React.Dispatch<React.SetStateAction<FormStateData>>;
 }
 
-const FormLeftSide: React.FC<FormLeftSideProps> = ({ formData, handleChange, handleMultiSelectChange }) => {
+const FormLeftSide: React.FC<FormLeftSideProps> = ({ formData, handleChange, handleMultiSelectChange, setFormData }) => {
   const dispatch = useDispatch<AppDispatch>();
   const { skills } = useSelector((state: RootState) => state.profile);
   const [selectedSkills, setSelectedSkills] = useState<Skill[]>([]);
@@ -70,25 +72,19 @@ const FormLeftSide: React.FC<FormLeftSideProps> = ({ formData, handleChange, han
       : [...selectedSkills, skill];
 
     setSelectedSkills(updatedSelectedSkills);
-    handleMultiSelectChange(
-      { 
-        target: { name: 'skillsRequired', value: updatedSelectedSkills.map((s) => s.name) } as unknown as HTMLSelectElement, 
-        currentTarget: {} as HTMLSelectElement 
-      } as React.ChangeEvent<HTMLSelectElement>, 
-      'skillsRequired'
-    );
+    setFormData((prevData) => ({
+      ...prevData,
+      skillsRequired: updatedSelectedSkills.map((s) => s.name),
+    }));
   };
 
   const handleDelete = (skillName: string) => {
     const updatedSkills = selectedSkills.filter((s) => s.name !== skillName);
     setSelectedSkills(updatedSkills);
-    handleMultiSelectChange(
-      { 
-        target: { name: 'skillsRequired', value: updatedSkills.map((s) => s.name) } as unknown as HTMLSelectElement, 
-        currentTarget: {} as HTMLSelectElement 
-      } as React.ChangeEvent<HTMLSelectElement>, 
-      'skillsRequired'
-    );
+    setFormData((prevData) => ({
+      ...prevData,
+      skillsRequired: updatedSkills.map((s) => s.name),
+    }));
   };
 
   const handleCountryChange = (countryCode: string) => {
