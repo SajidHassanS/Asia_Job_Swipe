@@ -162,7 +162,7 @@ const JobListings: React.FC<JobListingsProps> = ({ jobs, totalJobs, origin }) =>
                       <Image
                         width={61}
                         height={61}
-                        src={job.company.companyLogo}
+                        src={job.company.companyLogo || '/images/default-company-logo.png'} // Fallback logo
                         alt={job.company.companyName}
                         className="rounded-full mr-4"
                       />

@@ -56,6 +56,8 @@ const JobDescription = () => {
     }
   };
 
+  const companyLogo = job?.company?.companyLogo || '/images/default-company-logo.png'; // Fallback logo
+
   return (
     <>
       {job && (
@@ -70,7 +72,7 @@ const JobDescription = () => {
                       <Image
                         width={61}
                         height={61}
-                        src={job.company.companyLogo}
+                        src={companyLogo}
                         alt={job.company.companyName}
                         className="rounded-full mr-4"
                       />
@@ -186,10 +188,6 @@ const JobDescription = () => {
               <div className="bg-muted flex flex-col gap-4 items-center justify-between rounded-xl md:px-16 px-6 py-3 md:py-8">
                 <Image src="/images/benefits/development.png" alt="statoscope" width={50} height={50} />
                 <h1 className="text-modaltext">Skill Development</h1>
-              </div>
-              <div className="bg-muted flex flex-col gap-4 items-center justify-between rounded-xl md:px-16 px-6 py-3 md:py-8">
-                <Image src="/images/benefits/summits.png" alt="statoscope" width={50} height={50} />
-                <h1 className="text-modaltext">Team Summits</h1>
               </div>
               <div className="bg-muted flex flex-col gap-4 items-center justify-between rounded-xl md:px-16 px-6 py-3 md:py-8">
                 <Image src="/images/benefits/summits.png" alt="statoscope" width={50} height={50} />

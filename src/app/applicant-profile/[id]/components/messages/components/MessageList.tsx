@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState, useRef } from "react";
 import { useParams } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
@@ -7,8 +9,8 @@ import { GrAttachment } from "react-icons/gr";
 import { FaSmile } from "react-icons/fa";
 import { BiSolidRightArrow } from "react-icons/bi";
 import Image from "next/image";
-import axios from 'axios';
 import MessageListener from "@/services/MessageListener";
+import axios from "axios";
 
 interface Message {
   _id: string;
@@ -21,9 +23,10 @@ interface Message {
 const MessageList = () => {
   const dispatch = useDispatch();
   const params = useParams();
-  const { messages = [], jobApplication } = useSelector((state: RootState) => state.messageSlice);
+  const { messages = [], jobApplication, status } = useSelector((state: RootState) => state.messageSlice);
   const [newMessage, setNewMessage] = useState("");
   const [companyDetails, setCompanyDetails] = useState<any>(null);
+  const [userInfo, setUserInfo] = useState<any>(null);
   const token = typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
   const companyId = typeof window !== "undefined" ? localStorage.getItem("_id") : null;
   const inputRef = useRef<HTMLInputElement>(null);
@@ -31,12 +34,17 @@ const MessageList = () => {
 
   useEffect(() => {
     if (companyId) {
-      axios.get(`https://ajs-server.hostdonor.com/api/v1/company/${companyId}`)
-        .then(response => {
-          setCompanyDetails(response.data.company);
-          console.log("Company Details:", response.data.company);
+      axios
+        .get(`https://ajs-server.hostdonor.com/api/v1/company/${companyId}`)
+        .then((response) => {
+          const companyData = response.data.company;
+          setCompanyDetails(companyData);
+
+          if (companyData.userInfo) {
+            setUserInfo(companyData.userInfo);
+          }
         })
-        .catch(error => {
+        .catch((error) => {
           console.error("Error fetching company details:", error);
         });
     }
@@ -45,15 +53,16 @@ const MessageList = () => {
   useEffect(() => {
     if (companyId && token) {
       const applicationId = Array.isArray(params.id) ? params.id[0] : params.id;
+
       dispatch(fetchJobApplicationDetail({ applicationId, token }) as any)
         .unwrap()
         .then((response: any) => {
           const jobSeeker = response.jobApplication?.jobSeeker;
+
           if (jobSeeker) {
-            dispatch(fetchMessages({ receiverId: jobSeeker._id, token }) as any) // Corrected to use _id directly
+            dispatch(fetchMessages({ receiverId: jobSeeker.userInfo, token }) as any)
               .unwrap()
               .then((fetchedMessages: Message[]) => {
-                console.log('Fetched messages:', fetchedMessages);
                 scrollToBottom();
               })
               .catch((err: unknown) => {
@@ -67,21 +76,22 @@ const MessageList = () => {
           console.error("Error fetching job application details:", err);
         });
     }
-  }, [dispatch, params.id, token, companyDetails]);
+  }, [dispatch, params.id, token, companyId]);
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    if (status === 'succeeded') {
+      scrollToBottom();
+    }
+  }, [messages, status]);
 
   const handleSendMessage = () => {
-    if (jobApplication && jobApplication.jobSeeker._id && newMessage.trim() && token) {
+    if (jobApplication && jobApplication.jobSeeker.userInfo && newMessage.trim() && token) {
       const messageToSend = {
-        receiverId: jobApplication.jobSeeker._id, // Use string ID
+        receiverId: jobApplication.jobSeeker.userInfo,
         message: newMessage,
         token,
       };
 
-      console.log("Sending message to:", messageToSend.receiverId);
       dispatch(sendMessage(messageToSend) as any)
         .unwrap()
         .then(() => {
@@ -89,11 +99,21 @@ const MessageList = () => {
           if (inputRef.current) {
             inputRef.current.focus();
           }
-          scrollToBottom();
+          dispatch(fetchMessages({ receiverId: messageToSend.receiverId, token }) as any)
+            .then((fetchedMessages: Message[]) => {
+              scrollToBottom();
+            });
         })
         .catch((err: unknown) => {
           console.error("Error sending message:", err);
         });
+    } else {
+      console.log("Message not sent due to missing data:", {
+        jobApplication,
+        jobSeekerId: jobApplication?.jobSeeker?.userInfo,
+        newMessage,
+        token,
+      });
     }
   };
 
@@ -103,16 +123,9 @@ const MessageList = () => {
     }
   };
 
-  const isMessageForCurrentChat = (message: Message) => {
-    if (!jobApplication || !companyDetails) return false;
-    const jobSeekerId = jobApplication.jobSeeker._id; // Ensure using correct ID type
-    return (
-      (message.sender === jobSeekerId && message.receiver === companyDetails?._id) ||
-      (message.sender === companyDetails?._id && message.receiver === jobSeekerId)
-    );
+  const isSentByLocalUser = (message: Message) => {
+    return message.sender === userInfo?._id;
   };
-
-  const filteredMessages = messages.filter(isMessageForCurrentChat);
 
   return (
     <div className="h-screen flex flex-col">
@@ -126,7 +139,7 @@ const MessageList = () => {
               width={40}
               height={40}
               className="h-10 w-10 rounded-full mr-4"
-              onError={(e) => e.currentTarget.src = '/images/fallback.png'}
+              onError={(e) => (e.currentTarget.src = '/images/fallback.png')}
             />
             <div>
               <p className="font-semibold text-lg">{jobApplication.jobSeeker.firstName} {jobApplication.jobSeeker.lastName}</p>
@@ -145,25 +158,31 @@ const MessageList = () => {
       </div>
 
       <div className="flex-1 p-4 overflow-y-auto">
-        <ul>
-          {companyDetails && filteredMessages.map((message) => (
-            <li key={message._id} className={`mb-4 flex ${message.sender === companyDetails._id ? 'justify-end' : 'justify-start'}`}>
-              <div className={`flex items-center ${message.sender === companyDetails._id ? 'flex-row-reverse' : ''}`}>
-                <Image
-                  src={message.sender === companyDetails._id ? companyDetails.companyLogo : jobApplication?.jobSeeker.profilePicture || '/images/profilepics.png'}
-                  alt="avatar"
-                  width={40}
-                  height={40}
-                  className={`h-10 w-10 rounded-full ${message.sender === companyDetails._id ? 'ml-2' : 'mr-2'}`}
-                  onError={(e) => e.currentTarget.src = '/images/fallback.png'}
-                />
-                <div className={`p-2 rounded-lg ${message.sender === companyDetails._id ? 'bg-signature text-background' : 'bg-gray-200 text-black'}`}>
-                  <p>{message.message}</p>
+        {status === 'loading' ? (
+          <p>Loading messages...</p>
+        ) : messages.length === 0 ? (
+          <p>No messages to display.</p>
+        ) : (
+          <ul>
+            {messages.map((message) => (
+              <li key={message._id} className={`mb-4 flex ${isSentByLocalUser(message) ? 'justify-end' : 'justify-start'}`}>
+                <div className={`flex items-center ${isSentByLocalUser(message) ? 'flex-row-reverse' : ''}`}>
+                  <Image
+                    src={isSentByLocalUser(message) ? (companyDetails?.companyLogo || '/images/fallback.png') : (jobApplication?.jobSeeker.profilePicture || '/images/profilepics.png')}
+                    alt="avatar"
+                    width={40}
+                    height={40}
+                    className={`h-10 w-10 rounded-full ${isSentByLocalUser(message) ? 'ml-2' : 'mr-2'}`}
+                    onError={(e) => (e.currentTarget.src = '/images/fallback.png')}
+                  />
+                  <div className={`p-2 rounded-lg ${isSentByLocalUser(message) ? 'bg-signature text-background' : 'bg-gray-200 text-black'}`}>
+                    <p>{message.message}</p>
+                  </div>
                 </div>
-              </div>
-            </li>
-          ))}
-        </ul>
+              </li>
+            ))}
+          </ul>
+        )}
         <div ref={bottomRef} />
       </div>
 
@@ -189,4 +208,3 @@ const MessageList = () => {
 };
 
 export default MessageList;
- 

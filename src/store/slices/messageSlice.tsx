@@ -20,7 +20,9 @@ interface JobSeeker {
   firstName: string;
   lastName: string;
   profilePicture: string;
+  userInfo: string;   
 }
+
 
 interface JobApplication {
   _id: string;

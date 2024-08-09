@@ -1,4 +1,3 @@
-"use client";
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../../store";
@@ -191,15 +190,15 @@ const JobListings: React.FC<JobListingsProps> = ({ jobs, totalJobs, origin }) =>
                       <Image
                         width={61}
                         height={61}
-                        src={job.company.companyLogo}
-                        alt={job.company.companyName}
+                        src={job.company?.companyLogo || '/images/default-company-logo.png'} // Fallback logo
+                        alt={job.company?.companyName || 'Default Company'}
                         className="rounded-full mr-4"
                       />
                       <div>
                         <h3 className="md:text-xl text-lg font-bold">{job.title}</h3>
                         <div className="flex md:gap-3 items-center">
                           <p className="text-sm text-gray-600">
-                            {job.company.companyName} • {job.city}, {job.province}, {job.country}
+                            {job.company?.companyName} • {job.city}, {job.province}, {job.country}
                           </p>
                           <div className="md:block hidden">
                             <IoCheckmarkDoneSharp className="text-signature" />
